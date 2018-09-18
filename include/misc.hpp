@@ -1,6 +1,10 @@
 #pragma once
-//#include <direct.h>//windows
-#include <unistd.h>//mac/linux
+
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 #include <string>
 #include <fstream>

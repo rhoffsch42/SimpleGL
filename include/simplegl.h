@@ -1,33 +1,40 @@
 //  > output.txt 2>&1
 #pragma once
 
+
+#ifdef _WIN32 //ignore unused variables
+//windoes equivalent
+#else
 #pragma clang diagnostic push	//clang++
 #pragma clang diagnostic ignored "-Wunused-variable"
+#endif //ignore unused variables
 
-//#pragma warning(push, 0)		//visual studio
-//#pragma clang diagnostic push	//clang++
-//#pragma clang diagnostic ignored "-Wall"
+#ifdef _WIN32 //external libraries
+#pragma warning(push, 0)		//visual studio
+#else
+#pragma clang diagnostic push	//clang++
+#pragma clang diagnostic ignored "-Wall"
+#endif
 
-#include <stdio.h>
-//#include <tchar.h> //libpng, widows ?
-//#include <Windows.h>
-#include <stdio.h>
-#include <iostream>
-#include <sstream>
-
-using namespace std;
-
-// # include "humangl_opengl.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-//#pragma clang diagnostic pop	//clang++
-//#pragma warning(pop)			//visual studio
+#ifdef _WIN32
+#pragma warning(pop)			//visual studio
+#else
+#pragma clang diagnostic pop	//clang++
+#endif //external libraries
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+#include <stdio.h>
+#include <iostream>
+#include <sstream>
+using namespace std;
 #include "misc.hpp"
 
 #define LOGFILES	true
-//#define MATRIX_OPTI
 
 #define OBJ3D_VS_FILE			"shaders/obj3d.vs.glsl"
 #define OBJ3D_FS_FILE			"shaders/obj3d.fs.glsl"
@@ -48,21 +55,8 @@ using namespace std;
 #define MOUSE_SENSIBILITY	2000.0f
 #define ROT_X				1
 
-typedef struct		s_glfw {
-	int			size[2];
-	std::string	title;
-	GLFWwindow	*win;
-	double		mouseX;
-	double		mouseY;
-	double		mouseOriginX;
-	double		mouseOriginY;
-	double		mouseWall;
-}					t_glfw;
-
-#ifdef __linux__ 
-#define fopen		std::fopen
-#define change_cwd	chdir
-#elif __APPLE__
+//functions overwrite
+#if defined(__APPLE__) || defined(__linux__) 
 #define fopen		std::fopen
 #define change_cwd	chdir
 #elif _WIN32

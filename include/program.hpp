@@ -1,7 +1,8 @@
 #pragma once
 
 #include "simplegl.h"
-//#include <gl.h>
+//should include GL headers, no?
+
 #include <iostream>
 #include <cstdio>
 using namespace std;

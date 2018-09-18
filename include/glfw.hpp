@@ -1,23 +1,28 @@
 #pragma once
 
-//#pragma warning(push, 0)		//visul studio
+#ifdef _WIN32 //external libraries
+#pragma warning(push, 0)		//visual studio
+#else
 #pragma clang diagnostic push	//clang++
 #pragma clang diagnostic ignored "-Wall"
+#endif
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#ifdef _WIN32
+#pragma warning(pop)			//visual studio
+#else
 #pragma clang diagnostic pop	//clang++
-//#pragma warning(pop)			//visul studio
+#endif //external libraries
 
 #include "simplegl.h"
 #include "cam.hpp"
-/*
-visual studio:
-#undef min ? 
-#undef max ?
-before including <algorithm>
-*/
+
+#ifdef _WIN32
+#undef min
+#undef max
+#endif
 #include <algorithm>
 
 #define DEFAULT_WIDTH	800

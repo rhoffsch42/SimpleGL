@@ -7,7 +7,7 @@
 class Obj3dBP : public Blueprint
 {
 public:
-	Obj3dBP(string filename);//temporary, still ?
+	Obj3dBP(string filename);
 	Obj3dBP(Obj3dBP const & src);
 	~Obj3dBP();
 	Obj3dBP&	operator=(const Obj3dBP& obj3dbp);

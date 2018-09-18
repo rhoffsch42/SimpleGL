@@ -14,9 +14,11 @@
 #include <string>
 #include <cstdio>
 #include <vector>
-
-//#include <direct.h>//windows
-#include <unistd.h>//mac/linux
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 class Fps
 {
@@ -189,8 +191,8 @@ int		main(void) {
 	lambo1.setTexture(texture7);
 	lambo1._displayTexture = true;
 	lambo1._centered = true;
-	//	lambo1.setPolygonMode(GL_LINE);
-	s = 0.05f;
+	lambo1.setPolygonMode(GL_LINE);
+	s = 0.025f;
 	lambo1.setScale(s, s, s);
 
 	cout << "Obj3d # : " << Obj3d::instanceAmount << endl;
@@ -236,17 +238,18 @@ int		main(void) {
 			rot.x += v1 * (float)fps144.tick;
 			rot.y += v2 * (float)fps144.tick;
 			the42_1.setRot(rot);
+			helmet1.setRot(rot);
 
-			/*
 			if (fps60.wait_for_next_frame()) {
 				Obj3d*	ptr = &lambo1;
 				rot = ptr->getRot();
 				rot.setAsDegree();
 			//	rot.x += v1 * (float)fps60.tick;
-				rot.y += v2/10 * (float)fps60.tick;
+				rot.y += v2/5 * (float)fps60.tick;
 				ptr->setRot(rot);
 
 			}
+			/*
 			*/
 		}
 	}
