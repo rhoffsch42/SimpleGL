@@ -5,8 +5,8 @@
 #pragma clang diagnostic ignored "-Wunused-variable"
 
 //#pragma warning(push, 0)		//visual studio
-#pragma clang diagnostic push	//clang++
-#pragma clang diagnostic ignored "-Wall"
+//#pragma clang diagnostic push	//clang++
+//#pragma clang diagnostic ignored "-Wall"
 
 #include <stdio.h>
 //#include <tchar.h> //libpng, widows ?
@@ -21,7 +21,7 @@ using namespace std;
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#pragma clang diagnostic pop	//clang++
+//#pragma clang diagnostic pop	//clang++
 //#pragma warning(pop)			//visual studio
 
 #include "misc.hpp"
@@ -38,6 +38,7 @@ using namespace std;
 #define OK				0
 #define UNKNOW_ERROR	1
 #define GL_ERROR		101
+#define ERROR_PADDING	102
 
 #define RAD_DELTA		1.0f
 #define POS_DELTA		2.5f

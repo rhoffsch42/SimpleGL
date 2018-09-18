@@ -46,7 +46,7 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	int row_size_full = row_size_used + padding;
 
 	int j = 0;
-	for (size_t i = 0; i < bmpInfo->biSizeImage; i++) {
+	for (int i = 0; i < bmpInfo->biSizeImage; i++) {
 		this->_data[j] = pixels[i];
 		j++;
 		if ((i % row_size_full) == (row_size_used - 1))
@@ -99,7 +99,9 @@ void	Texture::printData() const {
 }
 
 void			Texture::genTexture() {
+	cout << this->_id;
 	glGenTextures(1, &this->_id);
+	cout << this->_id;
 	glBindTexture(GL_TEXTURE_2D, this->_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->_width, this->_height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->_data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

@@ -72,37 +72,57 @@ void	renderSkybox(Skybox& skybox, Cam& cam) {
 	skybox.render(proMatrix);
 }
 
-#ifdef _WIN32
-void	tmp() {
+void	check_paddings() {
 //	cout << sizeof(BITMAPINFOHEADER) << " = " << sizeof(BMPINFOHEADER) << endl;
+#ifdef _WIN32
 	cout << sizeof(BITMAPFILEHEADER) << " = " << sizeof(BMPFILEHEADER) << endl;
-	cout << "bfType\t" << offsetof(BITMAPFILEHEADER, bfType) << endl;
+	cout << "bfType\t" << offsetof(BMPINFOHEADERBITMAPFILEHEADER, bfType) << endl;
 	cout << "bfSize\t" << offsetof(BITMAPFILEHEADER, bfSize) << endl;
 	cout << "bfReserved1\t" << offsetof(BITMAPFILEHEADER, bfReserved1) << endl;
 	cout << "bfReserved2\t" << offsetof(BITMAPFILEHEADER, bfReserved2) << endl;
 	cout << "bfOffBits\t" << offsetof(BITMAPFILEHEADER, bfOffBits) << endl;
-	cout << "-----" << endl;
-	cout << "bfType\t" << offsetof(BMPFILEHEADER, bfType) << endl;
-	cout << "bfSize\t" << offsetof(BMPFILEHEADER, bfSize) << endl;
-	cout << "bfReserved1\t" << offsetof(BMPFILEHEADER, bfReserved1) << endl;
-	cout << "bfReserved2\t" << offsetof(BMPFILEHEADER, bfReserved2) << endl;
-	cout << "bfOffBits\t" << offsetof(BMPFILEHEADER, bfOffBits) << endl;
-
-	exit(0);
-}
 #endif//_WIN32
+	cout << "unsigned short\t" << sizeof(unsigned short) << endl;
+	cout << "unsigned long \t" << sizeof(unsigned long) << endl;
+	cout << "long          \t" << sizeof(long) << endl;
+	cout << "long long     \t" << sizeof(long long) << endl;
+	cout << "int           \t" << sizeof(int) << endl;
+	if (sizeof(BMPFILEHEADER) != 14 || sizeof(BMPINFOHEADER) != 40) {
+		cerr << "Padding in structure, exiting..." << endl << endl;
+		cout << "BMPFILEHEADER\t" << sizeof(BMPFILEHEADER) << endl;
+		cout << "bfType     \t" << offsetof(BMPFILEHEADER, bfType) << endl;
+		cout << "bfSize     \t" << offsetof(BMPFILEHEADER, bfSize) << endl;
+		cout << "bfReserved1\t" << offsetof(BMPFILEHEADER, bfReserved1) << endl;
+		cout << "bfReserved2\t" << offsetof(BMPFILEHEADER, bfReserved2) << endl;
+		cout << "bfOffBits\t" << offsetof(BMPFILEHEADER, bfOffBits) << endl;
+		cout << "-----" << endl;
+		cout << "BMPINFOHEADER\t" << sizeof(BMPINFOHEADER) << endl;
+		cout << "biSize     \t" << offsetof(BMPINFOHEADER, biSize) << endl;
+		cout << "biWidth    \t" << offsetof(BMPINFOHEADER, biWidth) << endl;
+		cout << "biHeight\t" << offsetof(BMPINFOHEADER, biHeight) << endl;
+		cout << "biPlanes\t" << offsetof(BMPINFOHEADER, biPlanes) << endl;
+		cout << "biBitCount\t" << offsetof(BMPINFOHEADER, biBitCount) << endl;
+		cout << "biCompression\t" << offsetof(BMPINFOHEADER, biCompression) << endl;
+		cout << "biSizeImage\t" << offsetof(BMPINFOHEADER, biSizeImage) << endl;
+		cout << "biXPelsPerMeter\t" << offsetof(BMPINFOHEADER, biXPelsPerMeter) << endl;
+		cout << "biYPelsPerMeter\t" << offsetof(BMPINFOHEADER, biYPelsPerMeter) << endl;
+		cout << "biClrUsed\t" << offsetof(BMPINFOHEADER, biClrUsed) << endl;
+		cout << "biClrImportant\t" << offsetof(BMPINFOHEADER, biClrImportant) << endl;
+		exit(ERROR_PADDING);
+	}
+}
 
 #include <iostream>
 #include <random>
 #include <ctime>
 
 int		main(void) {
-//	tmp();
+	check_paddings();
 //	test_mult_mat4(); exit(0);
 	cout << "____START____" << endl;
 //	test_obj_loader();
 	Glfw	glfw(1600, 900);
-	glfw.setTitle("This title is long, long enough to test how glfw manage oversized titles. At this point I dont really know what to write, so let's just bullshiting it ....................................................... is that enough? Well, it depends of the size of the current window. I dont really know how much character i have to write for a width of 1920. Is it possible to higher the police ? It could save some characters. Ok, im bored, lets check if this title is long enough!");
+	glfw.setTitle("This title is long, long enough to test how glfw manages oversized titles. At this point I dont really know what to write, so let's just bullshiting it ....................................................... is that enough? Well, it depends of the size of the current window. I dont really know how many characters i have to write for a width of 1920. Is it possible to higher the police ? It could save some characters. Ok, im bored, lets check if this title is long enough!");
 
 	//Program for Obj3d (can render Obj3d) with vertex & fragmetns shaders
 	Obj3dPG			obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);

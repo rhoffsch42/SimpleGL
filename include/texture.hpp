@@ -14,21 +14,22 @@
 	https://msdn.microsoft.com/en-us/library/windows/desktop/dd183376(v=vs.85).aspx
 */
 
-#ifdef __APPLE__
-#define WORD	unsigned short
-#define DWORD	unsigned long
-#define LONG	long
+#if defined(__APPLE__) || defined(__linux__) 
+#define WORD	unsigned short	//2
+#define DWORD	int				//4
+#define LONG	int				//4
 #endif
 
-#pragma pack(push, 2)//avoid padding after bfType
-typedef struct tagBMPFILEHEADER {
+//avoid padding after bfType
+#pragma pack(push, 2)
+typedef struct tagBMPFILEHEADER {//size = 14
 	WORD  bfType;
 	DWORD bfSize;
 	WORD  bfReserved1;
 	WORD  bfReserved2;
 	DWORD bfOffBits;
-} BMPFILEHEADER;
-typedef struct tagBMPINFOHEADER {
+}  BMPFILEHEADER;
+typedef struct tagBMPINFOHEADER {//size = 40
 	DWORD biSize;
 	LONG  biWidth;
 	LONG  biHeight;
