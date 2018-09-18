@@ -14,7 +14,19 @@ public:
 //	static bool	defaultRotate; //todo
 //	static bool	defaultDisplayTexture; //todo
 
-//	Obj3d(); obj vide ?
+//	Obj3d(); obj vide ? oui mais plutot Obj avec seulement une modelmatrix, donc une autre classe ?
+/*	-> faire heriter Obj3d : Obj ?
+		class Obj {
+			[...]
+			rotate
+			id
+			modelmatrix
+			matrixUpdated
+			pos
+			rot
+			scale
+		}
+*/	
 	Obj3d(Obj3dBP& bp, Obj3dPG& pg);
 	Obj3d(const Obj3d& obj3d);
 	~Obj3d();

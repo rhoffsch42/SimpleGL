@@ -94,6 +94,9 @@ Skybox::Skybox(Texture& texture, SkyboxPG& pg) : _program(pg), _baseTexture(text
 
 Skybox::~Skybox() {
 	cout << "_ Skybox des" << endl;
+	/*
+		detruire les vbo/vao/etc d'openGL
+	*/
 }
 
 void			Skybox::render(Math::Matrix4& VPmatrix) const {

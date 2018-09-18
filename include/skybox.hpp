@@ -4,7 +4,7 @@
 class SkyboxPG;
 #include "math.hpp"
 
-#define SKYBOX_LEN	10.0f
+#define SKYBOX_LEN	1000.0f
 
 class Skybox
 {

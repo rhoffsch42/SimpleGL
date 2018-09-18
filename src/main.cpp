@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/18 23:47:56 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/19 01:15:34 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,15 +126,7 @@ void	check_paddings() {
 	}
 }
 
-#include <iostream>
-#include <random>
-#include <ctime>
-
-int		main(void) {
-	check_paddings();
-//	test_mult_mat4(); exit(0);
-	cout << "____START____" << endl;
-//	test_obj_loader();
+void	scene1() {
 	Glfw	glfw(1600, 900);
 	glfw.setTitle("This title is long, long enough to test how glfw manages oversized titles. At this point I dont really know what to write, so let's just bullshiting it ....................................................... is that enough? Well, it depends of the size of the current window. I dont really know how many characters i have to write for a width of 1920. Is it possible to higher the police ? It could save some characters. Ok, im bored, lets check if this title is long enough!");
 
@@ -214,7 +206,7 @@ int		main(void) {
 	cout << "GL_MAX_TEXTURE_SIZE " << GL_MAX_TEXTURE_SIZE << endl;
 
 	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
-	Skybox		skybox(*texture5, sky_pg);
+	Skybox		skybox(*texture4, sky_pg);
 	
 	vector<Obj3d*>	obj3dList;
 	obj3dList.push_back(&the42_1);
@@ -252,21 +244,39 @@ int		main(void) {
 			the42_1.setRot(rot);
 			// helmet1.setRot(rot);
 
-			if (fps60.wait_for_next_frame()) {
+			// if (fps60.wait_for_next_frame()) {
 				Obj3d*	ptr = &lambo1;
 				rot = ptr->getRot();
 				rot.setAsDegree();
 			//	rot.x += v1 * (float)fps60.tick;
-				rot.y += v2/5 * (float)fps60.tick;
+				rot.y += v2/5 * (float)fps144.tick;
 				ptr->setRot(rot);
 
-			}
+			// }
 			/*
 			*/
 			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
 		}
 	}
+
+	delete texture1;
+	delete texture2;
+	delete texture3;
+	delete texture4;
+	delete texture5;
+	delete texture6;
+	delete texture7;
+}
+
+int		main(void) {
+	check_paddings();
+//	test_mult_mat4(); exit(0);
+	cout << "____START____" << endl;
+//	test_obj_loader();
+
+	scene1();
+	// while(1);
 
 	return (EXIT_SUCCESS);
 }

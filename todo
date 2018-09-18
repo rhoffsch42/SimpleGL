@@ -1,0 +1,26 @@
+TROUVER UN BINOME !!!
+
+leaks:
+delete data opengl:
+	Skybox
+	Blueprint
+	Program
+-----------------------------------------------------------------
+class Obj (cf Obj3d.hpp)
+class Obj3d:
+	default values
+	setPos
+	setScale
+Parent system:
+	Obj &			parent;
+	Math::Matrix4	worldModelMatrix; // = parent.getWorldModelMatrix(); then mult(localModelMatrix); care of outdated matrices!
+	Math::Matrix4	localModelMatrix;
+	local pos/rot/scale ?
+motion behavior:
+	Obj: set a pointer to a user defined func that will describe his motion (looped)
+rescaled obj(3d):
+	set a default size (say 5), then scale the oject to that, using the largest size min->max (X or Y or Z)
+	Vector3 rescale; should NEVER change once defined!
+	final scale = scale * rescale
+	add a setSize() func: that modifys the scale with the largest size min->max XYZ to reach the desired size
+
