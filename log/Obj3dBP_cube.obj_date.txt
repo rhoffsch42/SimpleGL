@@ -1,0 +1,25 @@
+cube.obj
+# shapes:	6
+# vertices:	 24
+# materials: 7
+1.00 1.00 1.00
+1.00 0.00 0.00
+0.00 1.00 0.00
+0.00 0.00 1.00
+1.00 0.00 1.00
+0.00 0.00 0.00
+1.00 1.00 1.00
+group:	2 polygons
+group:	2 polygons
+group:	2 polygons
+group:	2 polygons
+group:	2 polygons
+group:	2 polygons
+
+total polygons:	12
+faces { 12 }
+color { 12 }
+centerOffset:	1.00 1.00 1.00
+vertices:	0.00 2.00 2.00 0.00 0.00 2.00 2.00 0.00 2.00 2.00 2.00 2.00 0.00 2.00 0.00 0.00 0.00 0.00 2.00 0.00 0.00 2.00 2.00 0.00 
+size: 24 : 8
+colors:	1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 

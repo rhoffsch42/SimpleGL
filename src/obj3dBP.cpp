@@ -37,7 +37,6 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 		logs << filename << endl;
 		logs << "# shapes:\t" << shapes.size() << endl;
 		logs << "# vertices:\t " << attrib.vertices.size() << endl;
-		logs << "# polygons:\t " << attrib.vertices.size() / 3 << endl;
 		
 		logs << "# materials: " << materials.size() << endl;
 		for (size_t i = 0; i < materials.size(); i++) {
@@ -142,7 +141,7 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 		logs << "total polygons:\t" << c1 << endl;
 		logs << "faces { " << this->_faceAmount << " }" << endl;
 		logs << "color { " << (int)colors.size() / 9 << " }" << endl;
-		logs << "centerOffset:\t" << this->_centerOffset.x << ":" << this->_centerOffset.y << ":" << this->_centerOffset.z << endl;
+		logs << "centerOffset:\t" << this->_centerOffset.x << " " << this->_centerOffset.y << " " << this->_centerOffset.z << endl;
 
 		//data
 		logs << "vertices:\t";

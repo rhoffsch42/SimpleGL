@@ -5,6 +5,11 @@ static void		errorCallback(int error, const char *description) {
 	cerr << error << " : " << description << endl;
 }
 
+static void		windowCloseCallback(GLFWwindow* window) {
+//	if (!time_to_close)
+	glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
 Glfw::Glfw() {
 	this->_width = DEFAULT_WIDTH;
 	this->_height = DEFAULT_HEIGHT;
@@ -41,6 +46,8 @@ void	Glfw::init() {
 		cerr << "glfwCreateWindow failed" << endl;
 		Misc::breakExit(GL_ERROR);
 	}
+	glfwSetWindowCloseCallback(this->_window, windowCloseCallback);
+	
 	glfwMakeContextCurrent(this->_window);
 	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(this->_window, GLFW_STICKY_KEYS, 1);

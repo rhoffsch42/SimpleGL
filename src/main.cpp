@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
+/*   Updated: 2018/09/18 23:47:56 by rhoffsch         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "simplegl.h"
 
 #include "program.hpp"
@@ -182,7 +194,7 @@ int		main(void) {
 	helmet1.setTexture(texture6);
 	helmet1._displayTexture = true;
 	helmet1._centered = true;
-//	helmet1.setPolygonMode(GL_LINE);
+	helmet1.setPolygonMode(GL_LINE);
 	s = 0.4f;
 	helmet1.setScale(s,s,s);
 
@@ -191,7 +203,7 @@ int		main(void) {
 	lambo1.setTexture(texture7);
 	lambo1._displayTexture = true;
 	lambo1._centered = true;
-	lambo1.setPolygonMode(GL_LINE);
+	// lambo1.setPolygonMode(GL_LINE);
 	s = 0.025f;
 	lambo1.setScale(s, s, s);
 
@@ -238,7 +250,7 @@ int		main(void) {
 			rot.x += v1 * (float)fps144.tick;
 			rot.y += v2 * (float)fps144.tick;
 			the42_1.setRot(rot);
-			helmet1.setRot(rot);
+			// helmet1.setRot(rot);
 
 			if (fps60.wait_for_next_frame()) {
 				Obj3d*	ptr = &lambo1;
@@ -251,6 +263,8 @@ int		main(void) {
 			}
 			/*
 			*/
+			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
+				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
 		}
 	}
 

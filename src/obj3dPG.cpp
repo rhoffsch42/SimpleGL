@@ -34,8 +34,9 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	Obj3dBP&		bp = obj.getBlueprint();
 	Math::Matrix4&	modelMatrix = obj.getModelMatrix();
 
-	//cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
-
+	cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
+	cout << "*\tpolygons: " << bp.getFaceAmount() << endl;
+	
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
@@ -51,7 +52,17 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	} else
 		glUniform1f(this->_tex_coef, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, obj.getPolygonMode());
-	glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
+	if (bp.getName() == "obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador.obj") {//tmp
+		int groups[] = {7268, 128, 714, 714, 714, 714, 122};
+		int size = sizeof(groups) / 4;
+		int ind = 0;
+		for (int i = 0; i < size - 1; i++) {
+			glDrawArrays(GL_TRIANGLES, ind, groups[i] * 3);
+			ind += (groups[i] * 3);
+		}
+	}
+	else
+		glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
 	
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
