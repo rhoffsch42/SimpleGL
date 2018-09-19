@@ -52,17 +52,7 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	} else
 		glUniform1f(this->_tex_coef, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, obj.getPolygonMode());
-	if (bp.getName() == "obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador.obj") {//tmp
-		int groups[] = {7268, 128, 714, 714, 714, 714, 122};
-		int size = sizeof(groups) / 4;
-		int ind = 0;
-		for (int i = 0; i < size - 1; i++) {
-			glDrawArrays(GL_TRIANGLES, ind, groups[i] * 3);
-			ind += (groups[i] * 3);
-		}
-	}
-	else
-		glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
+	glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
 	
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);

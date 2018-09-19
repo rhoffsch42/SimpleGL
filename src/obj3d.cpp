@@ -2,18 +2,33 @@
 #include "obj3d.hpp"
 
 //static variables initialisation
-int		Obj3d::instanceAmount = 0;
-int		Obj3d::instanceId = 0;
-bool	Obj3d::defaultCentered = false;
-bool	Obj3d::defaultRotate = false;
-bool	Obj3d::defaultDisplayTexture = false;
-GLenum	Obj3d::defaultPolygonMode = GL_FILL;
+unsigned int	Obj3d::getInstanceAmount() { return (Obj3d::instanceAmount); }
+unsigned int	Obj3d::instanceAmount = 0;
+unsigned int	Obj3d::instanceId = 0;
+bool			Obj3d::defaultCentered = false;
+bool			Obj3d::defaultRotate = false;
+bool			Obj3d::defaultDisplayTexture = false;
+GLenum			Obj3d::defaultPolygonMode = GL_FILL;
+float			Obj3d::defaultSize = OBJ3D_DEFAULT_SIZE;
+bool			Obj3d::defaultRescaled = true;
 
-Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
+static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
+	float	largest = dimensions.x;
+	largest = std::max(largest, dimensions.y);
+	largest = std::max(largest, dimensions.z);
+	return (size / largest);
+}
+
+Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) \
+: _blueprint(bp), _program(pg), _scaleCoef(calcScaleCoef(bp.getDimensions(), Obj3d::defaultSize)) {
 	cout << "_ Obj3d cons" << endl;
 	this->_id = Obj3d::instanceId;
 	this->_scale = Math::Vector3(1.0f, 1.0f, 1.0f);
-	this->_modelMatrix.modelMatrix(this->_pos, this->_rot, this->_scale);
+	this->_finalScale = this->_scale;
+	this->_finalScale.mult(this->_scaleCoef);
+	this->_rescaled = Obj3d::defaultRescaled;
+	Math::Vector3 &	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
+	this->_modelMatrix.modelMatrix(this->_pos, this->_rot, usedScale);
 	this->_matrixUpdated = true;
 	this->_texture = NULL;
 	this->_polygonMode = Obj3d::defaultPolygonMode;
@@ -32,7 +47,8 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	Obj3d::instanceId++;
 }
 
-Obj3d::Obj3d(const Obj3d& src) : _blueprint(src.getBlueprint()), _program(src.getProgram()) {
+Obj3d::Obj3d(const Obj3d& src) \
+: _blueprint(src.getBlueprint()), _program(src.getProgram()), _scaleCoef(src.getScaleCoef()) {
 	cout << "_ Obj3d cons by copy" << endl;
 
 	*this = src;
@@ -42,6 +58,8 @@ Obj3d&		Obj3d::operator=(const Obj3d& src) {
 	this->_displayTexture = src._displayTexture;
 	this->_rotate = src._rotate;
 	this->_centered = src._centered;
+	this->_rescaled = src._rescaled;
+
 	this->_id = Obj3d::instanceId;
 	this->_blueprint = src.getBlueprint();
 	this->_program = src.getProgram();
@@ -72,7 +90,8 @@ Obj3d::~Obj3d() {
 
 void		Obj3d::render(Math::Matrix4& PVmatrix) {
 	if (!this->_matrixUpdated) {
-		this->_modelMatrix.modelMatrix(this->_pos, this->_rot, this->_scale);
+		Math::Vector3 &	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
+		this->_modelMatrix.modelMatrix(this->_pos, this->_rot, usedScale);
 		if (this->_centered)
 			this->center();
 		this->_matrixUpdated = true;
@@ -93,9 +112,10 @@ void		Obj3d::center() {
 */
 	Math::Vector3	newpos = this->_pos;
 	Math::Vector3	offset = this->_blueprint.getCenterOffset();
-	offset.x *= this->_scale.x;
-	offset.y *= this->_scale.y;
-	offset.z *= this->_scale.z;
+	Math::Vector3 &	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
+	offset.x *= usedScale.x;
+	offset.y *= usedScale.y;
+	offset.z *= usedScale.z;
 	Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
 	offsetneg.rotate(this->_rot, ROT_WAY);
 	newpos.add(offsetneg);
@@ -134,10 +154,18 @@ void		Obj3d::setScale(float x, float y, float z) {
 	this->_scale.x = x;
 	this->_scale.y = y;
 	this->_scale.z = z;
+	this->_finalScale = this->_scale;
+	this->_finalScale.mult(this->_scaleCoef);
 	this->_matrixUpdated = false;
 }
 void		Obj3d::setScale(Math::Vector3 scale) {
 	this->_scale = scale;
+	this->_finalScale = this->_scale;
+	this->_finalScale.mult(this->_scaleCoef);
+	this->_matrixUpdated = false;
+}
+void		Obj3d::setRescaled(bool value) {
+	this->_rescaled = value;
 	this->_matrixUpdated = false;
 }
 void		Obj3d::setColor(uint8_t x, uint8_t y, uint8_t z) {
@@ -166,6 +194,9 @@ Math::Matrix4&	Obj3d::getModelMatrix(void) const { return ((Math::Matrix4&)this-
 Math::Vector3	Obj3d::getPos(void) const { return (this->_pos); }
 Math::Rotation	Obj3d::getRot(void) const { return (this->_rot); }
 Math::Vector3	Obj3d::getScale(void) const { return (this->_scale); }
+Math::Vector3	Obj3d::getFinalScale(void) const { return (this->_finalScale); }
+float			Obj3d::getScaleCoef(void) const { return (this->_scaleCoef); }
+bool			Obj3d::isRescaled() const { return (this->_rescaled); }
 Math::Vector3	Obj3d::getColor(void) const { return (this->_color); }
 Texture*		Obj3d::getTexture(void) const { return (this->_texture); }
 GLenum			Obj3d::getPolygonMode() const { return (this->_polygonMode); }

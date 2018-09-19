@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/19 03:35:15 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/19 07:04:02 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,8 @@ void	scene1() {
 	Obj3dBP			cubeBP("obj3d/cube.obj");
 	Obj3dBP			teapotBP("obj3d/teapot2.obj");
 	Obj3dBP			helmetBP("obj3d/helmet/Helmet.obj");
-	Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador.obj");
+	// Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador.obj");
+	Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_no_collider.obj");
 	cout << "======" << endl;
 
 	Texture*	texture1 = new Texture("images/lena.bmp");
@@ -172,6 +173,7 @@ void	scene1() {
 	the42_1.setTexture(texture1);
 	the42_1._displayTexture = true;
 	the42_1.setPolygonMode(GL_FILL);
+	// the42_1._centered = true;
 
 	Obj3d	the42_2(the42_1);
 	//the42_2.setPos(0, 3, -5);
@@ -179,7 +181,7 @@ void	scene1() {
 	the42_2.setTexture(texture2);
 	the42_2._displayTexture = false;
 	the42_2._centered = true;
-	the42_2.setScale(3.0f, 0.75f, 0.3f);
+	// the42_2.setScale(3.0f, 0.75f, 0.3f);
 	the42_2.setPolygonMode(GL_LINE);
 
 	Obj3d			teapot1(teapotBP, obj3d_prog);
@@ -195,27 +197,29 @@ void	scene1() {
 	cube1.setPos(0, -2, 3);
 	cube1.setTexture(texture1);
 	cube1._displayTexture = false;
-//	cube1.setScale(1, 1, 1);
 
 	Obj3d			helmet1(helmetBP, obj3d_prog);
 	helmet1.setPos(-10, 0, 0);
 	helmet1.setTexture(texture6);
 	helmet1._displayTexture = true;
 	helmet1._centered = true;
+	helmet1.setRescaled(false);
 	helmet1.setPolygonMode(GL_LINE);
-	s = 0.4f;
-	helmet1.setScale(s,s,s);
+	s = 1.0f;
+	// helmet1.setScale(s,s,s);
 
+	Obj3d::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
 	lambo1.setPos(-20, 0, 0);
 	lambo1.setTexture(texture7);
 	lambo1._displayTexture = true;
-	lambo1._centered = true;
+	// lambo1._centered = true;
 	// lambo1.setPolygonMode(GL_LINE);
 	s = 0.025f;
-	lambo1.setScale(s, s, s);
+	// lambo1.setScale(s, s, s);
+	Obj3d::defaultSize = OBJ3D_DEFAULT_SIZE;
 
-	cout << "Obj3d # : " << Obj3d::instanceAmount << endl;
+	cout << "Obj3d # : " << Obj3d::getInstanceAmount() << endl;
 	cout << endl;
 
 	cout << "GL_MAX_CUBE_MAP_TEXTURE_SIZE " << GL_MAX_CUBE_MAP_TEXTURE_SIZE << endl;
@@ -244,7 +248,7 @@ void	scene1() {
 	Fps* defaultFps = &fps60;
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
-			printFps();
+			// printFps();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderSkybox(skybox, cam);
 			renderObj3d(obj3dList, cam);
@@ -264,16 +268,17 @@ void	scene1() {
 			the42_1.setRot(rot);
 			// helmet1.setRot(rot);
 
-			/*
-			Fps * fps_ptr = &defaultFps->
-			if (fps_ptr->wait_for_next_frame()) {
+			// Fps * fps_ptr = &fps30;
+			// if (fps_ptr->wait_for_next_frame()) {
+				v2 = 50;
 				Obj3d*	ptr = &lambo1;
 				rot = ptr->getRot();
 				rot.setAsDegree();
 			//	rot.x += v1 * (float)fps_ptr->tick;
-				rot.y += v2 * (float)fps_ptr->tick;
+				rot.y += v2 * (float)defaultFps->tick;
 				ptr->setRot(rot);
-			}
+			// }
+			/*
 			*/
 			//////////////////////////////////////////manual motion end
 		

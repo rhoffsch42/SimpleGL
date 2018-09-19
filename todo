@@ -3,14 +3,13 @@ TROUVER UN BINOME !!!
 leaks:
 delete data opengl:
 	Skybox
-	Blueprint
-	Program
+	Blueprint and herited
+	Program and herited
 -----------------------------------------------------------------
 class Obj (cf Obj3d.hpp)
 class Obj3d:
-	some default values should be private
-	_displayTexture : setter ? check if a Texture is linked, return -1/0
-		a check is made in the rendering program, so its useless (obj3dPG::render())
+	lambo.obj: there's an additionnal group for the collider in the file, conventionnal ? make an exception for that ?
+		-> check: g group_name:ColliderSG, ignore it or add it in the class in a different variable ?
 Parent system:
 	Obj &			parent;
 	Math::Matrix4	worldModelMatrix; // = parent.getWorldModelMatrix(); then mult(localModelMatrix); care of outdated matrices!
@@ -20,11 +19,6 @@ motion behavior:
 	Obj: set a pointer to a user defined func that will describe his motion (looped)
 	on/off
 	ex: automatic rotate on Yaxis
-rescaled obj(3d):
-	set a default size (say 5), then scale the oject to that, using the largest size min->max (X or Y or Z)
-	Vector3 rescale; should NEVER change once defined!
-	final scale = scale * rescale
-	add a setSize() func: that modifys the scale with the largest size min->max XYZ to reach the desired size
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
 -----------------------------------------------------------------

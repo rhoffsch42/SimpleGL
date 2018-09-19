@@ -131,6 +131,9 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	this->_centerOffset.x = (vmin[0] + vmax[0]) / 2;
 	this->_centerOffset.y = (vmin[1] + vmax[1]) / 2;
 	this->_centerOffset.z = (vmin[2] + vmax[2]) / 2;
+	this->_dimensions.x = vmax[0] - vmin[0];
+	this->_dimensions.y = vmax[1] - vmin[1];
+	this->_dimensions.z = vmax[2] - vmin[2];
 
 	std::cout << "faces { " << this->_faceAmount << " }" << endl;
 	std::cout << "color { " << (int)colors.size() / 9 << " }" << endl;
@@ -215,23 +218,23 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
 	cout << "_ Obj3dBP cons by copy" << endl;
-
 	cout << "building object: " << src.getName().c_str() << endl;
-	this->_faceAmount = src.getFaceAmount();
+
+	*this = src;
 }
 
 Obj3dBP::~Obj3dBP() {
 	cout << "_ Obj3dBP des by filename" << endl;
+	/*
+		should delete opengl data here
+	*/
 }
 
 Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 	cout << "_ Obj3dBP operator =" << endl;
-	this->_vao = src.getVao();
-	this->_vboVertex = src.getVboVertex();
-	this->_vboTexture = src.getVboTexture();
-	this->_name = src.getName();
 	this->_faceAmount = src.getFaceAmount();
 	this->_centerOffset = src.getCenterOffset();
+	this->_dimensions = src.getDimensions();
 	return (*this);
 }
 
@@ -239,3 +242,4 @@ Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 //accessors
 int				Obj3dBP::getFaceAmount(void) const { return (this->_faceAmount); }
 Math::Vector3	Obj3dBP::getCenterOffset(void) const { return (this->_centerOffset); }
+Math::Vector3	Obj3dBP::getDimensions(void) const { return (this->_dimensions); }
