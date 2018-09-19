@@ -36,6 +36,7 @@ public:
 	~Obj3d();
 	Obj3d&	operator=(const Obj3d& obj3d);
 
+	void	runMothionBehavior(void * ptr);
 	void	render(Math::Matrix4& PVmatrix);
 	/*
 		set a movement attribute function
@@ -61,26 +62,31 @@ public:
 	void			setColor(uint8_t x, uint8_t y, uint8_t z);
 	void			setTexture(Texture* texture);
 	void			setPolygonMode(GLenum mode);
+	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
 
 	//accessors
-	unsigned int	getId() const;
-	Obj3dBP&		getBlueprint() const;
-	Obj3dPG&		getProgram() const;
-	Math::Matrix4&	getModelMatrix() const;
-	Math::Vector3	getPos() const;
-	Math::Rotation	getRot() const;
-	Math::Vector3	getScale() const;
-	Math::Vector3	getFinalScale() const;
-	float			getScaleCoef() const;
-	bool			isRescaled() const;
-	Math::Vector3	getColor() const;
-	Texture*		getTexture() const;
-	GLenum			getPolygonMode() const;
+	unsigned int	getId(void) const;
+	Obj3dBP&		getBlueprint(void) const;
+	Obj3dPG&		getProgram(void) const;
+	Math::Matrix4&	getModelMatrix(void) const;
+	Math::Vector3	getPos(void) const;
+	Math::Rotation	getRot(void) const;
+	Math::Vector3	getScale(void) const;
+	Math::Vector3	getFinalScale(void) const;
+	float			getScaleCoef(void) const;
+	bool			isRescaled(void) const;
+	Math::Vector3	getColor(void) const;
+	Texture*		getTexture(void) const;
+	GLenum			getPolygonMode(void) const;
+	void			(*getMotionBehaviorFunc(void) const) (Obj3d &, void*);
 
 	//settings
 	bool			_displayTexture;
 	bool			_rotate;
 	bool			_centered;
+	bool			_motionBehavior;
+	//motion behavior
+	void			(*_motionBehaviorFunc)(Obj3d & ref, void* ptr);//private ?
 protected:
 private:
 	static unsigned int	instanceAmount;	// should never be altered manually

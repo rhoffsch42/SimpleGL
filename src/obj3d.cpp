@@ -35,6 +35,8 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) \
 	this->_displayTexture = Obj3d::defaultDisplayTexture;
 	this->_rotate = Obj3d::defaultRotate;
 	this->_centered = Obj3d::defaultCentered;
+	this->_motionBehavior = false;
+	this->_motionBehaviorFunc = NULL;
 
 	GLuint&		vboVertex = this->_blueprint.getVboVertex();
 	GLuint&		vboColor = this->_blueprint.getVboColor();
@@ -59,6 +61,8 @@ Obj3d&		Obj3d::operator=(const Obj3d& src) {
 	this->_rotate = src._rotate;
 	this->_centered = src._centered;
 	this->_rescaled = src._rescaled;
+	this->_motionBehavior = src._motionBehavior;
+	this->_motionBehaviorFunc = src.getMotionBehaviorFunc();
 
 	this->_id = Obj3d::instanceId;
 	this->_blueprint = src.getBlueprint();
@@ -86,6 +90,13 @@ Obj3d&		Obj3d::operator=(const Obj3d& src) {
 Obj3d::~Obj3d() {
 	cout << "_ Obj3d des" << endl;
 	Obj3d::instanceAmount--;
+}
+
+void		Obj3d::runMothionBehavior(void * ptr) {
+	if (this->_motionBehaviorFunc && this->_motionBehavior)
+		this->_motionBehaviorFunc(*this, ptr);
+	else
+		cout << "No motion behavior is set. Doing nothing." << endl;
 }
 
 void		Obj3d::render(Math::Matrix4& PVmatrix) {
@@ -199,4 +210,5 @@ float			Obj3d::getScaleCoef(void) const { return (this->_scaleCoef); }
 bool			Obj3d::isRescaled() const { return (this->_rescaled); }
 Math::Vector3	Obj3d::getColor(void) const { return (this->_color); }
 Texture*		Obj3d::getTexture(void) const { return (this->_texture); }
-GLenum			Obj3d::getPolygonMode() const { return (this->_polygonMode); }
+GLenum			Obj3d::getPolygonMode(void) const { return (this->_polygonMode); }
+void			(*Obj3d::getMotionBehaviorFunc(void) const) (Obj3d &, void*) { return (this->_motionBehaviorFunc); }

@@ -3,10 +3,14 @@ TROUVER UN BINOME !!!
 leaks:
 delete data opengl:
 	Skybox
-	Blueprint and herited
-	Program and herited
+	Blueprint and derived
+	Program and derived
 -----------------------------------------------------------------
-class Obj (cf Obj3d.hpp)
+void on all accessors
+class Obj (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
+class Program:
+	virtual pure render (need class Obj to use Polymorphism)
+		skybox may not be compatible
 class Obj3d:
 	lambo.obj: there's an additionnal group for the collider in the file, conventionnal ? make an exception for that ?
 		-> check: g group_name:ColliderSG, ignore it or add it in the class in a different variable ?
@@ -14,11 +18,7 @@ Parent system:
 	Obj &			parent;
 	Math::Matrix4	worldModelMatrix; // = parent.getWorldModelMatrix(); then mult(localModelMatrix); care of outdated matrices!
 	Math::Matrix4	localModelMatrix;
-	local pos/rot/scale ?
-motion behavior:
-	Obj: set a pointer to a user defined func that will describe his motion (looped)
-	on/off
-	ex: automatic rotate on Yaxis
+	local pos/rot/scale
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
 -----------------------------------------------------------------

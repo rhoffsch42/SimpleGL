@@ -12,6 +12,12 @@ public:
 	~Obj3dPG();
 	void	linkBuffers(GLuint& vboVertex, GLuint& vboColor, GLuint& vboTexture) const;
 	void	render(Obj3d& obj, Math::Matrix4 VPmatrix);//HAS to be cpy constructor! (1 PV*M per obj3d)
+	/*
+		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles
+		render could overwrite :
+			virtual void Program::render(Obj & obj, Math:Matrix4 mat);// set as virtual pure ?
+			where Obj & obj = obj3d_car; //(Obj3d obj3d_car)
+	*/
 protected:
 private:
 	void	getLocations(void);

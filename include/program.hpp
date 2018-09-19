@@ -18,8 +18,9 @@ public:
 	GLuint		_program;
 protected:
 	GLint		getSlot(const GLchar *varname, GLint(getLocFunc)(GLuint, const GLchar*)) const;
-//	GLuint		_program;
+//	virtual void Program::render(Obj & obj, Math:Matrix4 mat);// set as virtual pure ? = 0
 
+//	GLuint		_program;
 private:
 	GLuint		_vertex_shader;
 	GLuint		_fragment_shader;

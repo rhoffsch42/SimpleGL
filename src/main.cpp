@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/19 07:04:02 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/20 01:44:21 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,36 @@ void	check_paddings() {
 	}
 }
 
+void	rotateZaxis(Obj3d & obj3d_ref, void* ptr) {
+	Fps * fps_ptr = (Fps*)ptr;
+	float	anglePerSec = 500;
+	Math::Rotation	rot = obj3d_ref.getRot();
+	rot.setAsDegree();
+	rot.z += anglePerSec * (float)fps_ptr->tick;
+	obj3d_ref.setRot(rot);
+	Math::Vector3	pos = obj3d_ref.getPos();
+	pos.add(Math::Vector3(0, 0, 250 * (float)fps_ptr->tick));
+	obj3d_ref.setPos(pos);
+}
+
+void	bigAndLittle(Obj3d & obj3d_ref, void* ptr) {
+	static float	growCoef = 1;
+	static float	minScale = 0.8f;
+	static float	maxScale = 2.0f;
+	static float	scalePerSec = 1.0f;
+
+	Fps * fps_ptr = (Fps*)ptr;
+	Math::Vector3	s = obj3d_ref.getScale();
+	float	addScale = scalePerSec * (float)fps_ptr->tick;
+	addScale *= growCoef;
+	s.add(Math::Vector3(addScale, addScale, addScale));
+	obj3d_ref.setScale(s);
+	if (growCoef == 1 && s.x > maxScale)
+		growCoef = -1;
+	else if (growCoef == -1 && s.x < minScale)
+		growCoef = 1;
+}
+
 void	scene1() {
 	Glfw	glfw(1600, 900);
 	glfw.setTitle("This title is long, long enough to test how glfw manages oversized titles. At this point I dont really know what to write, so let's just bullshiting it ....................................................... is that enough? Well, it depends of the size of the current window. I dont really know how many characters i have to write for a width of 1920. Is it possible to higher the police ? It could save some characters. Ok, im bored, lets check if this title is long enough!");
@@ -153,7 +183,8 @@ void	scene1() {
 	Obj3dBP			the42BP("obj3d/42.obj");
 	Obj3dBP			cubeBP("obj3d/cube.obj");
 	Obj3dBP			teapotBP("obj3d/teapot2.obj");
-	Obj3dBP			helmetBP("obj3d/helmet/Helmet.obj");
+	// Obj3dBP			rocketBP("obj3d/Rocket/rocket.obj");
+	Obj3dBP			rocketBP("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Aim-54_Phoenix.obj");
 	// Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador.obj");
 	Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_no_collider.obj");
 	cout << "======" << endl;
@@ -163,7 +194,8 @@ void	scene1() {
 	Texture*	texture3 = new Texture("images/skyboxfuck.bmp");
 	Texture*	texture4 = new Texture("images/skybox4096.bmp");
 	Texture*	texture5 = new Texture("images/skytest.bmp");
-	Texture*	texture6 = new Texture("obj3d/helmet/gold_scr.bmp");
+	// Texture*	texture6 = new Texture("obj3d/Rocket/Rocket.bmp");
+	Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
 	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
 
 	float s = 1.0f;//scale
@@ -198,15 +230,17 @@ void	scene1() {
 	cube1.setTexture(texture1);
 	cube1._displayTexture = false;
 
-	Obj3d			helmet1(helmetBP, obj3d_prog);
-	helmet1.setPos(-10, 0, 0);
-	helmet1.setTexture(texture6);
-	helmet1._displayTexture = true;
-	helmet1._centered = true;
-	helmet1.setRescaled(false);
-	helmet1.setPolygonMode(GL_LINE);
-	s = 1.0f;
-	// helmet1.setScale(s,s,s);
+	Obj3d			rocket1(rocketBP, obj3d_prog);
+	rocket1.setPos(-10, -20, -2000);
+	rocket1.setTexture(texture6);
+	rocket1._displayTexture = true;
+	rocket1._centered = true;
+	// rocket1.setRescaled(false);
+	// rocket1.setPolygonMode(GL_LINE);
+	rocket1._motionBehaviorFunc = &rotateZaxis;
+	rocket1._motionBehavior = true;
+	s = 30.0f;
+	rocket1.setScale(s,s,s);
 
 	Obj3d::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
@@ -215,6 +249,8 @@ void	scene1() {
 	lambo1._displayTexture = true;
 	// lambo1._centered = true;
 	// lambo1.setPolygonMode(GL_LINE);
+	lambo1._motionBehaviorFunc = &bigAndLittle;
+	lambo1._motionBehavior = true;
 	s = 0.025f;
 	// lambo1.setScale(s, s, s);
 	Obj3d::defaultSize = OBJ3D_DEFAULT_SIZE;
@@ -233,7 +269,7 @@ void	scene1() {
 	obj3dList.push_back(&the42_2);
 	obj3dList.push_back(&teapot1);
 	obj3dList.push_back(&cube1);
-	obj3dList.push_back(&helmet1);
+	obj3dList.push_back(&rocket1);
 	obj3dList.push_back(&lambo1);
 
 	
@@ -266,7 +302,10 @@ void	scene1() {
 			// rot.x += v1 * (float)defaultFps->tick;
 			rot.y += v2 * (float)defaultFps->tick;
 			the42_1.setRot(rot);
-			// helmet1.setRot(rot);
+
+			//this should be used in another func, life a special func managing all events/behavior at every frames
+			rocket1.runMothionBehavior((void*)defaultFps);
+			lambo1.runMothionBehavior((void*)defaultFps);
 
 			// Fps * fps_ptr = &fps30;
 			// if (fps_ptr->wait_for_next_frame()) {
