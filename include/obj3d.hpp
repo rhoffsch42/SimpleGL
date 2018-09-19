@@ -8,11 +8,12 @@ class Obj3dPG;
 class Obj3d
 {
 public:
-	static int	instanceAmount;//private?
-	static int	instanceId;//private?
-//	static bool	defaultCentered; //todo
-//	static bool	defaultRotate; //todo
-//	static bool	defaultDisplayTexture; //todo
+	static int	instanceAmount;//private? should never be altered manually
+	static int	instanceId;//private? should never be altered manually
+	static bool		defaultCentered;
+	static bool		defaultRotate;
+	static bool		defaultDisplayTexture;
+	static GLenum	defaultPolygonMode;
 
 //	Obj3d(); obj vide ? oui mais plutot Obj avec seulement une modelmatrix, donc une autre classe ?
 /*	-> faire heriter Obj3d : Obj ?
@@ -48,11 +49,11 @@ public:
 
 	//mutators
 	void			setPos(float x, float y, float z);
-//	void			setPos(Math::Vector3 pos); // todo
+	void			setPos(Math::Vector3 pos);
 	void			setRot(float x, float y, float z);// in degree!
 	void			setRot(Math::Rotation rot);
 	void			setScale(float x, float y, float z);
-//	void			setScale(Math::Vector3 scale); //todo
+	void			setScale(Math::Vector3 scale);
 	void			setColor(uint8_t x, uint8_t y, uint8_t z);
 	void			setTexture(Texture* texture);
 	void			setPolygonMode(GLenum mode);

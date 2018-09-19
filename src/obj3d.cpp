@@ -1,9 +1,13 @@
 #include "simplegl.h"
 #include "obj3d.hpp"
 
-//variable initialisation
-int Obj3d::instanceAmount = 0;
-int Obj3d::instanceId = 0;
+//static variables initialisation
+int		Obj3d::instanceAmount = 0;
+int		Obj3d::instanceId = 0;
+bool	Obj3d::defaultCentered = false;
+bool	Obj3d::defaultRotate = false;
+bool	Obj3d::defaultDisplayTexture = false;
+GLenum	Obj3d::defaultPolygonMode = GL_FILL;
 
 Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	cout << "_ Obj3d cons" << endl;
@@ -12,15 +16,15 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	this->_modelMatrix.modelMatrix(this->_pos, this->_rot, this->_scale);
 	this->_matrixUpdated = true;
 	this->_texture = NULL;
-	this->_polygonMode = GL_FILL;
-	this->_displayTexture = false;
-	this->_rotate = false;
-	this->_centered = false;
+	this->_polygonMode = Obj3d::defaultPolygonMode;
+	this->_displayTexture = Obj3d::defaultDisplayTexture;
+	this->_rotate = Obj3d::defaultRotate;
+	this->_centered = Obj3d::defaultCentered;
 
 	GLuint&		vboVertex = this->_blueprint.getVboVertex();
 	GLuint&		vboColor = this->_blueprint.getVboColor();
 	GLuint&		vboTexture = this->_blueprint.getVboTexture();
-	glBindVertexArray(this->_blueprint.getVao());//bind le VAO, on va linker les VBO au program
+	glBindVertexArray(this->_blueprint.getVao());//bind the VAO to be able to link buffers to the program
 	this->_program.linkBuffers(vboVertex, vboColor, vboTexture);
 	glBindVertexArray(0);//necessaire ? utile ? propre ?
 
@@ -108,6 +112,13 @@ void		Obj3d::setPos(float x, float y, float z) {
 	else
 		this->_modelMatrix.updatePosValue(this->_pos);
 }
+void		Obj3d::setPos(Math::Vector3 pos) {
+	this->_pos = pos;
+	if (this->_centered)
+		this->center();
+	else
+		this->_modelMatrix.updatePosValue(this->_pos);
+}
 void		Obj3d::setRot(float x, float y, float z) {// in degree!
 	this->_rot.x = x;
 	this->_rot.y = y;
@@ -123,6 +134,10 @@ void		Obj3d::setScale(float x, float y, float z) {
 	this->_scale.x = x;
 	this->_scale.y = y;
 	this->_scale.z = z;
+	this->_matrixUpdated = false;
+}
+void		Obj3d::setScale(Math::Vector3 scale) {
+	this->_scale = scale;
 	this->_matrixUpdated = false;
 }
 void		Obj3d::setColor(uint8_t x, uint8_t y, uint8_t z) {

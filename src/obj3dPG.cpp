@@ -34,8 +34,8 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	Obj3dBP&		bp = obj.getBlueprint();
 	Math::Matrix4&	modelMatrix = obj.getModelMatrix();
 
-	cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
-	cout << "*\tpolygons: " << bp.getFaceAmount() << endl;
+	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
+	// cout << "*\tpolygons: " << bp.getFaceAmount() << endl;
 	
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);

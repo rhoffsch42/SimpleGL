@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/19 01:15:34 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/19 03:35:15 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,22 @@ public:
 			return (false);
 	}
 };
+
+void	printFps() {
+	static double last_time = 0;
+	static double ellapsed_time = 0;
+	double	current_time;
+	double	fps;
+	double	cent;
+	current_time = glfwGetTime();
+	ellapsed_time = current_time - last_time;
+	fps = 1.0 / ellapsed_time;
+	cent = fps - double(int(fps));
+	if (cent >= 0.5)
+		fps += 1.0;
+	cout << (float)current_time << "\t" << int(fps) << "fps" << endl;
+	last_time += ellapsed_time;
+}
 
 void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
 //	cout << "render all Obj3d" << endl;
@@ -172,8 +188,8 @@ void	scene1() {
 //	teapot1.setRot(0, 90, 0);
 	teapot1.setTexture(texture1);
 	teapot1._displayTexture = false;
-//	teapot1.setPolygonMode(GL_POINT);
-	teapot1.setScale(1.5, 2, 0.75);
+	teapot1.setPolygonMode(GL_POINT);
+	// teapot1.setScale(1.5, 2, 0.75);
 
 	Obj3d			cube1(cubeBP, obj3d_prog);
 	cube1.setPos(0, -2, 3);
@@ -225,8 +241,10 @@ void	scene1() {
 	Fps	fps144(144);
 	Fps	fps60(60);
 	Fps	fps30(30);
+	Fps* defaultFps = &fps60;
 	while (!glfwWindowShouldClose(glfw._window)) {
-		if (fps144.wait_for_next_frame()) {
+		if (defaultFps->wait_for_next_frame()) {
+			printFps();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderSkybox(skybox, cam);
 			renderObj3d(obj3dList, cam);
@@ -234,27 +252,31 @@ void	scene1() {
 			glfwPollEvents();
 			//events(glfw, &gle, &progs[OBJ3D]);
 			glfw.updateMouse();//to do before cam's events
-			cam.events(glfw, float(fps144.tick));
+			cam.events(glfw, float(defaultFps->tick));
+			
+			//////////////////////////////////////////manual motion
 			float	v1 = 160;
-			float	v2 = 100;
+			float	v2 = 360;// degree/sec
 			Math::Rotation rot = the42_1.getRot();
 			rot.setAsDegree();
-			rot.x += v1 * (float)fps144.tick;
-			rot.y += v2 * (float)fps144.tick;
+			// rot.x += v1 * (float)defaultFps->tick;
+			rot.y += v2 * (float)defaultFps->tick;
 			the42_1.setRot(rot);
 			// helmet1.setRot(rot);
 
-			// if (fps60.wait_for_next_frame()) {
+			/*
+			Fps * fps_ptr = &defaultFps->
+			if (fps_ptr->wait_for_next_frame()) {
 				Obj3d*	ptr = &lambo1;
 				rot = ptr->getRot();
 				rot.setAsDegree();
-			//	rot.x += v1 * (float)fps60.tick;
-				rot.y += v2/5 * (float)fps144.tick;
+			//	rot.x += v1 * (float)fps_ptr->tick;
+				rot.y += v2 * (float)fps_ptr->tick;
 				ptr->setRot(rot);
-
-			// }
-			/*
+			}
 			*/
+			//////////////////////////////////////////manual motion end
+		
 			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
 		}
