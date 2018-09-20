@@ -107,6 +107,7 @@ private:
 		_scaleCoef should NEVER change once defined!
 			If the default size for that specific Obj3d instance has to change,
 			the scaleCoef can not be updated subsequently.
+			-> Create another Obj3d instead.
 		_rescaled has to be private and therefore have a mutator
 			because if it changes we need to set _matrixUpdated to false
 	*/
