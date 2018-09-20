@@ -2,11 +2,10 @@
 #include "obj3d.hpp"
 
 //static variables initialisation
-unsigned int	Obj3d::getInstanceAmount() { return (Obj3d::instanceAmount); }
-unsigned int	Obj3d::instanceAmount = 0;
-unsigned int	Obj3d::instanceId = 0;
+unsigned int	Obj3d::getInstanceAmount() { return (Obj3d::_instanceAmount); }
+unsigned int	Obj3d::_instanceAmount = 0;
+unsigned int	Obj3d::_instanceId = 0;
 bool			Obj3d::defaultCentered = false;
-bool			Obj3d::defaultRotate = false;
 bool			Obj3d::defaultDisplayTexture = false;
 GLenum			Obj3d::defaultPolygonMode = GL_FILL;
 float			Obj3d::defaultSize = OBJ3D_DEFAULT_SIZE;
@@ -22,7 +21,7 @@ static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) \
 : _blueprint(bp), _program(pg), _scaleCoef(calcScaleCoef(bp.getDimensions(), Obj3d::defaultSize)) {
 	cout << "_ Obj3d cons" << endl;
-	this->_id = Obj3d::instanceId;
+	this->_id = Obj3d::_instanceId;
 	this->_scale = Math::Vector3(1.0f, 1.0f, 1.0f);
 	this->_finalScale = this->_scale;
 	this->_finalScale.mult(this->_scaleCoef);
@@ -32,9 +31,8 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) \
 	this->_matrixUpdated = true;
 	this->_texture = NULL;
 	this->_polygonMode = Obj3d::defaultPolygonMode;
-	this->_displayTexture = Obj3d::defaultDisplayTexture;
-	this->_rotate = Obj3d::defaultRotate;
-	this->_centered = Obj3d::defaultCentered;
+	this->displayTexture = Obj3d::defaultDisplayTexture;
+	this->centered = Obj3d::defaultCentered;
 	this->_motionBehavior = false;
 	this->_motionBehaviorFunc = NULL;
 
@@ -45,8 +43,8 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) \
 	this->_program.linkBuffers(vboVertex, vboColor, vboTexture);
 	glBindVertexArray(0);//necessaire ? utile ? propre ?
 
-	Obj3d::instanceAmount++;
-	Obj3d::instanceId++;
+	Obj3d::_instanceAmount++;
+	Obj3d::_instanceId++;
 }
 
 Obj3d::Obj3d(const Obj3d& src) \
@@ -57,14 +55,13 @@ Obj3d::Obj3d(const Obj3d& src) \
 }
 
 Obj3d&		Obj3d::operator=(const Obj3d& src) {
-	this->_displayTexture = src._displayTexture;
-	this->_rotate = src._rotate;
-	this->_centered = src._centered;
+	this->displayTexture = src.displayTexture;
+	this->centered = src.centered;
 	this->_rescaled = src._rescaled;
 	this->_motionBehavior = src._motionBehavior;
 	this->_motionBehaviorFunc = src.getMotionBehaviorFunc();
 
-	this->_id = Obj3d::instanceId;
+	this->_id = Obj3d::_instanceId;
 	this->_blueprint = src.getBlueprint();
 	this->_program = src.getProgram();
 	this->_modelMatrix = src.getModelMatrix();
@@ -79,17 +76,17 @@ Obj3d&		Obj3d::operator=(const Obj3d& src) {
 	this->_texture = src.getTexture();
 	this->_polygonMode = src.getPolygonMode();
 
-	if (this->_centered)
+	if (this->centered)
 		this->center();
 
-	Obj3d::instanceAmount++;
-	Obj3d::instanceId++;
+	Obj3d::_instanceAmount++;
+	Obj3d::_instanceId++;
 	return (*this);
 }
 
 Obj3d::~Obj3d() {
 	cout << "_ Obj3d des" << endl;
-	Obj3d::instanceAmount--;
+	Obj3d::_instanceAmount--;
 }
 
 void		Obj3d::runMothionBehavior(void * ptr) {
@@ -103,7 +100,7 @@ void		Obj3d::render(Math::Matrix4& PVmatrix) {
 	if (!this->_matrixUpdated) {
 		Math::Vector3 &	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
 		this->_modelMatrix.modelMatrix(this->_pos, this->_rot, usedScale);
-		if (this->_centered)
+		if (this->centered)
 			this->center();
 		this->_matrixUpdated = true;
 	}
@@ -138,14 +135,14 @@ void		Obj3d::setPos(float x, float y, float z) {
 	this->_pos.x = x;
 	this->_pos.y = y;
 	this->_pos.z = z;
-	if (this->_centered)
+	if (this->centered)
 		this->center();
 	else
 		this->_modelMatrix.updatePosValue(this->_pos);
 }
 void		Obj3d::setPos(Math::Vector3 pos) {
 	this->_pos = pos;
-	if (this->_centered)
+	if (this->centered)
 		this->center();
 	else
 		this->_modelMatrix.updatePosValue(this->_pos);
@@ -189,9 +186,9 @@ void		Obj3d::setTexture(Texture* texture) {
 }
 void		Obj3d::setPolygonMode(GLenum mode) {
 	/*
-	GL_POINT	0x1B00
-	GL_LINE		0x1B01
-	GL_FILL		0x1B02
+		GL_POINT	0x1B00
+		GL_LINE		0x1B01
+		GL_FILL		0x1B02
 	*/
 	if (mode >= GL_POINT && mode <= GL_FILL)
 		this->_polygonMode = mode;

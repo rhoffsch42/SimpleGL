@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/20 03:44:41 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/20 05:57:00 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ void	growAndShrink(Obj3d & obj3d_ref, void* ptr) {
 }
 
 void	rotAndGoZaxis(Obj3d & obj3d_ref, void* ptr) {
-	static float	anglePerSec = 500;
+	static float	anglePerSec = 75;
 	static float	distPerSec = 250;
 	
 	Fps * fps_ptr = (Fps*)ptr;
@@ -182,8 +182,8 @@ void	scene1() {
 	Obj3dBP			the42BP("obj3d/42.obj");
 	Obj3dBP			cubeBP("obj3d/cube.obj");
 	Obj3dBP			teapotBP("obj3d/teapot2.obj");
-	// Obj3dBP			rocketBP("obj3d/Rocket/rocket.obj");
-	Obj3dBP			rocketBP("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Aim-54_Phoenix.obj");
+	// Obj3dBP			rocketBP("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Aim-54_Phoenix.obj");
+	Obj3dBP			rocketBP("obj3d/ARSENAL_VG33/Arsenal_VG33.obj");
 	// Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador.obj");
 	Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_no_collider.obj");
 	cout << "======" << endl;
@@ -193,8 +193,8 @@ void	scene1() {
 	Texture*	texture3 = new Texture("images/skyboxfuck.bmp");
 	Texture*	texture4 = new Texture("images/skybox4096.bmp");
 	Texture*	texture5 = new Texture("images/skytest.bmp");
-	// Texture*	texture6 = new Texture("obj3d/Rocket/Rocket.bmp");
-	Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
+	// Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
+	Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
 	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
 
 	float s = 1.0f;//scale
@@ -202,16 +202,16 @@ void	scene1() {
 	Obj3d			the42_1(cubeBP, obj3d_prog);//the42BP !
 	the42_1.setPos(-4, -2, -2);
 	the42_1.setTexture(texture1);
-	the42_1._displayTexture = true;
+	the42_1.displayTexture = true;
 	the42_1.setPolygonMode(GL_FILL);
-	// the42_1._centered = true;
+	// the42_1.centered = true;
 
 	Obj3d	the42_2(the42_1);
 	//the42_2.setPos(0, 3, -5);
 	the42_2.setPos(-4, -2, -2);
 	the42_2.setTexture(texture2);
-	the42_2._displayTexture = false;
-	the42_2._centered = true;
+	the42_2.displayTexture = false;
+	the42_2.centered = true;
 	// the42_2.setScale(3.0f, 0.75f, 0.3f);
 	the42_2.setPolygonMode(GL_LINE);
 
@@ -220,20 +220,20 @@ void	scene1() {
 	teapot1.getModelMatrix().setOrder(ROW_MAJOR);
 //	teapot1.setRot(0, 90, 0);
 	teapot1.setTexture(texture1);
-	teapot1._displayTexture = false;
+	teapot1.displayTexture = false;
 	teapot1.setPolygonMode(GL_POINT);
 	// teapot1.setScale(1.5, 2, 0.75);
 
 	Obj3d			cube1(cubeBP, obj3d_prog);
 	cube1.setPos(0, -2, 3);
 	cube1.setTexture(texture1);
-	cube1._displayTexture = false;
+	cube1.displayTexture = false;
 
 	Obj3d			rocket1(rocketBP, obj3d_prog);
 	rocket1.setPos(-10, -20, -2000);
 	rocket1.setTexture(texture6);
-	rocket1._displayTexture = true;
-	rocket1._centered = true;
+	rocket1.displayTexture = true;
+	rocket1.centered = true;
 	// rocket1.setRescaled(false);
 	// rocket1.setPolygonMode(GL_LINE);
 	rocket1._motionBehaviorFunc = &rotAndGoZaxis;
@@ -245,8 +245,8 @@ void	scene1() {
 	Obj3d			lambo1(lamboBP, obj3d_prog);
 	lambo1.setPos(-20, 0, 0);
 	lambo1.setTexture(texture7);
-	lambo1._displayTexture = true;
-	// lambo1._centered = true;
+	lambo1.displayTexture = true;
+	// lambo1.centered = true;
 	// lambo1.setPolygonMode(GL_LINE);
 	lambo1._motionBehaviorFunc = &growAndShrink;
 	lambo1._motionBehavior = true;

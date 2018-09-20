@@ -6,7 +6,7 @@ delete data opengl:
 	Blueprint and derived
 	Program and derived
 -----------------------------------------------------------------
-void on all accessors
+void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
 class Obj (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 class Program:
 	virtual pure render (need class Obj to use Polymorphism)
@@ -21,8 +21,46 @@ Parent system:
 	local pos/rot/scale
 motion behavior:
 	generic: done
-	Obj3d dependent: need a virtual func, find something else ?
-	/!\ cannot have several func, except by calling another at the end of a first one
+		/!\ cannot have several func, except by calling another at the end of a first one
+	Obj3d dependent: need a virtual func
+		/!\ altered variables need to be set as protected in Obj3d class
+	What i want:
+		Obj3d::runX Behaviors/scripts/modifiers/
+
+		public:
+		void	runX();
+		bool	Xactivated;
+		private:
+		list<classX>	Xvar;//references,pointers,copys?
+		//in render:
+		{
+			[...]
+			if (this->_Xactivated)
+				for (/*all list elements*/) {
+					element->run();
+				}
+		}
+
+		class X {
+		public:
+			X(var1, var2, var3, ...);
+			[...]
+			~X();
+			void	run() {
+				if (this->activated)
+				// code depending on vars and settings
+			}
+			bool	activated;
+		private:
+			Fps &	var1;
+			Obj3d &	var2;
+			Cam &	var3;
+			[...]
+			float	setting1;
+			float	setting2;
+			[...]
+		}
+
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
 -----------------------------------------------------------------

@@ -5,18 +5,17 @@
 class Obj3dPG;
 #include "math.hpp"
 
-#define OBJ3D_DEFAULT_SIZE	4.0f
+#define OBJ3D_DEFAULT_SIZE	4.0f//duplicate in Obj
 
 class Obj3d
 {
 public:
-	static unsigned int		getInstanceAmount();
-	static bool				defaultCentered;
-	static bool				defaultRotate;
+	static unsigned int		getInstanceAmount();//duplicate this in Obj
+	static bool				defaultCentered;//Obj
 	static bool				defaultDisplayTexture;
 	static GLenum			defaultPolygonMode;
-	static float			defaultSize;
-	static bool				defaultRescaled;
+	static float			defaultSize;//Obj
+	static bool				defaultRescaled;//Obj
 
 //	Obj3d(); obj vide ? oui mais plutot Obj avec seulement une modelmatrix, donc une autre classe ?
 /*	-> faire heriter Obj3d : Obj ?
@@ -36,95 +35,66 @@ public:
 	~Obj3d();
 	Obj3d&	operator=(const Obj3d& obj3d);
 
-	void	runMothionBehavior(void * ptr);
-	void	render(Math::Matrix4& PVmatrix);
-	/*
-		set a movement attribute function
-		ex: rotate on Y, and move along a range on PosY (like a floating bonus in games_
-		void	setMvtFunc(void *(func)(Obj3d& obj)) {
-			this->_mvtFunc = func;
-		}
-		then in each frame, call this->_mvtFunc()
-		ie: func(...) {
-			this->pos.y += (cos(time) * DELTA);
-			this->rot.y += DEG * DELTA; // care rad/degree
-		}
-	*/
+	void	runMothionBehavior(void * ptr);//Obj
+	void	render(Math::Matrix4& PVmatrix);//Obj? virtual pure ?
 
 	//mutators
-	void			setPos(float x, float y, float z);
-	void			setPos(Math::Vector3 pos);
-	void			setRot(float x, float y, float z);// in degree!
-	void			setRot(Math::Rotation rot);
-	void			setScale(float x, float y, float z);
-	void			setScale(Math::Vector3 scale);
-	void			setRescaled(bool value);
+	void			setPos(float x, float y, float z);//Obj
+	void			setPos(Math::Vector3 pos);//Obj
+	void			setRot(float x, float y, float z);// in degree!//Obj
+	void			setRot(Math::Rotation rot);//Obj
+	void			setScale(float x, float y, float z);//Obj
+	void			setScale(Math::Vector3 scale);//Obj
+	void			setRescaled(bool value);//Obj
 	void			setColor(uint8_t x, uint8_t y, uint8_t z);
 	void			setTexture(Texture* texture);
 	void			setPolygonMode(GLenum mode);
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
 
 	//accessors
-	unsigned int	getId(void) const;
+	unsigned int	getId(void) const;//Obj
 	Obj3dBP&		getBlueprint(void) const;
 	Obj3dPG&		getProgram(void) const;
-	Math::Matrix4&	getModelMatrix(void) const;
-	Math::Vector3	getPos(void) const;
-	Math::Rotation	getRot(void) const;
-	Math::Vector3	getScale(void) const;
-	Math::Vector3	getFinalScale(void) const;
-	float			getScaleCoef(void) const;
-	bool			isRescaled(void) const;
+	Math::Matrix4&	getModelMatrix(void) const;//Obj
+	Math::Vector3	getPos(void) const;//Obj
+	Math::Rotation	getRot(void) const;//Obj
+	Math::Vector3	getScale(void) const;//Obj
+	Math::Vector3	getFinalScale(void) const;//Obj
+	float			getScaleCoef(void) const;//Obj
+	bool			isRescaled(void) const;//Obj
 	Math::Vector3	getColor(void) const;
 	Texture*		getTexture(void) const;
 	GLenum			getPolygonMode(void) const;
-	void			(*getMotionBehaviorFunc(void) const) (Obj3d &, void*);
+	void			(*getMotionBehaviorFunc(void) const) (Obj3d &, void*);//Obj
 
 	//settings
-	bool			_displayTexture;
-	bool			_rotate;
-	bool			_centered;
-	bool			_motionBehavior;
+	bool			displayTexture;
+	bool			centered;//Obj
+	bool			_motionBehavior;//Obj
 	//motion behavior
-	void			(*_motionBehaviorFunc)(Obj3d & ref, void* ptr);
+	void			(*_motionBehaviorFunc)(Obj3d & ref, void* ptr);//Obj
 	/*
 		The static variables behavior must NOT depend on the object properties.
 		As it does not belong to the Obj3d instance,
 		its static variables will be altered by all instances using it.
-
-		To have an instance dependent function,
-		make a virtual func declaration, inherit from Obj3d and overload it
-		ex:
-		1. in Obj3d class
-		virtual void	MotionBehaviorFunc(void* ptr) {
-			// does nothing
-		}
-
-		2. in inherited class: rotate along Y axis
-		void	MotionBehaviorFunc(void* ptr) {
-			Fps * fps = (Fps*)ptr;
-			this->_rot.y += 40 * fps->tick;
-			
-			<=> this->setRot(this->_rot);		//use the mutator to tell that there is a change for the model matrix
-			<=> this->_matrixUpdated = false; 	//direct and better way to do that
-		}
 	*/
 protected:
 private:
-	static unsigned int	instanceAmount;	// should never be altered manually
-	static unsigned int	instanceId;		// should never be altered manually
+	//duplicate this in Obj (amount, Obj3d amount will be included in Obj amount)
+	static unsigned int	_instanceAmount;	// should never be altered manually
+	static unsigned int	_instanceId;//obj		// should never be altered manually
 
-	unsigned int	_id;
+	unsigned int	_id;//Obj
 	Obj3dBP&		_blueprint;
 	Obj3dPG&		_program;
-	Math::Matrix4	_modelMatrix;
-	bool			_matrixUpdated;
-	Math::Vector3	_pos;
-	Math::Rotation	_rot;
-	Math::Vector3	_scale;
-	Math::Vector3	_finalScale;
-	const float		_scaleCoef;
-	bool			_rescaled;
+	Math::Matrix4	_modelMatrix;//Obj
+	bool			_matrixUpdated;//Obj
+	Math::Vector3	_pos;//Obj
+	Math::Rotation	_rot;//Obj
+	Math::Vector3	_scale;//Obj
+	Math::Vector3	_finalScale;//Obj
+	const float		_scaleCoef;//Obj
+	bool			_rescaled;//Obj
 	/*
 		_scaleCoef should NEVER change once defined!
 			If the default size for that specific Obj3d instance has to change,

@@ -59,7 +59,7 @@ public:
 	double		getMouseAngle() const;
 	std::string	getTitle() const;
 
-	GLFWwindow *	_window;
+	GLFWwindow *	_window;//private?
 
 private://changer double en uint ? cf glfwGetCursorPos
 	unsigned int	_width;
