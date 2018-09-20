@@ -86,7 +86,29 @@ public:
 	bool			_centered;
 	bool			_motionBehavior;
 	//motion behavior
-	void			(*_motionBehaviorFunc)(Obj3d & ref, void* ptr);//private ?
+	void			(*_motionBehaviorFunc)(Obj3d & ref, void* ptr);
+	/*
+		The static variables behavior must NOT depend on the object properties.
+		As it does not belong to the Obj3d instance,
+		its static variables will be altered by all instances using it.
+
+		To have an instance dependent function,
+		make a virtual func declaration, inherit from Obj3d and overload it
+		ex:
+		1. in Obj3d class
+		virtual void	MotionBehaviorFunc(void* ptr) {
+			// does nothing
+		}
+
+		2. in inherited class: rotate along Y axis
+		void	MotionBehaviorFunc(void* ptr) {
+			Fps * fps = (Fps*)ptr;
+			this->_rot.y += 40 * fps->tick;
+			
+			<=> this->setRot(this->_rot);		//use the mutator to tell that there is a change for the model matrix
+			<=> this->_matrixUpdated = false; 	//direct and better way to do that
+		}
+	*/
 protected:
 private:
 	static unsigned int	instanceAmount;	// should never be altered manually

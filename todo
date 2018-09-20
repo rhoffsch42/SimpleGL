@@ -19,6 +19,10 @@ Parent system:
 	Math::Matrix4	worldModelMatrix; // = parent.getWorldModelMatrix(); then mult(localModelMatrix); care of outdated matrices!
 	Math::Matrix4	localModelMatrix;
 	local pos/rot/scale
+motion behavior:
+	generic: done
+	Obj3d dependent: need a virtual func, find something else ?
+	/!\ cannot have several func, except by calling another at the end of a first one
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
 -----------------------------------------------------------------

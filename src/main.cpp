@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/20 02:27:18 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/20 03:44:41 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,34 +142,33 @@ void	check_paddings() {
 	}
 }
 
-void	rotateZaxis(Obj3d & obj3d_ref, void* ptr) {
-	Fps * fps_ptr = (Fps*)ptr;
-	float	anglePerSec = 500;
-	Math::Rotation	rot = obj3d_ref.getRot();
-	rot.setAsDegree();
-	rot.z += anglePerSec * (float)fps_ptr->tick;
-	obj3d_ref.setRot(rot);
-	Math::Vector3	pos = obj3d_ref.getPos();
-	pos.add(Math::Vector3(0, 0, 250 * (float)fps_ptr->tick));
-	obj3d_ref.setPos(pos);
-}
-
-void	bigAndLittle(Obj3d & obj3d_ref, void* ptr) {
+void	growAndShrink(Obj3d & obj3d_ref, void* ptr) {
 	static float	growCoef = 1;
-	static float	minScale = 0.8f;
-	static float	maxScale = 2.0f;
-	static float	scalePerSec = 1.0f;
 
 	Fps * fps_ptr = (Fps*)ptr;
 	Math::Vector3	s = obj3d_ref.getScale();
-	float	addScale = scalePerSec * (float)fps_ptr->tick;
+	float	addScale = (s.x / 2.0f) * (float)fps_ptr->tick;
 	addScale *= growCoef;
 	s.add(Math::Vector3(addScale, addScale, addScale));
 	obj3d_ref.setScale(s);
-	if (growCoef == 1 && s.x > maxScale)
-		growCoef = -1;
-	else if (growCoef == -1 && s.x < minScale)
-		growCoef = 1;
+	
+	//alternate grow/shrink each second
+	int	t = int(fps_ptr->last_time) % 2;
+	growCoef = (t == 0) ? -1 : 1;
+}
+
+void	rotAndGoZaxis(Obj3d & obj3d_ref, void* ptr) {
+	static float	anglePerSec = 500;
+	static float	distPerSec = 250;
+	
+	Fps * fps_ptr = (Fps*)ptr;
+	Math::Rotation	rot = obj3d_ref.getRot();
+	Math::Vector3	pos = obj3d_ref.getPos();
+	rot.setAsDegree();
+	rot.z += anglePerSec * (float)fps_ptr->tick;
+	obj3d_ref.setRot(rot);
+	pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
+	obj3d_ref.setPos(pos);
 }
 
 void	scene1() {
@@ -237,7 +236,7 @@ void	scene1() {
 	rocket1._centered = true;
 	// rocket1.setRescaled(false);
 	// rocket1.setPolygonMode(GL_LINE);
-	rocket1._motionBehaviorFunc = &rotateZaxis;
+	rocket1._motionBehaviorFunc = &rotAndGoZaxis;
 	rocket1._motionBehavior = true;
 	s = 30.0f;
 	rocket1.setScale(s,s,s);
@@ -249,7 +248,7 @@ void	scene1() {
 	lambo1._displayTexture = true;
 	// lambo1._centered = true;
 	// lambo1.setPolygonMode(GL_LINE);
-	lambo1._motionBehaviorFunc = &bigAndLittle;
+	lambo1._motionBehaviorFunc = &growAndShrink;
 	lambo1._motionBehavior = true;
 	s = 0.025f;
 	// lambo1.setScale(s, s, s);
