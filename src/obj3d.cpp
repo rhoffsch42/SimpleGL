@@ -93,7 +93,7 @@ void		Obj3d::runMothionBehavior(void * ptr) {
 	if (this->_motionBehaviorFunc && this->_motionBehavior)
 		this->_motionBehaviorFunc(*this, ptr);
 	else
-		cout << "No motion behavior is set. Doing nothing." << endl;
+		cout << "No motion behavior is set/activated. Doing nothing." << endl;
 }
 
 void		Obj3d::render(Math::Matrix4& PVmatrix) {

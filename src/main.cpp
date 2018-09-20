@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/20 07:48:46 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/20 09:29:27 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,33 +142,52 @@ void	check_paddings() {
 	}
 }
 
-void	growAndShrink(Obj3d & obj3d_ref, void* ptr) {
+void	growAndShrink(Obj3d & ref, void* ptr) {
 	static float	growCoef = 1;
 
 	Fps * fps_ptr = (Fps*)ptr;
-	Math::Vector3	s = obj3d_ref.getScale();
+	Math::Vector3	s = ref.getScale();
 	float	addScale = (s.x / 2.0f) * (float)fps_ptr->tick;
 	addScale *= growCoef;
 	s.add(Math::Vector3(addScale, addScale, addScale));
-	obj3d_ref.setScale(s);
+	ref.setScale(s);
 	
 	//alternate grow/shrink each second
 	int	t = int(fps_ptr->last_time) % 2;
 	growCoef = (t == 0) ? -1 : 1;
 }
 
-void	rotAndGoZaxis(Obj3d & obj3d_ref, void* ptr) {
+void	rotAndGoZaxis(Obj3d & ref, void* ptr) {
 	static float	anglePerSec = 75;
 	static float	distPerSec = 250;
 	
 	Fps * fps_ptr = (Fps*)ptr;
-	Math::Rotation	rot = obj3d_ref.getRot();
-	Math::Vector3	pos = obj3d_ref.getPos();
+	Math::Rotation	rot = ref.getRot();
+	Math::Vector3	pos = ref.getPos();
 	rot.setAsDegree();
 	rot.z += anglePerSec * (float)fps_ptr->tick;
-	obj3d_ref.setRot(rot);
+	ref.setRot(rot);
 	pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
-	obj3d_ref.setPos(pos);
+	ref.setPos(pos);
+}
+
+struct	followCamArgs
+{
+	Fps *	fps;
+	Cam *	cam;
+};
+void	followCam(Obj3d & ref, void *ptr) {
+	followCamArgs * st = (followCamArgs*)ptr;
+	Math::Vector3	diff = st->cam->getPos();
+	Math::Vector3	objPos = ref.getPos();
+	diff.sub(objPos);
+	float	magnitude = diff.magnitude();
+	if (magnitude > 0.1f) {
+		diff.div(magnitude);
+		diff.mult(2 * st->fps->tick);
+		objPos.add(diff);
+		ref.setPos(objPos);
+	}
 }
 
 void	scene1() {
@@ -221,7 +240,9 @@ void	scene1() {
 //	teapot1.setRot(0, 90, 0);
 	teapot1.setTexture(texture1);
 	teapot1.displayTexture = false;
-	teapot1.setPolygonMode(GL_POINT);
+	teapot1.setPolygonMode(GL_LINE);
+	teapot1._motionBehaviorFunc = &followCam;
+	teapot1._motionBehavior = true;
 	// teapot1.setScale(1.5, 2, 0.75);
 
 	Obj3d			cube1(cubeBP, obj3d_prog);
@@ -281,6 +302,9 @@ void	scene1() {
 	Fps	fps60(60);
 	Fps	fps30(30);
 	Fps* defaultFps = &fps60;
+
+	followCamArgs	st = { defaultFps, &cam };
+
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
 			// printFps();
@@ -305,6 +329,7 @@ void	scene1() {
 			//this should be used in another func, life a special func managing all events/behavior at every frames
 			rocket1.runMothionBehavior((void*)defaultFps);
 			lambo1.runMothionBehavior((void*)defaultFps);
+			teapot1.runMothionBehavior((void*)&st);
 
 			// Fps * fps_ptr = &fps30;
 			// if (fps_ptr->wait_for_next_frame()) {
