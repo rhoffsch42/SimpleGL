@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/20 09:29:27 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/20 09:38:45 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,8 +259,8 @@ void	scene1() {
 	// rocket1.setPolygonMode(GL_LINE);
 	rocket1._motionBehaviorFunc = &rotAndGoZaxis;
 	rocket1._motionBehavior = true;
-	s = 30.0f;
-	rocket1.setScale(s,s,s);
+	s = 100.0f;
+	rocket1.setScale(s,s,-s);
 
 	Obj3d::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
@@ -288,7 +288,7 @@ void	scene1() {
 	obj3dList.push_back(&the42_1);
 	obj3dList.push_back(&the42_2);
 	obj3dList.push_back(&teapot1);
-	obj3dList.push_back(&cube1);
+	// obj3dList.push_back(&cube1);
 	obj3dList.push_back(&rocket1);
 	obj3dList.push_back(&lambo1);
 
