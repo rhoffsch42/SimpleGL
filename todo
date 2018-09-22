@@ -1,12 +1,18 @@
-TROUVER UN BINOME !!!
-
-leaks:
+---- other			-------------------------------------------------------
+float	(*Vector3::operation)(float,float);
+	inline?	add/sub/etc
+	compare execution speed, binary size
+---- memory/leaks	-------------------------------------------------------
 delete data opengl:
 	Skybox
 	Blueprint and derived
 	Program and derived
------------------------------------------------------------------
+---- text formating	-------------------------------------------------------
 void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
+constructor copy, const X& src
+references: type& varname;
+class X { //brace here or next line
+---- features		-------------------------------------------------------
 class Obj (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 class Program:
 	virtual pure render (need class Obj to use Polymorphism)
@@ -63,5 +69,5 @@ motion behavior:
 
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
------------------------------------------------------------------
-GUI	Qt
+---- GUI			-------------------------------------------------------
+	Qt
