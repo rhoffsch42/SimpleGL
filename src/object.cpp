@@ -57,14 +57,39 @@ void		Object::runMothionBehavior(void * ptr) {
 		cout << "No motion behavior is set/activated. Doing nothing." << endl;
 }
 
+void		Object::update() {
+	/* plus rapide mais incomplet:
+		*si parent:
+			world = parent.world * local;
+		world = idenity * local = local;
+		donc update dans l'ordre suivant:
+			*. parent.world (parent.local avant si necessaire, et recursivement parent.parent.etc)
+				-> parent.update();
+			1. local
+			2. world
+	*/
+	Math::Vector3&	usedScale = this->_local._rescaled ? this->_local._finalScale : this->_local._scale;
+	this->_local._matrix.modelMatrix(this->_local._pos, this->_local._rot, usedScale);
+	//faire une method: Properties::updateMatrix() ? inline ?
+	this->_world = this->_local;
+	if (this->_parent) {
+		this->_parent->update();
+		this->_world._matrix.mult(this->_parent->_world._matrix);
+	}
+	/*
+		voir le fonctionnement d'Unity: worldToLocalMatrix et localToWorldMatrix
+	*/
+}
+
 void		Object::render(Math::Matrix4& PVmatrix) {
-	if (!this->_matrixUpdated) {
+	if (!this->_world.isUpdated() || !this->_local.isUpdated()) {
 		Math::Vector3 &	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
 		this->_modelMatrix.modelMatrix(this->_pos, this->_rot, usedScale);
 		if (this->centered)
 			this->center();
 		this->_matrixUpdated = true;
 	}
+	//this->update();
 	this->_program.render((Object&)(*this), PVmatrix);
 }
 

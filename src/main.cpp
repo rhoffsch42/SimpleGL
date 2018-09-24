@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/22 15:12:22 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/24 19:48:11 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -359,7 +359,86 @@ void	scene1() {
 	delete texture7;
 }
 
+#include "properties.hpp"
+void	test_pp() {
+	Properties	parent_local;
+	Properties	local;
+	Properties	worldManual;
+
+	local.setPos(5, 8, 2);
+	local.setRot(20, 150, 10);
+	Math::Matrix4&	lmatrix = local.getMatrix();
+	lmatrix.modelMatrix(local.getPos(), local.getRot(), local.getScale());
+
+	parent_local.setPos(10, 5, 8);
+	parent_local.setRot(40, 89.70f, 50);
+	Math::Matrix4&	plmatrix = parent_local.getMatrix();
+	plmatrix.modelMatrix(parent_local.getPos(), parent_local.getRot(), parent_local.getScale());
+
+	if (0) {
+		lmatrix.mult(plmatrix);// = world matrix
+		cout << "world: ";
+		lmatrix.printData();
+	}
+	else {
+		// plmatrix.mult(lmatrix);
+		cout << "world: ";
+		plmatrix.printData();
+	}
+	/*
+		COS_X = cosf(rot.x);
+		SIN_X = sinf(rot.x);
+		COS_Y = cosf(rot.y);
+		SIN_Y = sinf(rot.y);
+		COS_Z = cosf(rot.z);
+		SIN_Z = sinf(rot.z);
+		val[6] = COS_X * SIN_Y;
+		val[7] = SIN_X * SIN_Y;
+		this->tab[0][0] = COS_Y * COS_Z;
+		this->tab[1][0] = val[7] * COS_Z + COS_X * SIN_Z;
+		this->tab[2][0] = -val[6] * COS_Z + SIN_X * SIN_Z;
+		this->tab[0][1] = -COS_Y * SIN_Z;
+		this->tab[1][1] = -val[7] * SIN_Z + COS_X * COS_Z;
+		this->tab[2][1] = val[6] * SIN_Z + SIN_X * COS_Z;
+		this->tab[0][2] = SIN_Y;
+		this->tab[1][2] = -SIN_X * COS_Y;
+		this->tab[2][2] = COS_X * COS_Y;
+	*/
+	/*
+		sinf(y) = x
+		asinf(x) = y
+	*/
+	// parent_local.setRot(50, 90, 45);
+	Math::Matrix4 mat2(plmatrix);
+	mat2.setOrder(ROW_MAJOR);
+	float	(&m2)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat2.getData());
+
+	// Angle Z
+	// m2[0][0] = cosf(y) * cosf(z)
+	// cosf(z) = m2[0][0] / cosf(y)
+	// z = acosf(m2[0][0] / cosf(y))
+
+	// Angle X
+	// m2[2][2] = cosf(x) * cosf(y)
+	// cosf(x) = m2[2][2] / cosf(y)
+	// x = acosf(m2[2][2] / cosf(y))
+
+	double	x, y, z;
+	y = asin((double)m2[0][2]);
+	double	cos_y = cos(y);
+	if (fabs(cos_y) > 0.005)
+		cout << "cos(y) = " << cos_y << endl;
+	z = acos((double)m2[0][0] / cos_y);
+	x = acos((double)m2[2][2] / cos_y);
+
+	cout << "angle x :\t" << x << " (" << Math::toDegree(x) << ")" << endl;
+	cout << "angle y :\t" << y << " (" << Math::toDegree(y) << ")" << endl;
+	cout << "angle z :\t" << z << " (" << Math::toDegree(z) << ")" << endl;
+	exit(0);
+}
+
 int		main(void) {
+	test_pp();
 	check_paddings();
 //	test_mult_mat4(); exit(0);
 	cout << "____START____" << endl;

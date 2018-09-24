@@ -29,7 +29,7 @@ Properties::Properties(const Properties& src) : _scaleCoef(src.getScaleCoef()) {
 }
 
 Properties&		Properties::operator=(const Properties& src) {
-	this->_matrix = src.getMatrix();
+	this->_matrix = Math::Matrix4(src.getMatrix());
 	this->_matrixUpdated = false;
 	this->_pos = src.getPos();
 	this->_rot = src.getRot();
@@ -63,7 +63,7 @@ void		Properties::center() {
 	offset.z *= usedScale.z;
 	Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
 	offsetneg.rotate(this->_rot, ROT_WAY);
-	newpos.add(offsetneg);
+	newpos.add(offsetneg);//stocker dans this->_posCentered ?
 	this->_matrix.updatePosValue(newpos);
 }
 

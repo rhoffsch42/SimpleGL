@@ -15,8 +15,8 @@ public:
 	Object&	operator=(const Object& src);
 
 	void	runMothionBehavior(void* ptr);
+	void	update();
 	void	render(Math::Matrix4& PVmatrix);//? virtual pure ?
-
 	//mutators
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
 
@@ -42,8 +42,8 @@ private:
 	static unsigned int	_instanceId;		// should never be altered manually
 
 	unsigned int	_id;
-	Object*			_parent;
-	Properties		_world;
-	Properties		_local;
+	Object*			_parent;// ref or pointer ? test whith ref, then delete original parent.
+	Properties		_world;//public ?
+	Properties		_local;//public ?
 	// Program&		_program;
 };
