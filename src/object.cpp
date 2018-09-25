@@ -35,10 +35,8 @@ Object&		Object::operator=(const Object& src) {
 	this->_motionBehaviorFunc = src.getMotionBehaviorFunc();
 
 	this->_id = Object::_instanceId;
-	this->_world = src.getWorldProperties();
 	this->_local = src.getLocalProperties();
-	// x+1 y+1 z+1 pour faire un decalage // tmp
-	this->_local.translate(1, 1, 1);
+	this->_worldMatrix = Math::Matrix4(src.getWorldMatrix());
 
 	Object::_instanceAmount++;
 	Object::_instanceId++;
@@ -57,7 +55,7 @@ void		Object::runMothionBehavior(void * ptr) {
 		cout << "No motion behavior is set/activated. Doing nothing." << endl;
 }
 
-void		Object::update() {
+bool		Object::update() {//update Properties
 	/* plus rapide mais incomplet:
 		*si parent:
 			world = parent.world * local;
@@ -68,34 +66,34 @@ void		Object::update() {
 			1. local
 			2. world
 	*/
-	Math::Vector3&	usedScale = this->_local._rescaled ? this->_local._finalScale : this->_local._scale;
-	this->_local._matrix.modelMatrix(this->_local._pos, this->_local._rot, usedScale);
-	//faire une method: Properties::updateMatrix() ? inline ?
-	this->_world = this->_local;
+	bool	localUpdated = this->_local.updateMatrix();
 	if (this->_parent) {
-		this->_parent->update();
-		this->_world._matrix.mult(this->_parent->_world._matrix);
+		bool	parentUpdated = this->_parent->update();
+		if (!localUpdated || !parentUpdated) {
+			this->_worldMatrix = this->_parent->_worldMatrix;
+			this->_worldMatrix.mult(this->_local._matrix);// mult inverse ?
+			return (false);
+		}
 	}
+	else if (!localUpdated) {
+		this->_worldMatrix = this->_local._matrix;
+		return (false);
+	}
+	else
+		return (true);
 	/*
-		voir le fonctionnement d'Unity: worldToLocalMatrix et localToWorldMatrix
+		voir le fonctionnement d'Unity: worldToLocalMatrix et localToWorldMatrix ?
 	*/
 }
 
 void		Object::render(Math::Matrix4& PVmatrix) {
-	if (!this->_world.isUpdated() || !this->_local.isUpdated()) {
-		Math::Vector3 &	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
-		this->_modelMatrix.modelMatrix(this->_pos, this->_rot, usedScale);
-		if (this->centered)
-			this->center();
-		this->_matrixUpdated = true;
-	}
-	//this->update();
-	this->_program.render((Object&)(*this), PVmatrix);
+	this->update();
+	// this->_program.render((Object&)(*this), PVmatrix);
 }
 
 //mutators
 //accessors
 unsigned int	Object::getId(void) const { return (this->_id); }
 void			(*Object::getMotionBehaviorFunc(void) const) (Object &, void*) { return (this->_motionBehaviorFunc); }
-Properties		Object::getWorldProperties() const { return (this->_world); }
 Properties		Object::getLocalProperties() const { return (this->_local); }
+Math::Matrix4&	Object::getWorldMatrix() const { return ((Math::Matrix4&)this->_worldMatrix); }

@@ -37,6 +37,7 @@ Properties&		Properties::operator=(const Properties& src) {
 	this->_finalScale = src.getFinalScale();
 	this->_rescaled = src.isRescaled();
 	this->_centerOffset = src.getCenterOffset();
+	this->_centeredPos = src.getCenteredPos();
 	return (*this);
 }
 
@@ -44,8 +45,70 @@ Properties::~Properties() {
 	cout << "_ Properties des" << endl;
 }
 
+bool		Properties::updateMatrix() {
+	if (!this->_matrixUpdated) {
+		Math::Vector3&	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
+		this->_matrix.modelMatrix(this->_pos, this->_rot, usedScale);
+		if (this->centered)
+			this->center();
+		this->_matrixUpdated = true;
+		return (false);
+	}
+	return (true);
+}
+
+void		Properties::updateFromMatrix(Math::Matrix4& mat) {
+	cerr << "/!\\\tProperties::updateFromMatrix incomplete, do not use it!" << endl;
+	uint8_t	order = mat.getOrder();
+	mat.setOrder(ROW_MAJOR);
+	float	(&m)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat.getData());
+	/*
+		Angle y
+		m[0][2] = sinf(y)
+		y = asinf(m[0][2])
+		
+		Angle x
+		m[2][2] = cosf(x) * cosf(y)
+		cosf(x) = m[2][2] / cosf(y)
+		x = acosf(m[2][2] / cosf(y))
+
+		Angle z
+		m[0][0] = cosf(y) * cosf(z)
+		cosf(z) = m[0][0] / cosf(y)
+		z = acosf(m[0][0] / cosf(y))
+	*/
+	float	x, y, z, cos_y;
+	y = asinf(m[0][2]);
+	cos_y = cosf(y);
+	if (fabs(cos_y) < 0.005f) {
+		/*
+			get fucked by Gimball lock
+			in Properties mutators:
+				always check for a Yangle too close from 90.0f degrees
+				correct it with 0.17 degree from 90
+		*/
+		//cout << "x and z angle are false" << endl;
+	}
+	x = acosf(m[2][2] / cos_y);
+	z = acosf(m[0][0] / cos_y);
+
+	this->_rot.x = x;
+	this->_rot.y = y;
+	this->_rot.z = z;
+	this->_rot.setUnit(ROT_RAD);
+	this->_pos.x = m[0][3];
+	this->_pos.y = m[1][3];
+	this->_pos.z = m[2][3];
+	//prendre en compte le scale + centered
+
+	mat.setOrder(order);
+}
+
 void		Properties::center() {
-	//a faire a chaque changement de pos/rot/scale
+	/*
+		a faire a chaque changement de pos (+rapide)
+		ou mettre this->_matrixUpdated = false; (-rapide)
+	*/
 /*
 	https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
 	Easy way of building the rotation matrix :
@@ -55,7 +118,7 @@ void		Properties::center() {
 		4	Translate the matrix by centre of the object
 		5	Use the resulting matrix to transform the object that you desire to rotate
 */
-	Math::Vector3	newpos = this->_pos;
+	this->_centeredPos = this->_pos;
 	Math::Vector3	offset = this->_centerOffset;
 	Math::Vector3&	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
 	offset.x *= usedScale.x;
@@ -63,8 +126,8 @@ void		Properties::center() {
 	offset.z *= usedScale.z;
 	Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
 	offsetneg.rotate(this->_rot, ROT_WAY);
-	newpos.add(offsetneg);//stocker dans this->_posCentered ?
-	this->_matrix.updatePosValue(newpos);
+	this->_centeredPos.add(offsetneg);
+	this->_matrix.updatePosValue(this->_centeredPos);
 }
 
 //relative mutators
@@ -178,3 +241,4 @@ Math::Vector3	Properties::getFinalScale(void) const { return (this->_finalScale)
 float			Properties::getScaleCoef(void) const { return (this->_scaleCoef); }
 bool			Properties::isRescaled() const { return (this->_rescaled); }
 Math::Vector3	Properties::getCenterOffset(void) const { return (this->_centerOffset); }
+Math::Vector3	Properties::getCenteredPos(void) const { return (this->_centeredPos); }

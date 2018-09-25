@@ -13,18 +13,20 @@ constructor copy, const X& src
 references: type& varname;
 class X { //brace here or next line
 ---- features		-------------------------------------------------------
-class Obj (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
+class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
+	class Properties;//ok
+	class Obj3d need refacto
 class Program:
-	virtual pure render (need class Obj to use Polymorphism)
+	virtual pure render (need class Object to use Polymorphism)
 		skybox may not be compatible
 class Obj3d:
 	lambo.obj: there's an additionnal group for the collider in the file, conventionnal ? make an exception for that ?
 		-> check: g group_name:ColliderSG, ignore it or add it in the class in a different variable ?
 Parent system:
-	Obj &			parent;
-	Math::Matrix4	worldModelMatrix; // = parent.getWorldModelMatrix(); then mult(localModelMatrix); care of outdated matrices!
-	Math::Matrix4	localModelMatrix;
-	local pos/rot/scale
+	//render();
+	Object*			_parent;//ok
+	Properties		_local;//ok
+	Math::Matrix4	_worldMatrix;//ok
 motion behavior:
 	generic: done
 		/!\ cannot have several func, except by calling another at the end of a first one

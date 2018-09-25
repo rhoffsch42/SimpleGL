@@ -46,6 +46,8 @@ public:
 			this->_pos.operation(Math::Vector3);
 			this->_pos.operation(x, y, z);
 	*/
+	bool			updateMatrix();
+	void			updateFromMatrix(Math::Matrix4& mat);
 	//relative mutators (default: Math::Vector3::add)
 	void			translate(float x, float y, float z);
 	void			translate(Math::Vector3 pos);
@@ -70,6 +72,7 @@ public:
 	float			getScaleCoef(void) const;
 	bool			isRescaled(void) const;
 	Math::Vector3	getCenterOffset(void) const;
+	Math::Vector3	getCenteredPos(void) const;
 
 	bool			centered;
 private://public ?
@@ -90,6 +93,8 @@ private://public ?
 			because if it changes we need to set _matrixUpdated to false
 	*/
 	Math::Vector3	_centerOffset;
+	Math::Vector3	_centeredPos;
 	void	center();
+
 	friend class Object;
 };

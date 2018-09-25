@@ -15,7 +15,7 @@ public:
 	Object&	operator=(const Object& src);
 
 	void	runMothionBehavior(void* ptr);
-	void	update();
+	bool	update();
 	void	render(Math::Matrix4& PVmatrix);//? virtual pure ?
 	//mutators
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
@@ -23,8 +23,8 @@ public:
 	//accessors
 	unsigned int	getId(void) const;
 	void			(*getMotionBehaviorFunc(void) const) (Object&, void*);
-	Properties		getWorldProperties() const;
 	Properties		getLocalProperties() const;
+	Math::Matrix4&	getWorldMatrix() const;//dangerous
 
 	//settings
 	bool			_motionBehavior;
@@ -43,7 +43,8 @@ private:
 
 	unsigned int	_id;
 	Object*			_parent;// ref or pointer ? test whith ref, then delete original parent.
-	Properties		_world;//public ?
-	Properties		_local;//public ?
+	Properties		_local;
+	Math::Matrix4	_worldMatrix;
+	// Properties		_world;//pp trop complique a recuperer depuis la matrice finale
 	// Program&		_program;
 };
