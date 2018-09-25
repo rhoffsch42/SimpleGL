@@ -36,6 +36,7 @@ public:
 		its static variables will be altered by all instances using it.
 	*/
 	Properties		local;//public ?
+	bool			_worldMatrixChanged;
 protected:
 
 	unsigned int	_id;

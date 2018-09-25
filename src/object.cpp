@@ -12,6 +12,7 @@ Object::Object() {
 	this->_motionBehavior = false;
 	this->_motionBehaviorFunc = NULL;
 	this->_parent = NULL;
+	this->_worldMatrixChanged = true;
 
 	Object::_instanceAmount++;
 	Object::_instanceId++;
@@ -23,6 +24,7 @@ Object::Object(Properties object_pp) : local(object_pp) {
 	this->_motionBehavior = false;
 	this->_motionBehaviorFunc = NULL;
 	this->_parent = NULL;
+	this->_worldMatrixChanged = true;
 
 	Object::_instanceAmount++;
 	Object::_instanceId++;
@@ -41,6 +43,7 @@ Object&		Object::operator=(const Object& src) {
 	this->_id = Object::_instanceId;
 	this->local = src.getLocalProperties();
 	this->_worldMatrix = Math::Matrix4(src.getWorldMatrix());
+	this->_worldMatrixChanged = true;
 
 	Object::_instanceAmount++;
 	Object::_instanceId++;
@@ -70,47 +73,42 @@ bool		Object::update() {//update Properties
 			1. local
 			2. world
 	*/
+	// this->local.updateMatrix();
+	// if (this->_parent) {
+	// 	this->_parent->update();
+	// 	if (0) {
+	// 		this->_worldMatrix = this->local._matrix;
+	// 		this->_worldMatrix.mult(this->_parent->_worldMatrix);
+	// 	}
+	// 	else {
+	// 		this->_worldMatrix = this->_parent->_worldMatrix;
+	// 		this->_worldMatrix.mult(this->local._matrix);// mult inverse ?
+	// 	}
+	// }
+	// else
+	// {
+	// 	this->_worldMatrix = this->local._matrix;
+	// }
+	// return (false);
+
+
 	this->local.updateMatrix();
 	if (this->_parent) {
 		this->_parent->update();
-		if (0) {
-			this->_worldMatrix = this->local._matrix;
-			this->_worldMatrix.mult(this->_parent->_worldMatrix);
-		}
-		else {
+		// if (this->_parent->local._matrixChanged || this->local._matrixChanged) {
+		if (this->_parent->_worldMatrixChanged || this->_parent->local._matrixChanged || this->local._matrixChanged) {
 			this->_worldMatrix = this->_parent->_worldMatrix;
-			this->_worldMatrix.mult(this->local._matrix);// mult inverse ?
-		}
-	}
-	else
-	{
-		this->_worldMatrix = this->local._matrix;
-	}
-	return (false);
-
-	bool	localUpdated = this->local.updateMatrix();
-	if (this->_parent) {
-		bool	parentUpdated = this->_parent->update();
-		if (!localUpdated || !parentUpdated) {
-			if (0) {
-				this->_worldMatrix = this->local._matrix;
-				this->_worldMatrix.mult(this->_parent->_worldMatrix);
-			}
-			else {
-				this->_worldMatrix = this->_parent->_worldMatrix;
-				this->_worldMatrix.mult(this->local._matrix);// mult inverse ?
-			}
+			this->_worldMatrix.mult(this->local._matrix);
+			this->_worldMatrixChanged = true;
 			return (false);
 		}
-		else
-			return (true);
 	}
-	else if (!localUpdated) {
+	else if (this->local._matrixChanged) {
 		this->_worldMatrix = this->local._matrix;
+		this->_worldMatrixChanged = true;
 		return (false);
 	}
-	else
-		return (true);
+	return (true);
 	/*
 		voir le fonctionnement d'Unity: worldToLocalMatrix et localToWorldMatrix ?
 	*/

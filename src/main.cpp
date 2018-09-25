@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/25 17:42:23 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/25 19:36:13 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,10 @@ void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
 	proMatrix.mult(viewMatrix);// do it in shader ?
 	for (Obj3d* object : obj3dList)
 		object->render(proMatrix);
+	for (Obj3d* object : obj3dList) {
+		object->local._matrixChanged = false;
+		object->_worldMatrixChanged = false;
+	}
 }
 
 void	renderSkybox(Skybox& skybox, Cam& cam) {
@@ -216,6 +220,7 @@ void	scene1() {
 	Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
 	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
 	Texture*	texture8 = new Texture(*texture7);
+	Texture*	texture9 = new Texture(*texture8);
 
 	float s = 1.0f;//scale
 	//Create Obj3d with the blueprint & by copy
@@ -291,20 +296,22 @@ void	scene1() {
 	lambo2.setParent(&rocket1);
 
 	Obj3d			lambo3(lamboBP, obj3d_prog);
-	lambo3.local.setPos(0, 10, 0);
-	lambo3.setTexture(texture8);
+	lambo3.local.setPos(0, 4, 0);
+	lambo3.local.setRot(100, 0.0f, 0);
+	lambo3.setTexture(texture9);
 	lambo3.displayTexture = true;
 	lambo3.local.centered = true;
 	// lambo3.setPolygonMode(GL_LINE);
 	// lambo3._motionBehaviorFunc = &growAndShrink;
 	// lambo3._motionBehavior = true;
-	s = 5.0f;
+	s = 30.0f;
 	lambo3.local.setScale(s, s, s);
 	// lambo3.setParent(&the42_1);
 	lambo3.setParent(&lambo2);
 
 	Properties::defaultSize = PP_DEFAULT_SIZE;
 
+	cout << "Object # : " << Object::getInstanceAmount() << endl;
 	cout << "Obj3d # : " << Obj3d::getInstanceAmount() << endl;
 	cout << endl;
 
@@ -322,7 +329,7 @@ void	scene1() {
 	obj3dList.push_back(&rocket1);
 	obj3dList.push_back(&lambo1);
 	obj3dList.push_back(&lambo2);
-	// obj3dList.push_back(&lambo3);
+	obj3dList.push_back(&lambo3);
 	
 	Cam		cam(glfw);
 	cam.setPos(0, 0, 10);
@@ -347,7 +354,15 @@ void	scene1() {
 			//events(glfw, &gle, &progs[OBJ3D]);
 			glfw.updateMouse();//to do before cam's events
 			cam.events(glfw, float(defaultFps->tick));
-			
+			//////////////////////////////////////////
+			cout << "rocket1" << endl;
+			rocket1.getWorldMatrix().printData();
+			cout << "lambo2" << endl;
+			lambo2.getWorldMatrix().printData();
+			cout << "lambo3" << endl;
+			lambo3.getWorldMatrix().printData();
+			cout << "---------------" << endl;
+
 			//////////////////////////////////////////manual motion
 			float	v1 = 160;
 			float	v2 = 360;// degree/sec

@@ -75,6 +75,7 @@ public:
 	Math::Vector3	getCenteredPos(void) const;
 
 	bool			centered;
+	bool			_matrixChanged;
 private://public ?
 	Math::Matrix4	_matrix;
 	bool			_matrixUpdated;

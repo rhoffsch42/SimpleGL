@@ -19,6 +19,7 @@ Properties::Properties() : _scaleCoef(1.0f) {
 	this->_finalScale.mult(this->_scaleCoef);
 	this->_rescaled = Properties::defaultRescaled;
 	this->_matrixUpdated = false;
+	this->_matrixChanged = true;
 }
 
 Properties::Properties(Math::Vector3 dimensions) : _scaleCoef(calcScaleCoef(dimensions, Properties::defaultSize)) {
@@ -28,6 +29,7 @@ Properties::Properties(Math::Vector3 dimensions) : _scaleCoef(calcScaleCoef(dime
 	this->_finalScale.mult(this->_scaleCoef);
 	this->_rescaled = Properties::defaultRescaled;
 	this->_matrixUpdated = false;
+	this->_matrixChanged = true;
 }
 
 Properties::Properties(const Properties& src) : _scaleCoef(src.getScaleCoef()) {
@@ -38,6 +40,7 @@ Properties::Properties(const Properties& src) : _scaleCoef(src.getScaleCoef()) {
 Properties&		Properties::operator=(const Properties& src) {
 	this->_matrix = Math::Matrix4(src.getMatrix());
 	this->_matrixUpdated = false;
+	this->_matrixChanged = true;
 	this->_pos = src.getPos();
 	this->_rot = src.getRot();
 	this->_scale = src.getScale();
@@ -59,6 +62,7 @@ bool		Properties::updateMatrix() {
 		if (this->centered)
 			this->center();
 		this->_matrixUpdated = true;
+		this->_matrixChanged = true;
 		return (false);
 	}
 	return (true);
@@ -135,6 +139,7 @@ void		Properties::center() {
 	offsetneg.rotate(this->_rot, ROT_WAY);
 	this->_centeredPos.add(offsetneg);
 	this->_matrix.updatePosValue(this->_centeredPos);
+	this->_matrixChanged = true;
 }
 
 //relative mutators
@@ -147,6 +152,7 @@ void		Properties::translate(float x, float y, float z) {
 		this->center();
 	else
 		this->_matrix.updatePosValue(this->_pos);
+	this->_matrixChanged = true;
 }
 void		Properties::translate(Math::Vector3 pos) {
 	// this->_pos.operation(Math::Vector3);//cf .hpp
@@ -155,6 +161,7 @@ void		Properties::translate(Math::Vector3 pos) {
 		this->center();
 	else
 		this->_matrix.updatePosValue(this->_pos);
+	this->_matrixChanged = true;
 }
 void		Properties::rotate(float x, float y, float z) {// in degree!
 	// this->_rot.operation(x, y, z);//cf .hpp
@@ -198,6 +205,7 @@ void		Properties::setPos(float x, float y, float z) {
 		this->center();
 	else
 		this->_matrix.updatePosValue(this->_pos);
+	this->_matrixChanged = true;
 }
 void		Properties::setPos(Math::Vector3 pos) {
 	this->_pos = pos;
@@ -205,6 +213,7 @@ void		Properties::setPos(Math::Vector3 pos) {
 		this->center();
 	else
 		this->_matrix.updatePosValue(this->_pos);
+	this->_matrixChanged = true;
 }
 void		Properties::setRot(float x, float y, float z) {// in degree!
 	this->_rot.x = x;
