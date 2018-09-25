@@ -5,6 +5,13 @@ bool			Properties::defaultCentered = false;
 float			Properties::defaultSize = PP_DEFAULT_SIZE;
 bool			Properties::defaultRescaled = true;
 
+static float	calcScaleCoef(Math::Vector3 dimensions, float size) {//faire ca dans Properties ? oui
+	float	largest = dimensions.x;
+	largest = std::max(largest, dimensions.y);
+	largest = std::max(largest, dimensions.z);
+	return (size / largest);
+}
+
 Properties::Properties() : _scaleCoef(1.0f) {
 	// cout << "_ Properties cons" << endl;
 	this->_scale = Math::Vector3(1, 1, 1);
@@ -14,7 +21,7 @@ Properties::Properties() : _scaleCoef(1.0f) {
 	this->_matrixUpdated = false;
 }
 
-Properties::Properties(float scaleCoef) : _scaleCoef(scaleCoef) {
+Properties::Properties(Math::Vector3 dimensions) : _scaleCoef(calcScaleCoef(dimensions, Properties::defaultSize)) {
 	// cout << "_ Properties cons" << endl;
 	this->_scale = Math::Vector3(1, 1, 1);
 	this->_finalScale = this->_scale;
@@ -42,7 +49,7 @@ Properties&		Properties::operator=(const Properties& src) {
 }
 
 Properties::~Properties() {
-	cout << "_ Properties des" << endl;
+	// cout << "_ Properties des" << endl;
 }
 
 bool		Properties::updateMatrix() {

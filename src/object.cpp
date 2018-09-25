@@ -6,15 +6,19 @@ unsigned int	Object::getInstanceAmount() { return (Object::_instanceAmount); }
 unsigned int	Object::_instanceAmount = 0;
 unsigned int	Object::_instanceId = 0;
 
-static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
-	float	largest = dimensions.x;
-	largest = std::max(largest, dimensions.y);
-	largest = std::max(largest, dimensions.z);
-	return (size / largest);
-}
-
 Object::Object() {
 	cout << "_ Object cons" << endl;
+	this->_id = Object::_instanceId;
+	this->_motionBehavior = false;
+	this->_motionBehaviorFunc = NULL;
+	this->_parent = NULL;
+
+	Object::_instanceAmount++;
+	Object::_instanceId++;
+}
+
+Object::Object(Properties object_pp) : local(object_pp) {
+	cout << "_ Object cons with custom Properties" << endl;
 	this->_id = Object::_instanceId;
 	this->_motionBehavior = false;
 	this->_motionBehaviorFunc = NULL;
@@ -35,7 +39,7 @@ Object&		Object::operator=(const Object& src) {
 	this->_motionBehaviorFunc = src.getMotionBehaviorFunc();
 
 	this->_id = Object::_instanceId;
-	this->_local = src.getLocalProperties();
+	this->local = src.getLocalProperties();
 	this->_worldMatrix = Math::Matrix4(src.getWorldMatrix());
 
 	Object::_instanceAmount++;
@@ -66,17 +70,43 @@ bool		Object::update() {//update Properties
 			1. local
 			2. world
 	*/
-	bool	localUpdated = this->_local.updateMatrix();
+	this->local.updateMatrix();
+	if (this->_parent) {
+		this->_parent->update();
+		if (0) {
+			this->_worldMatrix = this->local._matrix;
+			this->_worldMatrix.mult(this->_parent->_worldMatrix);
+		}
+		else {
+			this->_worldMatrix = this->_parent->_worldMatrix;
+			this->_worldMatrix.mult(this->local._matrix);// mult inverse ?
+		}
+	}
+	else
+	{
+		this->_worldMatrix = this->local._matrix;
+	}
+	return (false);
+
+	bool	localUpdated = this->local.updateMatrix();
 	if (this->_parent) {
 		bool	parentUpdated = this->_parent->update();
 		if (!localUpdated || !parentUpdated) {
-			this->_worldMatrix = this->_parent->_worldMatrix;
-			this->_worldMatrix.mult(this->_local._matrix);// mult inverse ?
+			if (0) {
+				this->_worldMatrix = this->local._matrix;
+				this->_worldMatrix.mult(this->_parent->_worldMatrix);
+			}
+			else {
+				this->_worldMatrix = this->_parent->_worldMatrix;
+				this->_worldMatrix.mult(this->local._matrix);// mult inverse ?
+			}
 			return (false);
 		}
+		else
+			return (true);
 	}
 	else if (!localUpdated) {
-		this->_worldMatrix = this->_local._matrix;
+		this->_worldMatrix = this->local._matrix;
 		return (false);
 	}
 	else
@@ -86,14 +116,18 @@ bool		Object::update() {//update Properties
 	*/
 }
 
-void		Object::render(Math::Matrix4& PVmatrix) {
-	this->update();
-	// this->_program.render((Object&)(*this), PVmatrix);
-}
+// void		Object::render(Math::Matrix4& PVmatrix) {
+// 	this->update();
+// 	// this->_program.render((Object&)(*this), PVmatrix);
+// }
 
 //mutators
+void			Object::setParent(Object* parent) {
+	this->_parent = parent;
+}
 //accessors
 unsigned int	Object::getId(void) const { return (this->_id); }
 void			(*Object::getMotionBehaviorFunc(void) const) (Object &, void*) { return (this->_motionBehaviorFunc); }
-Properties		Object::getLocalProperties() const { return (this->_local); }
+Properties		Object::getLocalProperties() const { return (this->local); }
 Math::Matrix4&	Object::getWorldMatrix() const { return ((Math::Matrix4&)this->_worldMatrix); }
+Object*			Object::getParent() const { return (this->_parent); }

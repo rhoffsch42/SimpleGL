@@ -32,7 +32,7 @@ void	Obj3dPG::linkBuffers(GLuint& vboVertex, GLuint& vboColor, GLuint& vboTextur
 void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	Math::Vector3	color = obj.getColor();
 	Obj3dBP&		bp = obj.getBlueprint();
-	Math::Matrix4&	modelMatrix = obj.getModelMatrix();
+	Math::Matrix4&	modelMatrix = obj.getParent() ? obj.getWorldMatrix() : obj.local.getMatrix();
 
 	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
 	// cout << "*\tpolygons: " << bp.getFaceAmount() << endl;

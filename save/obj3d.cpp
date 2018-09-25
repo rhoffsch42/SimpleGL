@@ -93,7 +93,7 @@ void		Obj3d::runMothionBehavior(void * ptr) {
 	if (this->_motionBehaviorFunc && this->_motionBehavior)
 		this->_motionBehaviorFunc(*this, ptr);
 	else
-		cout << "No motion behavior is set. Doing nothing." << endl;
+		cout << "No motion behavior is set/activated. Doing nothing." << endl;
 }
 
 void		Obj3d::render(Math::Matrix4& PVmatrix) {
@@ -108,7 +108,8 @@ void		Obj3d::render(Math::Matrix4& PVmatrix) {
 }
 
 void		Obj3d::center() {
-	//a faire a chaque changement de pos/rot/scale
+	//a faire a chaque changement de pos/rot/scale,
+	//ou mettre this->_matrixUpdated = false;
 /*
 	https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
 	Easy way of building the rotation matrix :

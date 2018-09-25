@@ -2,6 +2,9 @@
 float	(*Vector3::operation)(float,float);
 	inline?	add/sub/etc
 	compare execution speed, binary size
+check if consructor of mother class is called when child is destroyed
+similar constructors: make an init func ? with all common tasks
+cash when sing same texture as another object ? or creating too many textures ?
 ---- memory/leaks	-------------------------------------------------------
 delete data opengl:
 	Skybox
@@ -12,6 +15,10 @@ void on all accessors ? https://stackoverflow.com/questions/20617067/returning-f
 constructor copy, const X& src
 references: type& varname;
 class X { //brace here or next line
+if (condition)//bad, braces should englobe code
+	return ;
+	[...]
+public variables without underscore: _varname;
 ---- features		-------------------------------------------------------
 class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 	class Properties;//ok

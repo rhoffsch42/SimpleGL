@@ -6,9 +6,9 @@
 #define CAM_FOV			90.0f
 #define CAM_FOV_MIN		60.0f
 #define CAM_FOV_MAX		150.0f
-#define CAM_FAR			10000.0f
+#define CAM_FAR			999999.0f
 #define CAM_FAR_MIN		10.0f
-#define CAM_FAR_MAX		10000.0f
+#define CAM_FAR_MAX		1000000.0f
 #define CAM_NEAR		0.1f
 #define CAM_NEAR_MIN	0.1f
 #define CAM_NEAR_MAX	5.0f

@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2018/09/24 18:28:21 by rhoffsch         ###   ########.fr        #
+#    Updated: 2018/09/25 14:58:23 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,16 +33,17 @@ SRC_FILE		=	main.cpp \
 					glfw.cpp \
 					math.cpp \
 					misc.cpp \
+					properties.cpp \
+					object.cpp \
 					obj3d.cpp \
 					obj3dBP.cpp \
 					obj3dPG.cpp \
 					program.cpp \
 					skybox.cpp \
 					skyboxPG.cpp \
-					texture.cpp \
-					properties.cpp
+					texture.cpp
 
-HDR_FILE		=	simplegl.h \
+HDR_FILE		=	simplegl.h
 
 SRC_DIR			=	src
 OBJ_DIR			=	obj

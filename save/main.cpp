@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/25 17:42:23 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/25 10:11:07 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
 	glUseProgram(pg._program);
 	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
-	proMatrix.mult(viewMatrix);// do it in shader ?
+	proMatrix.mult(viewMatrix);
 	for (Obj3d* object : obj3dList)
 		object->render(proMatrix);
 }
@@ -142,33 +142,33 @@ void	check_paddings() {
 	}
 }
 
-void	growAndShrink(Object& ref, void* ptr) {
+void	growAndShrink(Obj3d & ref, void* ptr) {
 	static float	growCoef = 1;
 
 	Fps * fps_ptr = (Fps*)ptr;
-	Math::Vector3	s = ref.local.getScale();
+	Math::Vector3	s = ref.getScale();
 	float	addScale = (s.x / 2.0f) * (float)fps_ptr->tick;
 	addScale *= growCoef;
 	s.add(Math::Vector3(addScale, addScale, addScale));
-	ref.local.setScale(s);
+	ref.setScale(s);
 	
 	//alternate grow/shrink each second
 	int	t = int(fps_ptr->last_time) % 2;
 	growCoef = (t == 0) ? -1 : 1;
 }
 
-void	rotAndGoZaxis(Object& ref, void* ptr) {
-	static float	anglePerSec = 50;
-	static float	distPerSec = 200;
+void	rotAndGoZaxis(Obj3d & ref, void* ptr) {
+	static float	anglePerSec = 75;
+	static float	distPerSec = 250;
 	
 	Fps * fps_ptr = (Fps*)ptr;
-	Math::Rotation	rot = ref.local.getRot();
-	Math::Vector3	pos = ref.local.getPos();
+	Math::Rotation	rot = ref.getRot();
+	Math::Vector3	pos = ref.getPos();
 	rot.setAsDegree();
 	rot.z += anglePerSec * (float)fps_ptr->tick;
-	ref.local.setRot(rot);
+	ref.setRot(rot);
 	pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
-	ref.local.setPos(pos);
+	ref.setPos(pos);
 }
 
 struct	followCamArgs
@@ -176,17 +176,17 @@ struct	followCamArgs
 	Fps *	fps;
 	Cam *	cam;
 };
-void	followCam(Object& ref, void *ptr) {
+void	followCam(Obj3d & ref, void *ptr) {
 	followCamArgs * st = (followCamArgs*)ptr;
 	Math::Vector3	diff = st->cam->getPos();
-	Math::Vector3	objPos = ref.local.getPos();
+	Math::Vector3	objPos = ref.getPos();
 	diff.sub(objPos);
 	float	magnitude = diff.magnitude();
 	if (magnitude > 0.1f) {
 		diff.div(magnitude);
 		diff.mult(2 * st->fps->tick);
 		objPos.add(diff);
-		ref.local.setPos(objPos);
+		ref.setPos(objPos);
 	}
 }
 
@@ -215,29 +215,28 @@ void	scene1() {
 	// Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
 	Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
 	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
-	Texture*	texture8 = new Texture(*texture7);
 
 	float s = 1.0f;//scale
 	//Create Obj3d with the blueprint & by copy
 	Obj3d			the42_1(cubeBP, obj3d_prog);//the42BP !
-	the42_1.local.setPos(-4, -2, -2);
+	the42_1.setPos(-4, -2, -2);
 	the42_1.setTexture(texture1);
 	the42_1.displayTexture = true;
 	the42_1.setPolygonMode(GL_FILL);
 	// the42_1.centered = true;
 
 	Obj3d	the42_2(the42_1);
-	//the42_2.local.setPos(0, 3, -5);
-	the42_2.local.setPos(-4, -2, -2);
+	//the42_2.setPos(0, 3, -5);
+	the42_2.setPos(-4, -2, -2);
 	the42_2.setTexture(texture2);
 	the42_2.displayTexture = false;
-	the42_2.local.centered = true;
+	the42_2.centered = true;
 	// the42_2.setScale(3.0f, 0.75f, 0.3f);
 	the42_2.setPolygonMode(GL_LINE);
 
 	Obj3d			teapot1(teapotBP, obj3d_prog);
-	teapot1.local.setPos(0, 0, 2);
-	teapot1.local.getMatrix().setOrder(ROW_MAJOR);
+	teapot1.setPos(0, 0, 2);
+	teapot1.getModelMatrix().setOrder(ROW_MAJOR);
 //	teapot1.setRot(0, 90, 0);
 	teapot1.setTexture(texture1);
 	teapot1.displayTexture = false;
@@ -247,26 +246,25 @@ void	scene1() {
 	// teapot1.setScale(1.5, 2, 0.75);
 
 	Obj3d			cube1(cubeBP, obj3d_prog);
-	cube1.local.setPos(0, -2, 3);
+	cube1.setPos(0, -2, 3);
 	cube1.setTexture(texture1);
 	cube1.displayTexture = false;
 
 	Obj3d			rocket1(rocketBP, obj3d_prog);
-	rocket1.local.setPos(-10, -20, -2000);
-	rocket1.local.rotate(0, 180, 0);
+	rocket1.setPos(-10, -20, -2000);
 	rocket1.setTexture(texture6);
 	rocket1.displayTexture = true;
-	rocket1.local.centered = true;
+	rocket1.centered = true;
 	// rocket1.setRescaled(false);
 	// rocket1.setPolygonMode(GL_LINE);
 	rocket1._motionBehaviorFunc = &rotAndGoZaxis;
 	rocket1._motionBehavior = true;
-	s = 10.0f;
-	rocket1.local.setScale(s,s,s);
+	s = 100.0f;
+	rocket1.setScale(s,s,-s);
 
-	Properties::defaultSize = 13.0f;
+	Obj3d::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
-	lambo1.local.setPos(-20, 0, 0);
+	lambo1.setPos(-20, 0, 0);
 	lambo1.setTexture(texture7);
 	lambo1.displayTexture = true;
 	// lambo1.centered = true;
@@ -275,35 +273,7 @@ void	scene1() {
 	lambo1._motionBehavior = true;
 	s = 0.025f;
 	// lambo1.setScale(s, s, s);
-
-	Obj3d			lambo2(lamboBP, obj3d_prog);
-	lambo2.local.setPos(0, -1.9f, 0);
-	lambo2.local.setRot(0, 180.0f, 0);
-	lambo2.setTexture(texture8);
-	lambo2.displayTexture = true;
-	lambo2.local.centered = true;
-	// lambo2.setPolygonMode(GL_LINE);
-	// lambo2._motionBehaviorFunc = &growAndShrink;
-	// lambo2._motionBehavior = true;
-	s = 0.4f;
-	lambo2.local.setScale(s, s, s);
-	// lambo2.setParent(&the42_1);
-	lambo2.setParent(&rocket1);
-
-	Obj3d			lambo3(lamboBP, obj3d_prog);
-	lambo3.local.setPos(0, 10, 0);
-	lambo3.setTexture(texture8);
-	lambo3.displayTexture = true;
-	lambo3.local.centered = true;
-	// lambo3.setPolygonMode(GL_LINE);
-	// lambo3._motionBehaviorFunc = &growAndShrink;
-	// lambo3._motionBehavior = true;
-	s = 5.0f;
-	lambo3.local.setScale(s, s, s);
-	// lambo3.setParent(&the42_1);
-	lambo3.setParent(&lambo2);
-
-	Properties::defaultSize = PP_DEFAULT_SIZE;
+	Obj3d::defaultSize = OBJ3D_DEFAULT_SIZE;
 
 	cout << "Obj3d # : " << Obj3d::getInstanceAmount() << endl;
 	cout << endl;
@@ -316,13 +286,12 @@ void	scene1() {
 	
 	vector<Obj3d*>	obj3dList;
 	obj3dList.push_back(&the42_1);
-	// obj3dList.push_back(&the42_2);
+	obj3dList.push_back(&the42_2);
 	obj3dList.push_back(&teapot1);
 	// obj3dList.push_back(&cube1);
 	obj3dList.push_back(&rocket1);
 	obj3dList.push_back(&lambo1);
-	obj3dList.push_back(&lambo2);
-	// obj3dList.push_back(&lambo3);
+
 	
 	Cam		cam(glfw);
 	cam.setPos(0, 0, 10);
@@ -340,8 +309,8 @@ void	scene1() {
 		if (defaultFps->wait_for_next_frame()) {
 			// printFps();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderObj3d(obj3dList, cam);
 			renderSkybox(skybox, cam);
+			renderObj3d(obj3dList, cam);
 			glfwSwapBuffers(glfw._window);
 			glfwPollEvents();
 			//events(glfw, &gle, &progs[OBJ3D]);
@@ -351,11 +320,11 @@ void	scene1() {
 			//////////////////////////////////////////manual motion
 			float	v1 = 160;
 			float	v2 = 360;// degree/sec
-			Math::Rotation rot = the42_1.local.getRot();
+			Math::Rotation rot = the42_1.getRot();
 			rot.setAsDegree();
 			// rot.x += v1 * (float)defaultFps->tick;
 			rot.y += v2 * (float)defaultFps->tick;
-			the42_1.local.setRot(rot);
+			the42_1.setRot(rot);
 
 			//this should be used in another func, life a special func managing all events/behavior at every frames
 			rocket1.runMothionBehavior((void*)defaultFps);
@@ -366,11 +335,11 @@ void	scene1() {
 			// if (fps_ptr->wait_for_next_frame()) {
 				v2 = 50;
 				Obj3d*	ptr = &lambo1;
-				rot = ptr->local.getRot();
+				rot = ptr->getRot();
 				rot.setAsDegree();
 			//	rot.x += v1 * (float)fps_ptr->tick;
 				rot.y += v2 * (float)defaultFps->tick;
-				ptr->local.setRot(rot);
+				ptr->setRot(rot);
 			// }
 			/*
 			*/
@@ -438,7 +407,7 @@ void	test_pp() {
 }
 
 int		main(void) {
-	// test_pp();
+	test_pp();
 	check_paddings();
 //	test_mult_mat4(); exit(0);
 	cout << "____START____" << endl;

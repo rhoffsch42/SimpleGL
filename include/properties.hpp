@@ -11,7 +11,7 @@ public:
 	static bool				defaultRescaled;
 
 	Properties();
-	Properties(float scaleCoef);
+	Properties(Math::Vector3 dimensions);
 	Properties(const Properties& src);
 	~Properties();
 	Properties&	operator=(const Properties& src);
