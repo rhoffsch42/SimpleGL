@@ -3,7 +3,16 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
 
-Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
+float			Obj3dBP::defaultSize = OBJ3DBP_DEFAULT_SIZE;
+
+static float	calcScaleCoef(Math::Vector3 dimensions, float size) {//faire ca dans Properties ? oui
+	float	largest = dimensions.x;
+	largest = std::max(largest, dimensions.y);
+	largest = std::max(largest, dimensions.z);
+	return (size / largest);
+}
+
+Obj3dBP::Obj3dBP(string filename, bool rescale) : Blueprint(filename) {
 	cout << "_ Obj3dBP cons by filename" << endl;
 
 	filename = Misc::crossPlatPath(filename);
@@ -135,6 +144,16 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	this->_dimensions.y = vmax[1] - vmin[1];
 	this->_dimensions.z = vmax[2] - vmin[2];
 
+	this->_rescaled = rescale;
+	if (rescale) {
+		float	scaleCoef = calcScaleCoef(this->_dimensions, Obj3dBP::defaultSize);
+		this->_dimensions.mult(scaleCoef);
+		this->_centerOffset.mult(scaleCoef);
+		for (size_t i = 0; i < points.size(); i++) {
+			points[i] *= scaleCoef;
+		}
+	}
+
 	std::cout << "faces { " << this->_faceAmount << " }" << endl;
 	std::cout << "color { " << (int)colors.size() / 9 << " }" << endl;
 	std::cout << "centerOffset:\t" << this->_centerOffset.x << " " << this->_centerOffset.y << " " << this->_centerOffset.z << endl;
@@ -145,7 +164,8 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 		logs << "faces { " << this->_faceAmount << " }" << endl;
 		logs << "color { " << (int)colors.size() / 9 << " }" << endl;
 		logs << "centerOffset:\t" << this->_centerOffset.x << " " << this->_centerOffset.y << " " << this->_centerOffset.z << endl;
-
+		logs << "rescaled: " << (this->_rescaled ? "yes" : "no") << endl;
+		
 		//data
 		logs << "vertices:\t";
 		for (size_t i = 0; i < attrib.vertices.size(); i++) {
@@ -207,14 +227,6 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	}
 
 }
-/*
-	float	points[obj->f_amount * summit * 3];
-	fill_func(points, obj->f);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, obj->f_amount * summit * 3 * sizeof(float), \
-		points, GL_STATIC_DRAW);
-*/
-
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
 	cout << "_ Obj3dBP cons by copy" << endl;
@@ -235,6 +247,7 @@ Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 	this->_faceAmount = src.getFaceAmount();
 	this->_centerOffset = src.getCenterOffset();
 	this->_dimensions = src.getDimensions();
+	this->_rescaled = src.isRescaled();
 	return (*this);
 }
 
@@ -243,3 +256,4 @@ Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 int				Obj3dBP::getFaceAmount(void) const { return (this->_faceAmount); }
 Math::Vector3	Obj3dBP::getCenterOffset(void) const { return (this->_centerOffset); }
 Math::Vector3	Obj3dBP::getDimensions(void) const { return (this->_dimensions); }
+bool			Obj3dBP::isRescaled(void) const { return (this->_rescaled); }

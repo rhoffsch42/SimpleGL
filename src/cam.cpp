@@ -60,7 +60,7 @@ void	Cam::events(Glfw& glfw, float fpsTick) {
 	this->_rot.x = -(float(glfw._mouseDiffY) * 360.0f / MOUSE_SENSIBILITY);//mouse's Y pos for cam's X rot axis
 	this->updateCamVectors();
 
-	float	movement = 220 * fpsTick;
+	float	movement = CAM_SPEED * fpsTick;
 	Math::Vector3	mvt[3];
 	mvt[0] = this->_forward;
 	mvt[1] = this->_right;

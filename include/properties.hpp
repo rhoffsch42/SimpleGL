@@ -1,17 +1,12 @@
 #pragma once
 #include "math.hpp"
 
-#define PP_DEFAULT_SIZE	4.0f
-
 class Properties
 {
 public:
 	static bool				defaultCentered;
-	static float			defaultSize;
-	static bool				defaultRescaled;
 
 	Properties();
-	Properties(Math::Vector3 dimensions);
 	Properties(const Properties& src);
 	~Properties();
 	Properties&	operator=(const Properties& src);
@@ -62,15 +57,11 @@ public:
 	void			setRot(Math::Rotation rot);
 	void			setScale(float x, float y, float z);
 	void			setScale(Math::Vector3 scale);
-	void			setRescaled(bool value);
 	//accessors
 	Math::Matrix4&	getMatrix(void) const;//dangerous
 	Math::Vector3	getPos(void) const;
 	Math::Rotation	getRot(void) const;
 	Math::Vector3	getScale(void) const;
-	Math::Vector3	getFinalScale(void) const;
-	float			getScaleCoef(void) const;
-	bool			isRescaled(void) const;
 	Math::Vector3	getCenterOffset(void) const;
 	Math::Vector3	getCenteredPos(void) const;
 
@@ -79,20 +70,11 @@ public:
 private://public ?
 	Math::Matrix4	_matrix;
 	bool			_matrixUpdated;
+
 	Math::Vector3	_pos;
 	Math::Rotation	_rot;
 	Math::Vector3	_scale;
-	Math::Vector3	_finalScale;
-	const float		_scaleCoef;
-	bool			_rescaled;
-	/*
-		_scaleCoef should NEVER change once defined!
-			If the default size for that specific Obj3d instance has to change,
-			the scaleCoef can not be updated subsequently.
-			-> Create another Obj3d instead.
-		_rescaled has to be private and therefore have a mutator
-			because if it changes we need to set _matrixUpdated to false
-	*/
+
 	Math::Vector3	_centerOffset;
 	Math::Vector3	_centeredPos;
 	void	center();

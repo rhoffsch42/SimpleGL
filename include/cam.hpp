@@ -13,6 +13,8 @@
 #define CAM_NEAR_MIN	0.1f
 #define CAM_NEAR_MAX	5.0f
 
+#define CAM_SPEED		5.0f// unit/seconde
+
 //window settings
 #define DEF_WIN_X	800
 #define DEF_WIN_Y	800

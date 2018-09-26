@@ -2,37 +2,22 @@
 #include "properties.hpp"
 
 bool			Properties::defaultCentered = false;
-float			Properties::defaultSize = PP_DEFAULT_SIZE;
-bool			Properties::defaultRescaled = true;
 
-static float	calcScaleCoef(Math::Vector3 dimensions, float size) {//faire ca dans Properties ? oui
-	float	largest = dimensions.x;
-	largest = std::max(largest, dimensions.y);
-	largest = std::max(largest, dimensions.z);
-	return (size / largest);
-}
+// static float	calcScaleCoef(Math::Vector3 dimensions, float size) {//faire ca dans Properties ? oui
+// 	float	largest = dimensions.x;
+// 	largest = std::max(largest, dimensions.y);
+// 	largest = std::max(largest, dimensions.z);
+// 	return (size / largest);
+// }
 
-Properties::Properties() : _scaleCoef(1.0f) {
+Properties::Properties() {
 	// cout << "_ Properties cons" << endl;
 	this->_scale = Math::Vector3(1, 1, 1);
-	this->_finalScale = this->_scale;
-	this->_finalScale.mult(this->_scaleCoef);
-	this->_rescaled = Properties::defaultRescaled;
 	this->_matrixUpdated = false;
 	this->_matrixChanged = true;
 }
 
-Properties::Properties(Math::Vector3 dimensions) : _scaleCoef(calcScaleCoef(dimensions, Properties::defaultSize)) {
-	// cout << "_ Properties cons" << endl;
-	this->_scale = Math::Vector3(1, 1, 1);
-	this->_finalScale = this->_scale;
-	this->_finalScale.mult(this->_scaleCoef);
-	this->_rescaled = Properties::defaultRescaled;
-	this->_matrixUpdated = false;
-	this->_matrixChanged = true;
-}
-
-Properties::Properties(const Properties& src) : _scaleCoef(src.getScaleCoef()) {
+Properties::Properties(const Properties& src) {
 	// cout << "_ Properties cons by copy" << endl;
 	*this = src;
 }
@@ -44,8 +29,6 @@ Properties&		Properties::operator=(const Properties& src) {
 	this->_pos = src.getPos();
 	this->_rot = src.getRot();
 	this->_scale = src.getScale();
-	this->_finalScale = src.getFinalScale();
-	this->_rescaled = src.isRescaled();
 	this->_centerOffset = src.getCenterOffset();
 	this->_centeredPos = src.getCenteredPos();
 	return (*this);
@@ -57,8 +40,7 @@ Properties::~Properties() {
 
 bool		Properties::updateMatrix() {
 	if (!this->_matrixUpdated) {
-		Math::Vector3&	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
-		this->_matrix.modelMatrix(this->_pos, this->_rot, usedScale);
+		this->_matrix.modelMatrix(this->_pos, this->_rot, this->_scale);
 		if (this->centered)
 			this->center();
 		this->_matrixUpdated = true;
@@ -131,10 +113,9 @@ void		Properties::center() {
 */
 	this->_centeredPos = this->_pos;
 	Math::Vector3	offset = this->_centerOffset;
-	Math::Vector3&	usedScale = this->_rescaled ? this->_finalScale : this->_scale;
-	offset.x *= usedScale.x;
-	offset.y *= usedScale.y;
-	offset.z *= usedScale.z;
+	offset.x *= this->_scale.x;
+	offset.y *= this->_scale.y;
+	offset.z *= this->_scale.z;
 	Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
 	offsetneg.rotate(this->_rot, ROT_WAY);
 	this->_centeredPos.add(offsetneg);
@@ -230,22 +211,11 @@ void		Properties::setScale(float x, float y, float z) {
 	this->_scale.x = x;
 	this->_scale.y = y;
 	this->_scale.z = z;
-	this->_finalScale = this->_scale;
-	this->_finalScale.mult(this->_scaleCoef);
 	this->_matrixUpdated = false;
 }
 void		Properties::setScale(Math::Vector3 scale) {
 	this->_scale = scale;
-	this->_finalScale = this->_scale;
-	this->_finalScale.mult(this->_scaleCoef);
 	this->_matrixUpdated = false;
-}
-void		Properties::setRescaled(bool value) {
-	//check to avoid useless calculation 
-	if (this->_rescaled != value) {
-		this->_rescaled = value;
-		this->_matrixUpdated = false;
-	}
 }
 
 //accessors
@@ -253,8 +223,5 @@ Math::Matrix4&	Properties::getMatrix(void) const { return ((Math::Matrix4&)this-
 Math::Vector3	Properties::getPos(void) const { return (this->_pos); }
 Math::Rotation	Properties::getRot(void) const { return (this->_rot); }
 Math::Vector3	Properties::getScale(void) const { return (this->_scale); }
-Math::Vector3	Properties::getFinalScale(void) const { return (this->_finalScale); }
-float			Properties::getScaleCoef(void) const { return (this->_scaleCoef); }
-bool			Properties::isRescaled() const { return (this->_rescaled); }
 Math::Vector3	Properties::getCenterOffset(void) const { return (this->_centerOffset); }
 Math::Vector3	Properties::getCenteredPos(void) const { return (this->_centeredPos); }

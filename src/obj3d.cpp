@@ -8,7 +8,7 @@ bool			Obj3d::defaultDisplayTexture = false;
 GLenum			Obj3d::defaultPolygonMode = GL_FILL;
 Math::Vector3	Obj3d::defaultColor = OBJ3D_DEFAULT_COLOR;
 
-Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : Object(Properties(bp.getDimensions())), _blueprint(bp), _program(pg) {
+Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	cout << "_ Obj3d cons" << endl;
 	this->_color = Obj3d::defaultColor;
 	this->_texture = NULL;

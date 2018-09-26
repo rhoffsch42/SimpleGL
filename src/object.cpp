@@ -44,6 +44,7 @@ Object&		Object::operator=(const Object& src) {
 	this->local = src.getLocalProperties();
 	this->_worldMatrix = Math::Matrix4(src.getWorldMatrix());
 	this->_worldMatrixChanged = true;
+	this->_parent = src.getParent();
 
 	Object::_instanceAmount++;
 	Object::_instanceId++;
@@ -63,35 +64,6 @@ void		Object::runMothionBehavior(void * ptr) {
 }
 
 bool		Object::update() {//update Properties
-	/* plus rapide mais incomplet:
-		*si parent:
-			world = parent.world * local;
-		world = idenity * local = local;
-		donc update dans l'ordre suivant:
-			*. parent.world (parent.local avant si necessaire, et recursivement parent.parent.etc)
-				-> parent.update();
-			1. local
-			2. world
-	*/
-	// this->local.updateMatrix();
-	// if (this->_parent) {
-	// 	this->_parent->update();
-	// 	if (0) {
-	// 		this->_worldMatrix = this->local._matrix;
-	// 		this->_worldMatrix.mult(this->_parent->_worldMatrix);
-	// 	}
-	// 	else {
-	// 		this->_worldMatrix = this->_parent->_worldMatrix;
-	// 		this->_worldMatrix.mult(this->local._matrix);// mult inverse ?
-	// 	}
-	// }
-	// else
-	// {
-	// 	this->_worldMatrix = this->local._matrix;
-	// }
-	// return (false);
-
-
 	this->local.updateMatrix();
 	if (this->_parent) {
 		this->_parent->update();

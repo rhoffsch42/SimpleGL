@@ -4,8 +4,8 @@
 class Blueprint
 {
 public:
-	Blueprint(string filename);//temporary, still ?
-	Blueprint(Blueprint const & src);
+	Blueprint(std::string filename);
+	Blueprint(const Blueprint& src);
 	~Blueprint();
 	Blueprint&	operator=(const Blueprint& bp);
 

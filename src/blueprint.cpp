@@ -1,7 +1,7 @@
 #include "simplegl.h"
 #include "blueprint.hpp"
 
-Blueprint::Blueprint(string filename) {
+Blueprint::Blueprint(std::string filename) {
 	cout << "_ Blueprint cons by filename" << endl;
 
 	cout << "building object: " << filename.c_str() << endl;
