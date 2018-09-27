@@ -203,6 +203,7 @@ Obj3dBP::Obj3dBP(string filename, bool rescale) : Blueprint(filename) {
 		glBufferData(GL_ARRAY_BUFFER, textures.size() * sizeof(float), textures.data(), GL_STATIC_DRAW);
 	}
 	else if (true) {//VBO texture manual (cube)
+		cout << "manualvbotexture" << endl;
 		glGenBuffers(1, &this->_vboTexture);
 		glBindBuffer(GL_ARRAY_BUFFER, this->_vboTexture);
 		for (int i = 0; i < this->_faceAmount; i++) {

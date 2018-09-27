@@ -48,7 +48,7 @@ Obj3d::~Obj3d() {
 	//Object destructor shouldbe called, check it
 }
 
-void		Obj3d::render(Math::Matrix4& PVmatrix) {//CHECK POLYMORPHISM Object
+void		Obj3d::render(Math::Matrix4& PVmatrix) {
 	this->update();
 	this->_program.render((Obj3d&)(*this), PVmatrix);
 }

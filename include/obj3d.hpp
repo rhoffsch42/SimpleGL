@@ -5,9 +5,10 @@
 #include "obj3dPG.hpp"
 class Obj3dPG;
 #include "math.hpp"
+#include "cam.hpp"
 
 #define OBJ3D_DEFAULT_SIZE	4.0f
-#define OBJ3D_DEFAULT_COLOR	Math::Vector3(255.0f, 0.0f, 255.0f);//purple petant
+#define OBJ3D_DEFAULT_COLOR	Math::Vector3(255.0f, 0.0f, 255.0f);//purple
 
 class Obj3d : public Object
 {
@@ -22,7 +23,7 @@ public:
 	~Obj3d();
 	Obj3d&	operator=(const Obj3d& obj3d);
 
-	void	render(Math::Matrix4& PVmatrix);//Obj? virtual pure ?
+	void			render(Math::Matrix4& PVmatrix);
 
 	void			setColor(uint8_t x, uint8_t y, uint8_t z);
 	void			setTexture(Texture* texture);

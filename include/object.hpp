@@ -15,7 +15,7 @@ public:
 
 	void	runMothionBehavior(void* ptr);
 	bool	update();
-	// void	render(Math::Matrix4& PVmatrix);//? virtual pure ?
+	virtual void	render(Math::Matrix4& PVmatrix);
 	//mutators
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
 	void			setParent(Object* parent);

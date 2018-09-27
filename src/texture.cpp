@@ -83,6 +83,22 @@ Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _widt
 	this->genTexture();
 }
 
+Texture::Texture(const Texture& src) {
+	cout << "_ Texture cons by copy" << endl;
+	*this = src;
+}
+
+Texture&	Texture::operator=(const Texture& src) {
+	this->_filename = src.getFilename();
+	this->_width = src.getWidth();
+	this->_height = src.getHeight();
+	unsigned int	size = this->_width * this->_height * 3;
+	this->_data = new uint8_t[size];
+	memcpy(this->_data, src.getData(), size);
+	this->genTexture();
+	return (*this);
+}
+
 Texture::~Texture() {
 	delete[] this->_data;
 }
@@ -99,7 +115,6 @@ void	Texture::printData() const {
 }
 
 void			Texture::genTexture() {
-	cout << this->_id;
 	glGenTextures(1, &this->_id);
 	cout << this->_id;
 	glBindTexture(GL_TEXTURE_2D, this->_id);

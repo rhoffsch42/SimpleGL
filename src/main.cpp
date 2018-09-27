@@ -6,13 +6,14 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/26 18:17:10 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/27 21:03:14 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "simplegl.h"
 
 #include "program.hpp"
+#include "object.hpp"
 #include "obj3dPG.hpp"
 #include "obj3dBP.hpp"
 #include "obj3d.hpp"
@@ -85,7 +86,7 @@ void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
 	glUseProgram(pg._program);
 	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
-	proMatrix.mult(viewMatrix);// do it in shader ?
+	proMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
 	for (Obj3d* object : obj3dList)
 		object->render(proMatrix);
 	for (Obj3d* object : obj3dList) {
@@ -107,7 +108,7 @@ void	renderSkybox(Skybox& skybox, Cam& cam) {
 }
 
 void	check_paddings() {
-//	cout << sizeof(BITMAPINFOHEADER) << " = " << sizeof(BMPINFOHEADER) << endl;
+	//	cout << sizeof(BITMAPINFOHEADER) << " = " << sizeof(BMPINFOHEADER) << endl;
 #ifdef _WIN32
 	cout << sizeof(BITMAPFILEHEADER) << " = " << sizeof(BMPFILEHEADER) << endl;
 	cout << "bfType\t" << offsetof(BMPINFOHEADERBITMAPFILEHEADER, bfType) << endl;
@@ -164,21 +165,29 @@ void	growAndShrink(Object& ref, void* ptr) {
 void	rotAndGoZaxis(Object& ref, void* ptr) {
 	static float	anglePerSec = 50;
 	static float	distPerSec = 200;
-	
 	Fps * fps_ptr = (Fps*)ptr;
+	
 	Math::Rotation	rot = ref.local.getRot();
-	Math::Vector3	pos = ref.local.getPos();
 	rot.setAsDegree();
 	rot.z += anglePerSec * (float)fps_ptr->tick;
 	ref.local.setRot(rot);
-	pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
+
+	// Math::Vector3	pos = ref.local.getPos();
+	// pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
 	// ref.local.setPos(pos);
 }
 
-void	rotY(Object& ref, void* ptr) {
-	static float	anglePerSec = 50;
-	
+void	rotX(Object& ref, void* ptr) {
+	static float	anglePerSec = -20;
 	Fps * fps_ptr = (Fps*)ptr;
+	
+	ref.local.rotate(anglePerSec * (float)fps_ptr->tick, 0, 0);
+}
+
+void	rotY(Object& ref, void* ptr) {
+	static float	anglePerSec = 360;
+	Fps * fps_ptr = (Fps*)ptr;
+
 	ref.local.rotate(0, anglePerSec * (float)fps_ptr->tick, 0);
 }
 
@@ -226,8 +235,8 @@ void	scene1() {
 	// Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
 	Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
 	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
-	Texture*	texture8 = new Texture(*texture7);
-	Texture*	texture9 = new Texture(*texture8);
+	Texture		texture8 = *texture7;
+
 
 	float s = 1.0f;//scale
 	//Create Obj3d with the blueprint & by copy
@@ -263,9 +272,14 @@ void	scene1() {
 	cube1.setTexture(texture1);
 	cube1.displayTexture = false;
 
+	Object			empty1;
+	empty1._motionBehaviorFunc = &rotX;
+	empty1._motionBehavior = true;
+	empty1.local.setScale(1,1,1);
+
 	Obj3d			rocket1(rocketBP, obj3d_prog);
 	// rocket1.local.setPos(-10, -20, -2000);
-	rocket1.local.setPos(0, -5, 10);
+	rocket1.local.setPos(0, -300, 0);
 	rocket1.local.rotate(0, 180, 0);
 	rocket1.setTexture(texture6);
 	rocket1.displayTexture = true;
@@ -273,8 +287,9 @@ void	scene1() {
 	// rocket1.setPolygonMode(GL_LINE);
 	rocket1._motionBehaviorFunc = &rotAndGoZaxis;
 	rocket1._motionBehavior = true;
-	// s = 100.0f;
-	// rocket1.local.setScale(s,s,s);
+	s = 10.0f;
+	rocket1.local.setScale(s,s,s);
+	rocket1.setParent(&empty1);
 
 	// Properties::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
@@ -293,7 +308,7 @@ void	scene1() {
 	// lambo2.local.setPos(0, -1.9f, 0);
 	lambo2.local.setPos(0, -6.0f, 0);
 	lambo2.local.setRot(0, 180.0f, 0);
-	lambo2.setTexture(texture8);
+	lambo2.setTexture(texture7);
 	lambo2.displayTexture = true;
 	lambo2.local.centered = true;
 	// lambo2.setPolygonMode(GL_LINE);
@@ -305,9 +320,9 @@ void	scene1() {
 	lambo2.setParent(&rocket1);
 
 	Obj3d			lambo3(lamboBP, obj3d_prog);
-	lambo3.local.setPos(0, 4, 0);
+	lambo3.local.setPos(0, -4, 0);
 	lambo3.local.setRot(0, 0.0f, 180);
-	lambo3.setTexture(texture9);
+	lambo3.setTexture(&texture8);
 	lambo3.displayTexture = true;
 	lambo3.local.centered = true;
 	// lambo3.setPolygonMode(GL_LINE);
@@ -339,7 +354,7 @@ void	scene1() {
 	obj3dList.push_back(&lambo1);
 	obj3dList.push_back(&lambo2);
 	obj3dList.push_back(&lambo3);
-	
+
 	Cam		cam(glfw);
 	cam.setPos(0, 0, 10);
 	cam.printProperties();
@@ -351,6 +366,32 @@ void	scene1() {
 	Fps* defaultFps = &fps60;
 
 	followCamArgs	st = { defaultFps, &cam };
+
+/////////////////////////////////////	complete oop
+if (false) {
+	vector<Object*>	objectList;
+	objectList.push_back(&rocket1);
+	objectList.push_back(&lambo1);
+	objectList.push_back(&lambo2);
+	objectList.push_back(&lambo3);
+	// objectList.push_back(&skybox);//need class Skybox : public Object
+
+	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
+	Math::Matrix4	viewMatrix = cam.getViewMatrix();
+	proMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
+	Object*		o = *(objectList.begin());
+	for (Object* objectPtr : obj3dList) {
+		// glUseProgram(o->getProgram()._program);//need to move Obj3d|Skybox program stuff in Object
+		// pas tres opti au final
+
+		objectPtr->render(proMatrix);
+
+		//obj3d specific
+		objectPtr->local._matrixChanged = false;
+		objectPtr->_worldMatrixChanged = false;
+	}
+}
+/////////////////////////////////////
 
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
@@ -378,19 +419,22 @@ void	scene1() {
 			cout << "---------------" << endl;
 
 
-			//////////////////////////////////////////manual motion
+			////////////////////////////////////////// motion
 			//this should be used in another func, life a special func managing all events/behavior at every frames
 			rocket1.runMothionBehavior((void*)defaultFps);
 			lambo1.runMothionBehavior((void*)defaultFps);
 			lambo2.runMothionBehavior((void*)defaultFps);
 			teapot1.runMothionBehavior((void*)&st);
-			//////////////////////////////////////////manual motion end
+			empty1.render(cam.getProjectionMatrix());
+			empty1.runMothionBehavior((void*)defaultFps);
+			////////////////////////////////////////// motion end
 		
 			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
 		}
 	}
 
+	cout << "deleting textures..." << endl;
 	delete texture1;
 	delete texture2;
 	delete texture3;

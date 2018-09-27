@@ -23,6 +23,24 @@ Program::~Program() {
 	cout << "_ Program des" << endl;
 }
 
+void	Program::render() {
+	cout << "Program::render()\nThis should not be used..." << endl;
+}
+
+GLint	Program::getSlot(const GLchar *varname, GLint(getLocFunc)(GLuint, const GLchar*)) const {
+	GLint	slot;
+
+	slot = getLocFunc(this->_program, varname);
+	cout << "slot " << slot << " :\t" << varname << endl;
+	if (slot == -1)
+	{
+		glGetError();
+		cerr << "Failed to get slot" << endl;
+		exit(GL_ERROR);
+	}
+	return (slot);
+}
+
 GLuint	Program::initShader(std::string filename, int type) const {
 	GLint			ret = GL_FALSE;
 	GLuint			shader;
@@ -38,20 +56,6 @@ GLuint	Program::initShader(std::string filename, int type) const {
 	if (ret == GL_FALSE)
 		glCompileError(shader, "shader compilation error:");
 	return (shader);
-}
-
-GLint	Program::getSlot(const GLchar *varname, GLint(getLocFunc)(GLuint, const GLchar*)) const {
-	GLint	slot;
-
-	slot = getLocFunc(this->_program, varname);
-	cout << "slot " << slot << " :\t" << varname << endl;
-	if (slot == -1)
-	{
-		glGetError();
-		cerr << "Failed to get slot" << endl;
-		exit(GL_ERROR);
-	}
-	return (slot);
 }
 
 void	Program::glCompileError(GLuint shader, const char *intro) const {

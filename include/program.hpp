@@ -17,13 +17,13 @@ public:
 	//tmp public var
 	GLuint		_program;
 protected:
-	GLint		getSlot(const GLchar *varname, GLint(getLocFunc)(GLuint, const GLchar*)) const;
-//	virtual void Program::render(Obj & obj, Math:Matrix4 mat);// set as virtual pure ? = 0
+	virtual void	render();
+	GLint			getSlot(const GLchar *varname, GLint(getLocFunc)(GLuint, const GLchar*)) const;
 
-//	GLuint		_program;
+//	GLuint			_program;
 private:
-	GLuint		_vertex_shader;
-	GLuint		_fragment_shader;
+	GLuint			_vertex_shader;
+	GLuint			_fragment_shader;
 
 	//a definir dans classe fille
 	virtual void	getLocations() = 0;

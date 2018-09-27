@@ -4,9 +4,9 @@
 #include <fstream>
 
 /*
-	This class takes .bmp 24bits files (unknow behavior on other .bmp format)
+	This class takes .bmp 24bits file (unknow behavior on other .bmp format)
 	Code based on http://www.cplusplus.com/articles/GwvU7k9E/
-		* corrected padding behavior
+		* corrected data padding behavior
 		* corrected useless intermediate variables
 
 	below structs to avoid Windows dependencys:
@@ -28,7 +28,7 @@ typedef struct tagBMPFILEHEADER {//size = 14
 	WORD  bfReserved1;
 	WORD  bfReserved2;
 	DWORD bfOffBits;
-}  BMPFILEHEADER;
+} BMPFILEHEADER;
 typedef struct tagBMPINFOHEADER {//size = 40
 	DWORD biSize;
 	LONG  biWidth;
@@ -50,6 +50,8 @@ class Texture
 public:
 	Texture(std::string filename);
 	Texture(uint8_t* data, unsigned int width, unsigned int height);
+	Texture(const Texture& src);
+	Texture&	operator=(const Texture& src);
 	~Texture();
 
 	void	printData() const;

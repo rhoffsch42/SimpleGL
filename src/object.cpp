@@ -86,10 +86,11 @@ bool		Object::update() {//update Properties
 	*/
 }
 
-// void		Object::render(Math::Matrix4& PVmatrix) {
-// 	this->update();
-// 	// this->_program.render((Object&)(*this), PVmatrix);
-// }
+void		Object::render(Math::Matrix4& PVmatrix) {
+	this->update();
+	(void)PVmatrix;
+	// cout << "Empty Object: nothing to render." << endl;
+}
 
 //mutators
 void			Object::setParent(Object* parent) {

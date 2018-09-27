@@ -5,6 +5,12 @@
 class Obj3d;
 #include "math.hpp"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Woverloaded-virtual"
+/*
+	https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
+	different amount of parameters for render()
+*/
 class Obj3dPG : public Program
 {
 public:
@@ -32,3 +38,4 @@ private:
 	GLint		_vertex_UV_data;
 	//slots end
 };
+#pragma clang diagnostic pop

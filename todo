@@ -19,21 +19,11 @@ if (condition)//bad, braces should englobe code
 	return ;
 	[...]
 public variables without underscore: _varname;
----- features		-------------------------------------------------------
+---- Main features	-------------------------------------------------------
 class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
-	class Properties;//ok
-	class Obj3d need refacto
-class Program:
-	virtual pure render (need class Object to use Polymorphism)
-		skybox may not be compatible
-class Obj3d:
-	lambo.obj: there's an additionnal group for the collider in the file, conventionnal ? make an exception for that ?
-		-> check: g group_name:ColliderSG, ignore it or add it in the class in a different variable ?
-Parent system:
-	//render();
-	Object*			_parent;//ok
-	Properties		_local;//ok
-	Math::Matrix4	_worldMatrix;//ok
+	class Program and derived: see SkyboxPG.hpp
+	class skybox : public Object.
+		+see SkyboxPG.hpp
 motion behavior:
 	generic: done
 		/!\ cannot have several func, except by calling another at the end of a first one
