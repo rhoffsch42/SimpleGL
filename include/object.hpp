@@ -35,7 +35,7 @@ public:
 		As they do not belong to the Obj3d instance,
 		its static variables will be altered by all instances using it.
 	*/
-	Properties		local;//public ?
+	Properties		local;
 	bool			_worldMatrixChanged;
 protected:
 

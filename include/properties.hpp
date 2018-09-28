@@ -75,9 +75,11 @@ private://public ?
 	Math::Rotation	_rot;
 	Math::Vector3	_scale;
 
+	//faire ca pendant la creation de l'object (comme scale)
 	Math::Vector3	_centerOffset;
 	Math::Vector3	_centeredPos;
 	void	center();
 
 	friend class Object;
+	friend class Cam;
 };

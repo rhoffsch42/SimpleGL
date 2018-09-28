@@ -1,6 +1,7 @@
 #pragma once
 #include "math.hpp"
 #include "glfw.hpp"
+#include "object.hpp"
 
 //camera settings
 #define CAM_FOV			90.0f
@@ -25,40 +26,42 @@
 
 class Glfw;
 
-class Cam
+class Cam : public Object
 {
 public:
 	Cam(Glfw& glfw);
 	Cam(Glfw& glfw, Math::Vector3 pos, Math::Rotation rot);
-	Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY, float rotZ);
+	Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY, float rotZ);//degree
 	~Cam();
 
 	void	printProperties() const;
+	void	updateViewMatrix();
 	void	updateCamVectors();
 	void	events(Glfw& glfw, float fpsTick);
 	//mutator
-	void	setProjectionMatrix(Math::Matrix4 projection);
-	void	setViewMatrix(Math::Matrix4 view);
-	void	setPos(Math::Vector3 pos);
-	void	setPos(float x, float y, float z);
-	void	setRot(Math::Rotation rot);
-	void	setRot(float x, float y, float z);//degree
+	void	setProjectionMatrix(Math::Matrix4& projection);
+	void	setViewMatrix(Math::Matrix4& view);
+	// void	setPos(Math::Vector3 pos);//obs
+	// void	setPos(float x, float y, float z);//obs
+	// void	setRot(Math::Rotation rot);//obs
+	// void	setRot(float x, float y, float z);//degree//obs
 	void	setFov(float fov);
 	void	setNear(float nearValue);
 	void	setFar(float farValue);
 	//accessor
 	Math::Matrix4&	getProjectionMatrix() const;
 	Math::Matrix4&	getViewMatrix() const;
-	Math::Vector3	getPos() const;
-	Math::Rotation	getRot() const;
+	// Math::Vector3	getPos() const;//obs
+	// Math::Rotation	getRot() const;//obs
 	float			getFov() const;
 	float			getNear() const;
 	float			getFar() const;
+
 private:
 	Math::Matrix4	_projectionMatrix;
 	Math::Matrix4	_viewMatrix;
-	Math::Vector3	_pos;
-	Math::Rotation	_rot;
+	// Math::Vector3	_pos;
+	// Math::Rotation	_rot;
 	Math::Vector3	_right;
 	Math::Vector3	_up;
 	Math::Vector3	_forward;
