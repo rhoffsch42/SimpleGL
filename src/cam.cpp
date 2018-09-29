@@ -6,6 +6,7 @@ Cam::Cam(Glfw& glfw) : Object() {
 	this->_fov = CAM_FOV;
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
+	this->speed = CAM_SPEED;
 	this->updateCamVectors();
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
@@ -15,6 +16,7 @@ Cam::Cam(Glfw& glfw, Math::Vector3 pos, Math::Rotation rot) : Object() {
 	this->_fov = CAM_FOV;
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
+	this->speed = CAM_SPEED;
 	this->local._pos = pos;
 	this->local._rot = rot;
 	this->updateCamVectors();
@@ -33,6 +35,7 @@ Cam::Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY,
 	this->_fov = CAM_FOV;
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
+	this->speed = CAM_SPEED;
 	this->updateCamVectors();
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
@@ -41,11 +44,13 @@ Cam::Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY,
 Cam::~Cam() {}
 
 void	Cam::printProperties() const {
+	cout << "Camera settings:" << endl;
 	cout << "pos:\t" << this->local._pos.x << " " << this->local._pos.y << " " << this->local._pos.z << endl;
 	cout << "rot:\t" << this->local._rot.x << " " << this->local._rot.y << " " << this->local._rot.z << endl;
 	cout << "Far:\t" << this->_far << endl;
 	cout << "Near:\t" << this->_near << endl;
 	cout << "FOV:\t" << this->_fov << endl;
+	cout << "-----------" << endl;
 }
 
 void	Cam::updateCamVectors(void) {
@@ -58,52 +63,79 @@ void	Cam::updateCamVectors(void) {
 
 void	Cam::updateViewMatrix() {
 	this->update();
-	if (this->local._matrixChanged) {
-		//care of scale, must be 1,1,1 or matrix will be wrong
-		if (this->local._scale.x == 1.0f && \
-			this->local._scale.y == 1.0f && \
-			this->local._scale.z == 1.0f) {
-			this->_viewMatrix = this->local._matrix;
+/*
+	if (this->_parent) {
+		this->_parent->update();
+		Math::Matrix4	mat(this->_parent->getWorldMatrix());
+		mat.setOrder(ROW_MAJOR);
+		float	(&m)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat.getData());
+		this->local._pos.x = m[0][3];
+		this->local._pos.y = m[1][3];
+		this->local._pos.z = m[2][3];
+		// this->local._rot = this->_parent->local.getRot();
+		this->updateCamVectors();
+		Math::Vector3	vec3 = this->_forward;
+		vec3.mult(-30.0f);
+		this->local.translate(vec3);
+		this->_worldMatrixChanged = true;
+	}
+*/
+	if (this->_worldMatrixChanged) {//for now this is always true, cf Cam::events
+		//scale must be 1,1,1 or viewmatrix will be affected in a bad way, undefined behavior if we don't check
+		if (this->local._scale.x == 1.0f && this->local._scale.y == 1.0f &&	this->local._scale.z == 1.0f) {
+		// if (false) {
+			//is this really faster then viewMatrix(pos, rot) ?
+			this->_viewMatrix = this->_worldMatrix;
+			Math::Rotation	camRot = this->local._rot;
+			Math::Vector3	camPos = this->local._pos;
+			camRot.setAsRad();
+			camPos.rotate(camRot, ROT_WAY);
+			this->_viewMatrix.updatePosValue(-camPos);
 		}
 		else
 			this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
-		Math::Rotation	camRot = this->local._rot;
-		Math::Vector3	camPos = this->local._pos;
-		camRot.setAsRad();
-		camPos.rotate(camRot, ROT_WAY);
-		this->_viewMatrix.updatePosValue(-camPos);
 	}
 }
 
 void	Cam::events(Glfw& glfw, float fpsTick) {
+	/*
+		as long as this is done at every frame, the viewmatrix has to be updated.
+		Need to know if there are changes with mouse events, to avoid useless calculations
+		glfwWaitEvents
+			http://www.glfw.org/docs/latest/group__window.html#ga554e37d781f0a997656c26b2c56c835e
+		void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+			/!\ need global Glfw to access mouse variables
+	*/
 	this->local._rot.setUnit(ROT_DEG);
 	this->local._rot.z = 0;
 	this->local._rot.y = -(float(glfw._mouseDiffX) * 360.0f / MOUSE_SENSIBILITY);//mouse's X pos for cam's Y rot axis
 	this->local._rot.x = -(float(glfw._mouseDiffY) * 360.0f / MOUSE_SENSIBILITY);//mouse's Y pos for cam's X rot axis
+	this->local._matrixUpdated = false;
 	this->updateCamVectors();
 
-	float	movement = CAM_SPEED * fpsTick;
-	Math::Vector3	mvt[3];
-	mvt[0] = this->_forward;
-	mvt[1] = this->_right;
-	mvt[2] = this->_up;
-	mvt[0].mult(movement);
-	mvt[1].mult(movement);
-	mvt[2].mult(movement);
+	//this should be done only once too
+	float	effectiveSpeed = this->speed * fpsTick;
+	this->_mvt[0] = this->_forward;
+	this->_mvt[1] = this->_right;
+	this->_mvt[2] = this->_up;
+	this->_mvt[0].mult(effectiveSpeed);
+	this->_mvt[1].mult(effectiveSpeed);
+	this->_mvt[2].mult(effectiveSpeed);
+	//
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_W))
-		this->local._pos.add(mvt[0]);
+		this->local._pos.add(this->_mvt[0]);
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_S))
-		this->local._pos.sub(mvt[0]);
+		this->local._pos.sub(this->_mvt[0]);
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_D))
-		this->local._pos.add(mvt[1]);
+		this->local._pos.add(this->_mvt[1]);
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_A))
-		this->local._pos.sub(mvt[1]);
+		this->local._pos.sub(this->_mvt[1]);
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_R))
-		this->local._pos.add(mvt[2]);
+		this->local._pos.add(this->_mvt[2]);
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_F))
-		this->local._pos.sub(mvt[2]);
+		this->local._pos.sub(this->_mvt[2]);
 
-	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
+	this->updateViewMatrix();
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_M))
 		this->_viewMatrix.printData();
 }

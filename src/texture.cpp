@@ -100,6 +100,7 @@ Texture&	Texture::operator=(const Texture& src) {
 }
 
 Texture::~Texture() {
+	cout << "_ Texture des" << endl;
 	delete[] this->_data;
 }
 

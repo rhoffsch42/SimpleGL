@@ -41,7 +41,8 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
-	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color
+	glUniform1i(this->_dismod, 1);// 1 = display plain_color, 0 = vertex_color
+	//plain_color should not be used, check shader
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
 	glBindVertexArray(bp.getVao());

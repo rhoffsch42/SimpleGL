@@ -4,7 +4,7 @@ float	(*Vector3::operation)(float,float);
 	compare execution speed, binary size
 check if consructor of mother class is called when child is destroyed
 similar constructors: make an init func ? with all common tasks
-cash when sing same texture as another object ? or creating too many textures ?
+check Cam::updateViewMatrix(), speed of viewmatrix construction
 ---- memory/leaks	-------------------------------------------------------
 delete data opengl:
 	Skybox

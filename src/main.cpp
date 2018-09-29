@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/28 16:55:22 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/09/29 18:48:24 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,28 +185,31 @@ void	rotX(Object& ref, void* ptr) {
 }
 
 void	rotY(Object& ref, void* ptr) {
-	static float	anglePerSec = 360;
+	static float	anglePerSec = 20;
 	Fps * fps_ptr = (Fps*)ptr;
 
 	ref.local.rotate(0, anglePerSec * (float)fps_ptr->tick, 0);
 }
 
-struct	followCamArgs
+struct	followObjectArgs
 {
-	Fps *	fps;
-	Cam *	cam;
+	Fps*	fps;
+	Object*	o;
 };
-void	followCam(Object& ref, void *ptr) {
-	followCamArgs * st = (followCamArgs*)ptr;
-	Math::Vector3	diff = st->cam->getPos();
+void	followObject(Object& ref, void *ptr) {
+	followObjectArgs * st = (followObjectArgs*)ptr;
+	Math::Vector3	diff = st->o->local.getPos();
 	Math::Vector3	objPos = ref.local.getPos();
 	diff.sub(objPos);
 	float	magnitude = diff.magnitude();
-	if (magnitude > 0.1f) {
+	float	speed = 50 * st->fps->tick;
+	if (magnitude > speed) {
 		diff.div(magnitude);
-		diff.mult(2 * st->fps->tick);
+		diff.mult(speed);
 		objPos.add(diff);
 		ref.local.setPos(objPos);
+	} else {
+		ref.local.setPos(st->o->local.getPos());
 	}
 }
 
@@ -263,7 +266,7 @@ void	scene1() {
 	teapot1.setTexture(texture1);
 	teapot1.displayTexture = false;
 	teapot1.setPolygonMode(GL_LINE);
-	teapot1._motionBehaviorFunc = &followCam;
+	teapot1._motionBehaviorFunc = &followObject;
 	teapot1._motionBehavior = true;
 	// teapot1.setScale(1.5, 2, 0.75);
 
@@ -333,6 +336,8 @@ void	scene1() {
 	// lambo3.setParent(&the42_1);
 	lambo3.setParent(&lambo2);
 
+
+
 	// Properties::defaultSize = PP_DEFAULT_SIZE;
 
 	cout << "Object # : " << Object::getInstanceAmount() << endl;
@@ -348,15 +353,39 @@ void	scene1() {
 	vector<Obj3d*>	obj3dList;
 	obj3dList.push_back(&the42_1);
 	// obj3dList.push_back(&the42_2);
-	// obj3dList.push_back(&teapot1);
+	obj3dList.push_back(&teapot1);
 	// obj3dList.push_back(&cube1);
 	obj3dList.push_back(&rocket1);
 	obj3dList.push_back(&lambo1);
 	obj3dList.push_back(&lambo2);
 	obj3dList.push_back(&lambo3);
 
+	if (true) {
+		// Obj3d*	backObj = &lambo3;
+		for (int i = 0; i < 50; i++) {
+			Obj3d*			lamboPlus = new Obj3d(lamboBP, obj3d_prog);
+			lamboPlus->setParent(&lambo3);
+			lamboPlus->displayTexture = (i % 2 ) ? true : false;
+			lamboPlus->local.centered = true;
+			lamboPlus->setTexture(&texture8);
+			float maxScale = 3;
+			float scale = (float)((i % (int)maxScale) - (maxScale/2));
+			lamboPlus->local.enlarge(scale, scale, scale);
+			float	val = cosf(Math::toRadian(i*10)) * 10;
+			float	coef = 1.0f;
+			lamboPlus->local.setPos(lambo3.local.getPos());
+			lamboPlus->local.translate(float(i)/coef, val/coef, val/coef);
+			lamboPlus->local.rotate(Math::Rotation(i*5,i*5,i*5));
+
+			obj3dList.push_back(lamboPlus);
+			// backObj = lamboPlus;
+		}
+	}
+
+
 	Cam		cam(glfw);
-	cam.setPos(0, 0, 10);
+	cam.local.centered = false;
+	cam.local.setPos(0, 0, 10);
 	cam.printProperties();
 
 	cout << "Begin while loop" << endl;
@@ -365,7 +394,7 @@ void	scene1() {
 	Fps	fps30(30);
 	Fps* defaultFps = &fps60;
 
-	followCamArgs	st = { defaultFps, &cam };
+	followObjectArgs	st = { defaultFps, &cam };
 
 /////////////////////////////////////	complete oop
 if (false) {
@@ -392,10 +421,10 @@ if (false) {
 	}
 }
 /////////////////////////////////////
-
+// cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
-			// printFps();
+			printFps();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderObj3d(obj3dList, cam);
 			renderSkybox(skybox, cam);
@@ -405,6 +434,7 @@ if (false) {
 			glfw.updateMouse();//to do before cam's events
 			cam.events(glfw, float(defaultFps->tick));
 			//////////////////////////////////////////
+			if (false) {
 			cout << "---rocket1" << endl;
 			rocket1.local.getScale().printData();
 			// rocket1.getWorldMatrix().printData();
@@ -417,6 +447,7 @@ if (false) {
 			cout << "---------------" << endl;
 			lamboBP.getDimensions().printData();
 			cout << "---------------" << endl;
+			}
 
 
 			////////////////////////////////////////// motion
@@ -433,6 +464,7 @@ if (false) {
 				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
 		}
 	}
+	cout << "End while loop" << endl;
 
 	cout << "deleting textures..." << endl;
 	delete texture1;

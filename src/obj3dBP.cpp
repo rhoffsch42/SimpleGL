@@ -5,7 +5,7 @@
 
 float			Obj3dBP::defaultSize = OBJ3DBP_DEFAULT_SIZE;
 
-static float	calcScaleCoef(Math::Vector3 dimensions, float size) {//faire ca dans Properties ? oui
+static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 	float	largest = dimensions.x;
 	largest = std::max(largest, dimensions.y);
 	largest = std::max(largest, dimensions.z);
@@ -54,7 +54,6 @@ Obj3dBP::Obj3dBP(string filename, bool rescale) : Blueprint(filename) {
 			logs << materials[i].diffuse[2] << endl;
 		}
 	}
-
 
 	std::vector<float>	points;
 	std::vector<float>	normals;
