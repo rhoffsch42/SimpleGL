@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/09/29 18:48:24 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/11/12 17:45:58 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
 	//assuming all Obj3d have the same program
 	Obj3d*		obj = *(obj3dList.begin());
 	Obj3dPG&	pg = obj->getProgram();
-	glUseProgram(pg._program);
+	glUseProgram(pg._program);//used once for all obj3d
 	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
 	proMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
@@ -98,7 +98,7 @@ void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
 void	renderSkybox(Skybox& skybox, Cam& cam) {
 //	cout << "render Skybox" << endl;
 	SkyboxPG&	pg = skybox.getProgram();
-	glUseProgram(pg._program);
+	glUseProgram(pg._program);//used once
 	
 	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
 	Math::Matrix4&	viewMatrix = cam.getViewMatrix();
@@ -362,12 +362,14 @@ void	scene1() {
 
 	if (true) {
 		// Obj3d*	backObj = &lambo3;
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 20; i++) {
 			Obj3d*			lamboPlus = new Obj3d(lamboBP, obj3d_prog);
 			lamboPlus->setParent(&lambo3);
 			lamboPlus->displayTexture = (i % 2 ) ? true : false;
 			lamboPlus->local.centered = true;
 			lamboPlus->setTexture(&texture8);
+			// lamboPlus->_motionBehaviorFunc = &rotY;
+			lamboPlus->_motionBehavior = false;
 			float maxScale = 3;
 			float scale = (float)((i % (int)maxScale) - (maxScale/2));
 			lamboPlus->local.enlarge(scale, scale, scale);
@@ -396,31 +398,6 @@ void	scene1() {
 
 	followObjectArgs	st = { defaultFps, &cam };
 
-/////////////////////////////////////	complete oop
-if (false) {
-	vector<Object*>	objectList;
-	objectList.push_back(&rocket1);
-	objectList.push_back(&lambo1);
-	objectList.push_back(&lambo2);
-	objectList.push_back(&lambo3);
-	// objectList.push_back(&skybox);//need class Skybox : public Object
-
-	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
-	Math::Matrix4	viewMatrix = cam.getViewMatrix();
-	proMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
-	Object*		o = *(objectList.begin());
-	for (Object* objectPtr : obj3dList) {
-		// glUseProgram(o->getProgram()._program);//need to move Obj3d|Skybox program stuff in Object
-		// pas tres opti au final
-
-		objectPtr->render(proMatrix);
-
-		//obj3d specific
-		objectPtr->local._matrixChanged = false;
-		objectPtr->_worldMatrixChanged = false;
-	}
-}
-/////////////////////////////////////
 // cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
@@ -430,7 +407,6 @@ if (false) {
 			renderSkybox(skybox, cam);
 			glfwSwapBuffers(glfw._window);
 			glfwPollEvents();
-			//events(glfw, &gle, &progs[OBJ3D]);
 			glfw.updateMouse();//to do before cam's events
 			cam.events(glfw, float(defaultFps->tick));
 			//////////////////////////////////////////

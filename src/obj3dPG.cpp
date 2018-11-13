@@ -40,6 +40,10 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
+
+	//can be done once for all obj3d
+	// glUseProgram(this->_program);
+	
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
 	glUniform1i(this->_dismod, 1);// 1 = display plain_color, 0 = vertex_color
 	//plain_color should not be used, check shader

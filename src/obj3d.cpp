@@ -51,6 +51,8 @@ Obj3d::~Obj3d() {
 void		Obj3d::render(Math::Matrix4& PVmatrix) {
 	this->update();
 	this->_program.render((Obj3d&)(*this), PVmatrix);
+	this->local._matrixChanged = false;
+	this->_worldMatrixChanged = false;
 }
 
 //mutators

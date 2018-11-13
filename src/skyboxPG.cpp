@@ -12,7 +12,7 @@ SkyboxPG::~SkyboxPG() {
 }
 
 void	SkyboxPG::render(Skybox& skybox, Math::Matrix4& VPmatrix) {
-	glUseProgram(this->_program);
+	// glUseProgram(this->_program);
 
 	VPmatrix.setOrder(COLUMN_MAJOR);
 	glUniformMatrix4fv(this->_mat4_vp, 1, GL_FALSE, VPmatrix.getData());
