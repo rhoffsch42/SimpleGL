@@ -62,7 +62,18 @@ void	Cam::updateCamVectors(void) {
 }
 
 void	Cam::updateViewMatrix() {
-	this->update();
+	this->update();//this is for Object in general, but cam matrix works differently
+	/*
+	what we want:
+		cam updated pos and rot, scale must be 1,1,1
+			if the matrix is generated with viewMatrix(...) the scale is ignored
+		how to get new pos:
+			extract it from the parent's worldMatrix	m[xyz][3]
+		how to get new rot:
+			extract it from the parent's worldMatrix, but how?
+			the xyz rot are encoded in the 3x3matrix with the scale
+			is the magnitude of the vector m[][] the scale of the parent object? yes apparently
+	*/
 /*
 	if (this->_parent) {
 		this->_parent->update();
@@ -80,11 +91,11 @@ void	Cam::updateViewMatrix() {
 		this->_worldMatrixChanged = true;
 	}
 */
-	if (this->_worldMatrixChanged) {//for now this is always true, cf Cam::events
+	if (this->_worldMatrixChanged) {//for now this is always true, cf Cam::events (this->local._matrixUpdated = false;)
 		//scale must be 1,1,1 or viewmatrix will be affected in a bad way, undefined behavior if we don't check
 		if (this->local._scale.x == 1.0f && this->local._scale.y == 1.0f &&	this->local._scale.z == 1.0f) {
 		// if (false) {
-			//is this really faster then viewMatrix(pos, rot) ?
+			//is this really faster than viewMatrix(pos, rot) ?
 			this->_viewMatrix = this->_worldMatrix;
 			Math::Rotation	camRot = this->local._rot;
 			Math::Vector3	camPos = this->local._pos;

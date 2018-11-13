@@ -15,6 +15,9 @@ delete data opengl:
 	Blueprint and derived
 	Program and derived
 ---- text formating	-------------------------------------------------------
+Math::matrix	which one is faster? this->e00 or this->tab[0][0] or this->e[0]
+					replace with the fastest?
+				need to know the assembly code generated (or do massive tests)
 void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
 constructor copy, const X& src
 references: type& varname;

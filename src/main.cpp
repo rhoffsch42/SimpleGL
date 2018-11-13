@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/11/12 17:45:58 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/11/13 19:33:00 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,84 @@ public:
 	}
 };
 
+//tmp
+void	demonstrate_scale_in_matrix(Object& obj) {//and try to extract euler angles
+	// this show that the elements (concerned by rot) are multiplied by the scale
+	// depending of scale xyz
+
+	cout << "test scale in matrix : ---------------------" << endl;
+	obj.local.setRot(47, 123.0f, 220);
+	obj.local.setScale(1, 1, 1);
+	obj.update();
+	Math::Matrix4&	mat1 = obj.getWorldMatrix();
+	mat1.printData();
+
+	cout << endl;
+
+	// obj.local.setScale(10, 20, 30);
+	obj.update();
+	Math::Matrix4&	mat = obj.getWorldMatrix();
+	mat.setOrder(ROW_MAJOR);
+	// mat.setOrder(COLUMN_MAJOR);
+	mat.printData();
+
+	//extract euler angles	
+	Math::Rotation euler;
+	euler.setUnit(ROT_RAD);
+	if (0) {
+		mat.setOrder(ROW_MAJOR);
+		euler.x = atan2(mat.tab[1][2], mat.tab[2][2]);
+		float c2 = sqrtf(powf(mat.tab[0][0], 2) + powf(mat.tab[0][1], 2));
+		euler.y = atan2(-mat.tab[0][2], c2);
+		float s1 = sinf(euler.x);
+		float c1 = cosf(euler.x);
+		euler.z = atan2( s1*mat.tab[2][0] - c1*mat.tab[1][0],
+		 				 c1*mat.tab[1][1] - s1*mat.tab[2][1] );
+	}
+
+	if (1) {
+		mat.setOrder(COLUMN_MAJOR);
+		float sy = sqrt(powf(mat.tab[0][0], 2) + powf(mat.tab[0][1], 2));
+		bool singular = sy < 1e-6; // If
+		if (!singular)
+		{
+			euler.x = atan2(mat.tab[2][1], mat.tab[2][2]);
+			// x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
+			euler.y = atan2(mat.tab[2][0], sy);
+			// y = atan2(-R.at<double>(2,0), sy);
+			euler.z = atan2(mat.tab[1][0], mat.tab[0][0]);
+			// z = atan2(R.at<double>(1,0), R.at<double>(0,0));
+		}
+		else
+		{
+			euler.x = atan2(mat.tab[1][2], mat.tab[1][1]);
+			// x = atan2(-R.at<double>(1,2), R.at<double>(1,1));
+			euler.y = atan2(mat.tab[2][0], sy);
+			// y = atan2(-R.at<double>(2,0), sy);
+			euler.z = 0;
+		}
+	}
+
+	euler.printData();
+	cout << endl;
+	euler.setAsDegree();
+	euler.printData();
+	exit(0);
+
+/*
+	161.80 -22.74 251.60 0.00
+	-210.69 -177.00 119.50 -400.00
+	139.39 -241.15 -111.43 0.00
+	0.00 0.00 0.00 1.00
+
+	5.39 -0.76 8.39 0.00
+	-7.02 -5.90 3.98 -400.00
+	4.65 -8.04 -3.71 0.00
+	0.00 0.00 0.00 1.00
+*/		
+
+}
+
 void	printFps() {
 	static double last_time = 0;
 	static double ellapsed_time = 0;
@@ -79,7 +157,7 @@ void	printFps() {
 }
 
 void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
-//	cout << "render all Obj3d" << endl;
+	// cout << "render all Obj3d" << endl;
 	//assuming all Obj3d have the same program
 	Obj3d*		obj = *(obj3dList.begin());
 	Obj3dPG&	pg = obj->getProgram();
@@ -96,7 +174,7 @@ void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
 }
 
 void	renderSkybox(Skybox& skybox, Cam& cam) {
-//	cout << "render Skybox" << endl;
+	// cout << "render Skybox" << endl;
 	SkyboxPG&	pg = skybox.getProgram();
 	glUseProgram(pg._program);//used once
 	
@@ -244,99 +322,99 @@ void	scene1() {
 	float s = 1.0f;//scale
 	//Create Obj3d with the blueprint & by copy
 	Obj3d			the42_1(cubeBP, obj3d_prog);//the42BP !
-	the42_1.local.setPos(-4, -2, -2);
-	the42_1.setTexture(texture1);
-	the42_1.displayTexture = true;
-	the42_1.setPolygonMode(GL_FILL);
-	// the42_1.centered = true;
+		the42_1.local.setPos(-4, -2, -2);
+		the42_1.setTexture(texture1);
+		the42_1.displayTexture = true;
+		the42_1.setPolygonMode(GL_FILL);
+		// the42_1.centered = true;
 
-	Obj3d	the42_2(the42_1);
-	//the42_2.local.setPos(0, 3, -5);
-	the42_2.local.setPos(-4, -2, -2);
-	the42_2.setTexture(texture2);
-	the42_2.displayTexture = false;
-	the42_2.local.centered = true;
-	// the42_2.setScale(3.0f, 0.75f, 0.3f);
-	the42_2.setPolygonMode(GL_LINE);
+	Obj3d			the42_2(the42_1);
+		//the42_2.local.setPos(0, 3, -5);
+		the42_2.local.setPos(-4, -2, -2);
+		the42_2.setTexture(texture2);
+		the42_2.displayTexture = false;
+		the42_2.local.centered = true;
+		// the42_2.setScale(3.0f, 0.75f, 0.3f);
+		the42_2.setPolygonMode(GL_LINE);
 
 	Obj3d			teapot1(teapotBP, obj3d_prog);
-	teapot1.local.setPos(0, 0, 2);
-	teapot1.local.getMatrix().setOrder(ROW_MAJOR);
-//	teapot1.setRot(0, 90, 0);
-	teapot1.setTexture(texture1);
-	teapot1.displayTexture = false;
-	teapot1.setPolygonMode(GL_LINE);
-	teapot1._motionBehaviorFunc = &followObject;
-	teapot1._motionBehavior = true;
-	// teapot1.setScale(1.5, 2, 0.75);
+		teapot1.local.setPos(0, 0, 2);
+		teapot1.local.getMatrix().setOrder(ROW_MAJOR);
+		// teapot1.setRot(0, 90, 0);
+		teapot1.setTexture(texture1);
+		teapot1.displayTexture = false;
+		teapot1.setPolygonMode(GL_LINE);
+		teapot1._motionBehaviorFunc = &followObject;
+		teapot1._motionBehavior = true;
+		// teapot1.setScale(1.5, 2, 0.75);
 
 	Obj3d			cube1(cubeBP, obj3d_prog);
-	cube1.local.setPos(0, -2, 3);
-	cube1.setTexture(texture1);
-	cube1.displayTexture = false;
+		cube1.local.setPos(0, -2, 3);
+		cube1.setTexture(texture1);
+		cube1.displayTexture = false;
 
 	Object			empty1;
-	empty1._motionBehaviorFunc = &rotX;
-	empty1._motionBehavior = true;
-	empty1.local.setScale(1,1,1);
+		empty1._motionBehaviorFunc = &rotX;
+		empty1._motionBehavior = true;
+		empty1.local.setScale(1,1,1);
 
 	Obj3d			rocket1(rocketBP, obj3d_prog);
-	// rocket1.local.setPos(-10, -20, -2000);
-	rocket1.local.setPos(0, -300, 0);
-	rocket1.local.rotate(0, 180, 0);
-	rocket1.setTexture(texture6);
-	rocket1.displayTexture = true;
-	rocket1.local.centered = true;
-	// rocket1.setPolygonMode(GL_LINE);
-	rocket1._motionBehaviorFunc = &rotAndGoZaxis;
-	rocket1._motionBehavior = true;
-	s = 10.0f;
-	rocket1.local.setScale(s,s,s);
-	rocket1.setParent(&empty1);
+		// rocket1.local.setPos(-10, -20, -2000);
+		rocket1.local.setPos(0, -300, 0);
+		rocket1.local.rotate(0, 180, 0);
+		rocket1.setTexture(texture6);
+		rocket1.displayTexture = true;
+		rocket1.local.centered = true;
+		// rocket1.setPolygonMode(GL_LINE);
+		rocket1._motionBehaviorFunc = &rotAndGoZaxis;
+		rocket1._motionBehavior = true;
+		s = 10.0f;
+		rocket1.local.setScale(s,s,s);
+		rocket1.setParent(&empty1);
 
 	// Properties::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
-	lambo1.local.setPos(-20, 0, 0);
-	lambo1.local.setPos(0, -5, 7);
-	lambo1.setTexture(texture7);
-	lambo1.displayTexture = true;
-	lambo1.local.centered = true;
-	// lambo1.setPolygonMode(GL_LINE);
-	lambo1._motionBehaviorFunc = &growAndShrink;
-	lambo1._motionBehavior = true;
-	s = 0.025f;
-	// lambo1.setScale(s, s, s);
+		lambo1.local.setPos(-20, 0, 0);
+		lambo1.local.setPos(0, -5, 7);
+		lambo1.setTexture(texture7);
+		lambo1.displayTexture = true;
+		lambo1.local.centered = true;
+		// lambo1.setPolygonMode(GL_LINE);
+		lambo1._motionBehaviorFunc = &growAndShrink;
+		lambo1._motionBehavior = true;
+		s = 0.025f;
+		// lambo1.setScale(s, s, s);
 
 	Obj3d			lambo2(lamboBP, obj3d_prog);
-	// lambo2.local.setPos(0, -1.9f, 0);
-	lambo2.local.setPos(0, -6.0f, 0);
-	lambo2.local.setRot(0, 180.0f, 0);
-	lambo2.setTexture(texture7);
-	lambo2.displayTexture = true;
-	lambo2.local.centered = true;
-	// lambo2.setPolygonMode(GL_LINE);
-	lambo2._motionBehaviorFunc = &rotY;
-	lambo2._motionBehavior = true;
-	s = 0.4f;
-	// lambo2.local.setScale(s, s, s);
-	// lambo2.setParent(&the42_1);
-	lambo2.setParent(&rocket1);
+		// lambo2.local.setPos(0, -1.9f, 0);
+		lambo2.local.setPos(0, -6.0f, 0);
+		lambo2.local.setRot(0, 180.0f, 0);
+		lambo2.setTexture(texture7);
+		lambo2.displayTexture = true;
+		lambo2.local.centered = true;
+		// lambo2.setPolygonMode(GL_LINE);
+		lambo2._motionBehaviorFunc = &rotY;
+		lambo2._motionBehavior = true;
+		s = 0.4f;
+		// lambo2.local.setScale(s, s, s);
+		// lambo2.setParent(&the42_1);
+		lambo2.setParent(&rocket1);
 
 	Obj3d			lambo3(lamboBP, obj3d_prog);
-	lambo3.local.setPos(0, -4, 0);
-	lambo3.local.setRot(0, 0.0f, 180);
-	lambo3.setTexture(&texture8);
-	lambo3.displayTexture = true;
-	lambo3.local.centered = true;
-	// lambo3.setPolygonMode(GL_LINE);
-	// lambo3._motionBehaviorFunc = &growAndShrink;
-	// lambo3._motionBehavior = true;
-	s = 30.0f;
-	// lambo3.local.setScale(s, s, s);
-	// lambo3.setParent(&the42_1);
-	lambo3.setParent(&lambo2);
+		lambo3.local.setPos(0, -4, 0);
+		lambo3.local.setRot(0, 0.0f, 180);
+		lambo3.setTexture(&texture8);
+		lambo3.displayTexture = true;
+		lambo3.local.centered = true;
+		// lambo3.setPolygonMode(GL_LINE);
+		// lambo3._motionBehaviorFunc = &growAndShrink;
+		// lambo3._motionBehavior = true;
+		s = 30.0f;
+		// lambo3.local.setScale(s, s, s);
+		// lambo3.setParent(&the42_1);
+		lambo3.setParent(&lambo2);
 
-
+	// demonstrate_scale_in_matrix(lambo2);
 
 	// Properties::defaultSize = PP_DEFAULT_SIZE;
 
@@ -360,7 +438,7 @@ void	scene1() {
 	obj3dList.push_back(&lambo2);
 	obj3dList.push_back(&lambo3);
 
-	if (true) {
+	if (true) {//spiral
 		// Obj3d*	backObj = &lambo3;
 		for (int i = 0; i < 20; i++) {
 			Obj3d*			lamboPlus = new Obj3d(lamboBP, obj3d_prog);
@@ -390,6 +468,9 @@ void	scene1() {
 	cam.local.setPos(0, 0, 10);
 	cam.printProperties();
 
+	//we should block the camera movements here (not rotation for now)
+	cam.setParent(&rocket1);
+
 	cout << "Begin while loop" << endl;
 	Fps	fps144(144);
 	Fps	fps60(60);
@@ -398,7 +479,7 @@ void	scene1() {
 
 	followObjectArgs	st = { defaultFps, &cam };
 
-// cam.local.setScale(s,s,s);//bad, undefined behavior
+	// cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
 			printFps();
