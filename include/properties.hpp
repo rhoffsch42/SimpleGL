@@ -42,7 +42,6 @@ public:
 			this->_pos.operation(x, y, z);
 	*/
 	bool			updateMatrix();
-	void			updateFromMatrix(Math::Matrix4& mat);
 	//relative mutators (default: Math::Vector3::add)
 	void			translate(float x, float y, float z);
 	void			translate(Math::Vector3 pos);
@@ -75,11 +74,11 @@ private://public ?
 	Math::Rotation	_rot;
 	Math::Vector3	_scale;
 
-	//faire ca pendant la creation de l'object (comme scale)
 	Math::Vector3	_centerOffset;
 	Math::Vector3	_centeredPos;
 	void	center();
 
 	friend class Object;
+	friend class Obj3d;
 	friend class Cam;
 };

@@ -12,6 +12,61 @@ inline float	Math::toDegree(float radian) {
 	return (radian * (180.0f / float(M_PI)));
 }
 
+t_pp			Math::extractFromMatrix(Math::Matrix4 mat) {
+	mat.setOrder(ROW_MAJOR);
+	s_pp	pp;
+	float	(&m)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat.getData());
+
+	pp.pos.x = m[0][3];
+	pp.pos.y = m[1][3];
+	pp.pos.z = m[2][3];
+
+	Math::Vector3	vectorX;
+	Math::Vector3	vectorY;
+	Math::Vector3	vectorZ;
+	vectorX.x = m[0][0];
+	vectorX.y = m[1][0];
+	vectorX.z = m[2][0];
+	vectorY.x = m[0][1];
+	vectorY.y = m[1][1];
+	vectorY.z = m[2][1];
+	vectorZ.x = m[0][2];
+	vectorZ.y = m[1][2];
+	vectorZ.z = m[2][2];
+
+	pp.scale.x = vectorX.magnitude();
+	pp.scale.y = vectorY.magnitude();
+	pp.scale.z = vectorZ.magnitude();
+	m[0][0] /= pp.scale.x;
+	m[1][0] /= pp.scale.x;
+	m[2][0] /= pp.scale.x;
+	m[0][1] /= pp.scale.y;
+	m[1][1] /= pp.scale.y;
+	m[2][1] /= pp.scale.y;
+	m[0][2] /= pp.scale.z;
+	m[1][2] /= pp.scale.z;
+	m[2][2] /= pp.scale.z;
+
+	if (m[0][2] < 1) {
+		if (m[0][2] > -1) {
+			pp.rot.y = asinf(m[0][2]);
+			pp.rot.x = atan2(-m[1][2], m[2][2]);
+			pp.rot.z = atan2(-m[0][1], m[0][0]);
+		} else {	//m[0][2] = -1 (sin(y) = -1 (+-180 deg))
+			pp.rot.y = -M_PI / 2.0f;
+			pp.rot.x = -atan2(m[1][0], m[1][1]);
+			pp.rot.z = 0;
+		}
+	} else {	//m[0][2] = +1 (sin(y) = +1 (+-0 deg))
+		pp.rot.y = M_PI / 2.0f;
+		pp.rot.x = atan2(m[1][0], m[1][1]);
+		pp.rot.z = 0;
+	}
+	pp.rot.setUnit(ROT_RAD);
+	return (pp);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 //	class Vector3
 Math::Vector3::Vector3() {

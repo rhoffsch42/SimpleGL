@@ -68,86 +68,29 @@ void	Cam::updateCamVectors(void) {
 }
 
 void	Cam::updateViewMatrix() {
-	this->update();//this is for Object in general, but cam matrix works differently
-	/*
-	what we want:
-		cam updated pos and rot, scale must be 1,1,1
-			if the matrix is generated with viewMatrix(...) the scale is ignored
-		how to get new pos:
-			extract it from the parent's worldMatrix	m[xyz][3]
-		how to get new rot:
-			extract it from the parent's worldMatrix, but how?
-			the xyz rot are encoded in the 3x3matrix with the scale
-			is the magnitude of the vector m[][] the scale of the parent object? yes apparently
-	*/
-/*
-	if (this->_parent) {
-		this->_parent->update();
-		Math::Matrix4	mat(this->_parent->getWorldMatrix());
-		mat.setOrder(ROW_MAJOR);
-		float	(&m)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat.getData());
-		this->local._pos.x = m[0][3];
-		this->local._pos.y = m[1][3];
-		this->local._pos.z = m[2][3];
-		// this->local._rot = this->_parent->local.getRot();
-		this->updateCamVectors();
-		Math::Vector3	vec3 = this->_forward;
-		vec3.mult(-30.0f);
-		this->local.translate(vec3);
-		this->_worldMatrixChanged = true;
-	}
-*/
+	this->update();
 	if (this->_worldMatrixChanged) {//for now this is always true, cf Cam::events (this->local._matrixUpdated = false;)
+		// check parent's matrix changed too ?
 		/*
 			worldMatrix's scale must be 1,1,1 or viewmatrix will be affected in a bad way, undefined behavior if we don't check
 			
 			extract euler angles and pos from worldMatrix, then:
 			this->_viewMatrix.viewMatrix(pos, rot);
 		*/
-		if (1) {
-			cout << "viewMatrix with parents (if there are) - only POS" << endl;
-			Math::Vector3 pos;
-			this->_worldMatrix.setOrder(ROW_MAJOR);
-			pos.x = this->_worldMatrix.tab[0][3];
-			pos.y = this->_worldMatrix.tab[1][3];
-			pos.z = this->_worldMatrix.tab[2][3];
-			this->_viewMatrix.viewMatrix(pos, this->local._rot);
-
-			if (0) {//rescale to 1,1,1
-				Math::Vector3	vectorX;
-				Math::Vector3	vectorY;
-				Math::Vector3	vectorZ;
-				vectorX.x = this->_worldMatrix.tab[0][0];
-				vectorX.y = this->_worldMatrix.tab[1][0];
-				vectorX.z = this->_worldMatrix.tab[2][0];
-				vectorY.x = this->_worldMatrix.tab[0][1];
-				vectorY.y = this->_worldMatrix.tab[1][1];
-				vectorY.z = this->_worldMatrix.tab[2][1];
-				vectorZ.x = this->_worldMatrix.tab[0][2];
-				vectorZ.y = this->_worldMatrix.tab[1][2];
-				vectorZ.z = this->_worldMatrix.tab[2][2];
-				Math::Vector3 scale;
-				scale.x = vectorX.magnitude();
-				scale.y = vectorY.magnitude();
-				scale.z = vectorZ.magnitude();
-				scale.printData();
-				this->_viewMatrix.setOrder(ROW_MAJOR);
-				this->_viewMatrix.tab[0][0] = this->_worldMatrix.tab[0][0] / scale.x;
-				this->_viewMatrix.tab[1][0] = this->_worldMatrix.tab[1][0] / scale.x;
-				this->_viewMatrix.tab[2][0] = this->_worldMatrix.tab[2][0] / scale.x;
-				this->_viewMatrix.tab[0][1] = this->_worldMatrix.tab[0][1] / scale.y;
-				this->_viewMatrix.tab[1][1] = this->_worldMatrix.tab[1][1] / scale.y;
-				this->_viewMatrix.tab[2][1] = this->_worldMatrix.tab[2][1] / scale.y;
-				this->_viewMatrix.tab[0][2] = this->_worldMatrix.tab[0][2] / scale.z;
-				this->_viewMatrix.tab[1][2] = this->_worldMatrix.tab[1][2] / scale.z;
-				this->_viewMatrix.tab[2][2] = this->_worldMatrix.tab[2][2] / scale.z;
-				// matrix pos vector isnt correct, need to extract euler angles from that
-				// then: this->_viewMatrix.viewMatrix(pos, eulerAngles);
-				this->_viewMatrix.setOrder(COLUMN_MAJOR);
-			}
-			this->_viewMatrix.printData();
+		if (true) {
+			// cout << "viewMatrix with parents (if there are) - only POS" << endl;
+			t_pp	pp = Math::extractFromMatrix(this->_worldMatrix);
+			/*
+				update local ? depending on the parent
+				need world to local matrix, this is the inverse matrix of the parent ?
+					Parent * Local = Word
+			*/
+			this->_viewMatrix.viewMatrix(pp.pos, pp.rot);
+			this->_viewMatrix.setOrder(COLUMN_MAJOR);
+			this->_worldMatrixChanged = false;
+			// this->_viewMatrix.printData();
 		} else {
-			cout << "viewMatrix without parents" << endl;
+			// cout << "viewMatrix without parents" << endl;
 			this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);// this does not take parents into account
 		}
 	}

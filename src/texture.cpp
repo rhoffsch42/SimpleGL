@@ -117,7 +117,7 @@ void	Texture::printData() const {
 
 void			Texture::genTexture() {
 	glGenTextures(1, &this->_id);
-	cout << this->_id;
+	cout << this->_id << endl;
 	glBindTexture(GL_TEXTURE_2D, this->_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->_width, this->_height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->_data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

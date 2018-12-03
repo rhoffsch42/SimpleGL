@@ -1,7 +1,3 @@
-reprise: bug si on met un parent a la cam
-			le resultat attendu est la cam qui suit l'objet, (cam.z = -10 ou +10)
-		faire la class Behavior, etuder les behaviors de swift pour voir si leur system a des avantages
-
 ---- other			-------------------------------------------------------
 float	(*Vector3::operation)(float,float);
 	inline?	add/sub/etc
@@ -15,9 +11,6 @@ delete data opengl:
 	Blueprint and derived
 	Program and derived
 ---- text formating	-------------------------------------------------------
-Math::matrix	which one is faster? this->e00 or this->tab[0][0] or this->e[0]
-					replace with the fastest?
-				need to know the assembly code generated (or do massive tests)
 void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
 constructor copy, const X& src
 references: type& varname;
@@ -27,7 +20,8 @@ if (condition)//bad, braces should englobe code
 	[...]
 public variables without underscore: _varname;
 ---- Main features	-------------------------------------------------------
-cam.setParent()// todo
+cam.setParent() *finish Behavior and other fix before continuing this
+	working but movement are from worldSpace and not localSpace (need unlock mvt/orientation)
 class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 	class Program and derived: see SkyboxPG.hpp
 	class skybox : public Object.

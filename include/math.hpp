@@ -31,17 +31,22 @@
 	Math::Matrix4
 */
 
+
+typedef struct s_pp	t_pp;
+
 class Math
 {
 public:
 	Math();
 	~Math();
 
-	//static
-	static float	toRadian(float degree);
-	static float	toDegree(float radian);
-
 	class Rotation;
+	class Matrix4;
+	
+	//static
+	static float		toRadian(float degree);
+	static float		toDegree(float radian);
+	static t_pp			extractFromMatrix(Math::Matrix4 matrix);
 
 	class Vector3 {
 	public:
@@ -146,5 +151,11 @@ public:
 		uint8_t		_order;
 	};
 };
+
+typedef struct	s_pp {
+	Math::Vector3	pos;
+	Math::Rotation	rot;
+	Math::Vector3	scale;
+}				t_pp;
 
 

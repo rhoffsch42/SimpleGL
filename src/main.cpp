@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/12/03 11:17:48 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/12/03 17:13:01 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,118 +61,6 @@ public:
 			return (false);
 	}
 };
-
-//tmp
-void	demonstrate_scale_in_matrix(Object& obj) {//and try to extract euler angles
-	// this show that the elements (concerned by rot) are multiplied by the scale
-	// depending of scale xyz
-
-	Math::Vector3	XX;
-	Math::Vector3	YY;
-	Math::Vector3	ZZ;
-
-	cout << "test scale in matrix : ---------------------" << endl;
-	obj.local.setRot(47, 123.0f, 220);
-	obj.local.setScale(1, 1, 1);
-	obj.update();
-	Math::Matrix4&	mat1 = obj.getWorldMatrix();
-	mat1.setOrder(ROW_MAJOR);
-	// mat1.setOrder(COLUMN_MAJOR);
-	
-	mat1.printData();
-	XX.x = mat1.tab[0][0];
-	XX.y = mat1.tab[1][0];
-	XX.z = mat1.tab[2][0];
-	YY.x = mat1.tab[0][1];
-	YY.y = mat1.tab[1][1];
-	YY.z = mat1.tab[2][1];
-	ZZ.x = mat1.tab[0][2];
-	ZZ.y = mat1.tab[1][2];
-	ZZ.z = mat1.tab[2][2];
-	cout << "magnitude: " << XX.magnitude()/10.0f << " " << YY.magnitude()/10.0f << " " << ZZ.magnitude()/10.0f << endl;
-	cout << endl;
-
-
-	cout << endl;
-
-	obj.local.setScale(12.2, 26.1, 32.8);
-	obj.update();
-	Math::Matrix4&	mat = obj.getWorldMatrix();
-	mat.setOrder(ROW_MAJOR);
-	// mat.setOrder(COLUMN_MAJOR);
-
-	mat.printData();
-	XX.x = mat.tab[0][0];
-	XX.y = mat.tab[1][0];
-	XX.z = mat.tab[2][0];
-	YY.x = mat.tab[0][1];
-	YY.y = mat.tab[1][1];
-	YY.z = mat.tab[2][1];
-	ZZ.x = mat.tab[0][2];
-	ZZ.y = mat.tab[1][2];
-	ZZ.z = mat.tab[2][2];
-	cout << "magnitude: " << XX.magnitude()/10.0f << " " << YY.magnitude()/10.0f << " " << ZZ.magnitude()/10.0f << endl;
-	cout << endl;
-	// why scale is magnitude / 10 ?
-
-
-	exit(0);
-	//extract euler angles	
-	Math::Rotation euler;
-	euler.setUnit(ROT_RAD);
-	if (0) {
-		mat.setOrder(ROW_MAJOR);
-		euler.x = atan2(mat.tab[1][2], mat.tab[2][2]);
-		float c2 = sqrtf(powf(mat.tab[0][0], 2) + powf(mat.tab[0][1], 2));
-		euler.y = atan2(-mat.tab[0][2], c2);
-		float s1 = sinf(euler.x);
-		float c1 = cosf(euler.x);
-		euler.z = atan2( s1*mat.tab[2][0] - c1*mat.tab[1][0],
-		 				 c1*mat.tab[1][1] - s1*mat.tab[2][1] );
-	}
-
-	if (1) {
-		mat.setOrder(COLUMN_MAJOR);
-		float sy = sqrt(powf(mat.tab[0][0], 2) + powf(mat.tab[0][1], 2));
-		bool singular = sy < 1e-6; // If
-		if (!singular)
-		{
-			euler.x = atan2(mat.tab[2][1], mat.tab[2][2]);
-			// x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
-			euler.y = atan2(mat.tab[2][0], sy);
-			// y = atan2(-R.at<double>(2,0), sy);
-			euler.z = atan2(mat.tab[1][0], mat.tab[0][0]);
-			// z = atan2(R.at<double>(1,0), R.at<double>(0,0));
-		}
-		else
-		{
-			euler.x = atan2(mat.tab[1][2], mat.tab[1][1]);
-			// x = atan2(-R.at<double>(1,2), R.at<double>(1,1));
-			euler.y = atan2(mat.tab[2][0], sy);
-			// y = atan2(-R.at<double>(2,0), sy);
-			euler.z = 0;
-		}
-	}
-
-	euler.printData();
-	cout << endl;
-	euler.setAsDegree();
-	euler.printData();
-	exit(0);
-
-/*
-	161.80 -22.74 251.60 0.00
-	-210.69 -177.00 119.50 -400.00
-	139.39 -241.15 -111.43 0.00
-	0.00 0.00 0.00 1.00
-
-	5.39 -0.76 8.39 0.00
-	-7.02 -5.90 3.98 -400.00
-	4.65 -8.04 -3.71 0.00
-	0.00 0.00 0.00 1.00
-*/		
-
-}
 
 void	printFps() {
 	static double last_time = 0;
@@ -284,9 +172,9 @@ void	rotAndGoZaxis(Object& ref, void* ptr) {
 	rot.z += anglePerSec * (float)fps_ptr->tick;
 	ref.local.setRot(rot);
 
-	// Math::Vector3	pos = ref.local.getPos();
-	// pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
-	// ref.local.setPos(pos);
+	Math::Vector3	pos = ref.local.getPos();
+	pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
+	ref.local.setPos(pos);
 }
 
 void	rotX(Object& ref, void* ptr) {
@@ -297,7 +185,7 @@ void	rotX(Object& ref, void* ptr) {
 }
 
 void	rotY(Object& ref, void* ptr) {
-	static float	anglePerSec = 20;
+	static float	anglePerSec = 50;
 	Fps * fps_ptr = (Fps*)ptr;
 
 	ref.local.rotate(0, anglePerSec * (float)fps_ptr->tick, 0);
@@ -366,16 +254,17 @@ void	scene1() {
 	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
 	Texture		texture8 = *texture7;
 
-
 	float s = 1.0f;//scale
 	//Create Obj3d with the blueprint & by copy
 	Obj3d			the42_1(cubeBP, obj3d_prog);//the42BP !
-		the42_1.local.setPos(-4, -2, -2);
+		the42_1.local.setPos(0, 0, 0);
 		the42_1.setTexture(texture1);
 		the42_1.displayTexture = true;
 		the42_1.setPolygonMode(GL_FILL);
-		the42_1.local.setScale(10, 10, 10);
-		// the42_1.centered = true;
+		the42_1.local.setScale(1, 1, 1);
+		the42_1._motionBehavior = true;
+		the42_1._motionBehaviorFunc = rotY;
+		the42_1.local.centered = true;
 
 	Obj3d			the42_2(the42_1);
 		//the42_2.local.setPos(0, 3, -5);
@@ -419,7 +308,7 @@ void	scene1() {
 		rocket1._motionBehavior = true;
 		s = 10.0f;
 		rocket1.local.setScale(s,s,s);
-		rocket1.setParent(&empty1);
+		// rocket1.setParent(&empty1);
 
 	// Properties::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
@@ -429,7 +318,8 @@ void	scene1() {
 		lambo1.displayTexture = true;
 		lambo1.local.centered = true;
 		// lambo1.setPolygonMode(GL_LINE);
-		lambo1._motionBehaviorFunc = &growAndShrink;
+		lambo1._motionBehaviorFunc = growAndShrink;
+		lambo1._motionBehaviorFunc = rotY;
 		lambo1._motionBehavior = true;
 		s = 0.025f;
 		// lambo1.setScale(s, s, s);
@@ -456,7 +346,7 @@ void	scene1() {
 		lambo3.displayTexture = true;
 		lambo3.local.centered = true;
 		// lambo3.setPolygonMode(GL_LINE);
-		// lambo3._motionBehaviorFunc = &growAndShrink;
+		// lambo3._motionBehaviorFunc = growAndShrink;
 		// lambo3._motionBehavior = true;
 		s = 30.0f;
 		// lambo3.local.setScale(s, s, s);
@@ -514,12 +404,15 @@ void	scene1() {
 
 	Cam		cam(glfw);
 	cam.local.centered = false;
-	cam.local.setPos(0, 1, 3);
+	cam.local.setPos(0, 0, 10);
 	cam.printProperties();
 
-	cam.setParent(&rocket1);
-	cam.lockedMovement = true;
-	// cam.lockedOrientation = true;
+	if (true) {
+		cam.local.setPos(0, 1.5f, 3.5f);
+		cam.setParent(&rocket1);
+		cam.lockedMovement = true;
+		cam.lockedOrientation = true;
+	}
 
 	cout << "Begin while loop" << endl;
 	Fps	fps144(144);
@@ -541,9 +434,14 @@ void	scene1() {
 			glfw.updateMouse();//to do before cam's events
 			cam.events(glfw, float(defaultFps->tick));
 			//////////////////////////////////////////
-			Math::Matrix4	matRocket = rocket1.getWorldMatrix();
-			matRocket.printData();
-			cout << "---------------" << endl;
+			if (false) {
+				Math::Matrix4	matRocket = rocket1.getWorldMatrix();
+				matRocket.printData();
+				cout << "---------------" << endl;
+			}
+			if (false) {
+				the42_1.getWorldMatrix().printData();
+			}
 			//////////////////////////////////////////
 			if (false) {
 			cout << "---rocket1" << endl;
@@ -563,6 +461,7 @@ void	scene1() {
 
 			////////////////////////////////////////// motion
 			//this should be used in another func, life a special func managing all events/behavior at every frames
+			the42_1.runMothionBehavior((void*)defaultFps);
 			rocket1.runMothionBehavior((void*)defaultFps);
 			lambo1.runMothionBehavior((void*)defaultFps);
 			lambo2.runMothionBehavior((void*)defaultFps);

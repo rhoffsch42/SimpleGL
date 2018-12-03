@@ -14,6 +14,7 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	this->_texture = NULL;
 	this->_polygonMode = Obj3d::defaultPolygonMode;
 	this->displayTexture = Obj3d::defaultDisplayTexture;
+	this->local._centerOffset = bp.getCenterOffset();
 
 	GLuint&		vboVertex = this->_blueprint.getVboVertex();
 	GLuint&		vboColor = this->_blueprint.getVboColor();

@@ -3,13 +3,6 @@
 
 bool			Properties::defaultCentered = false;
 
-// static float	calcScaleCoef(Math::Vector3 dimensions, float size) {//faire ca dans Properties ? oui
-// 	float	largest = dimensions.x;
-// 	largest = std::max(largest, dimensions.y);
-// 	largest = std::max(largest, dimensions.z);
-// 	return (size / largest);
-// }
-
 Properties::Properties() {
 	// cout << "_ Properties cons" << endl;
 	this->_scale = Math::Vector3(1, 1, 1);
@@ -23,6 +16,7 @@ Properties::Properties(const Properties& src) {
 }
 
 Properties&		Properties::operator=(const Properties& src) {
+	this->centered = src.centered;
 	this->_matrix = Math::Matrix4(src.getMatrix());
 	this->_matrixUpdated = false;
 	this->_matrixChanged = true;
@@ -48,53 +42,6 @@ bool		Properties::updateMatrix() {
 		return (false);
 	}
 	return (true);
-}
-
-void		Properties::updateFromMatrix(Math::Matrix4& mat) {
-	cerr << "/!\\\tProperties::updateFromMatrix incomplete, do not use it!" << endl;
-	uint8_t	order = mat.getOrder();
-	mat.setOrder(ROW_MAJOR);
-	float	(&m)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat.getData());
-	/*
-		Angle y
-		m[0][2] = sinf(y)
-		y = asinf(m[0][2])
-		
-		Angle x
-		m[2][2] = cosf(x) * cosf(y)
-		cosf(x) = m[2][2] / cosf(y)
-		x = acosf(m[2][2] / cosf(y))
-
-		Angle z
-		m[0][0] = cosf(y) * cosf(z)
-		cosf(z) = m[0][0] / cosf(y)
-		z = acosf(m[0][0] / cosf(y))
-	*/
-	float	x, y, z, cos_y;
-	y = asinf(m[0][2]);
-	cos_y = cosf(y);
-	if (fabs(cos_y) < 0.005f) {
-		/*
-			get fucked by Gimball lock
-			in Properties mutators:
-				always check for a Yangle too close from 90.0f degrees
-				correct it with 0.17 degree from 90
-		*/
-		//cout << "x and z angle are false" << endl;
-	}
-	x = acosf(m[2][2] / cos_y);
-	z = acosf(m[0][0] / cos_y);
-
-	this->_rot.x = x;
-	this->_rot.y = y;
-	this->_rot.z = z;
-	this->_rot.setUnit(ROT_RAD);
-	this->_pos.x = m[0][3];
-	this->_pos.y = m[1][3];
-	this->_pos.z = m[2][3];
-	//prendre en compte le scale + centered
-
-	mat.setOrder(order);
 }
 
 void		Properties::center() {
