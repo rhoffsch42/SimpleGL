@@ -52,6 +52,8 @@ public:
 	float			getFar() const;
 
 	float			speed;//max/min ? if yes ->private setter/mutator
+	bool			lockedMovement;
+	bool			lockedOrientation;
 private:
 	Math::Matrix4	_projectionMatrix;
 	Math::Matrix4	_viewMatrix;

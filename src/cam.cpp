@@ -7,6 +7,8 @@ Cam::Cam(Glfw& glfw) : Object() {
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
 	this->speed = CAM_SPEED;
+	this->lockedMovement = false;
+	this->lockedOrientation = false;
 	this->updateCamVectors();
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
@@ -17,6 +19,8 @@ Cam::Cam(Glfw& glfw, Math::Vector3 pos, Math::Rotation rot) : Object() {
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
 	this->speed = CAM_SPEED;
+	this->lockedMovement = false;
+	this->lockedOrientation = false;
 	this->local._pos = pos;
 	this->local._rot = rot;
 	this->updateCamVectors();
@@ -36,6 +40,8 @@ Cam::Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY,
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
 	this->speed = CAM_SPEED;
+	this->lockedMovement = false;
+	this->lockedOrientation = false;
 	this->updateCamVectors();
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
@@ -92,19 +98,58 @@ void	Cam::updateViewMatrix() {
 	}
 */
 	if (this->_worldMatrixChanged) {//for now this is always true, cf Cam::events (this->local._matrixUpdated = false;)
-		//scale must be 1,1,1 or viewmatrix will be affected in a bad way, undefined behavior if we don't check
-		if (this->local._scale.x == 1.0f && this->local._scale.y == 1.0f &&	this->local._scale.z == 1.0f) {
-		// if (false) {
-			//is this really faster than viewMatrix(pos, rot) ?
-			this->_viewMatrix = this->_worldMatrix;
-			Math::Rotation	camRot = this->local._rot;
-			Math::Vector3	camPos = this->local._pos;
-			camRot.setAsRad();
-			camPos.rotate(camRot, ROT_WAY);
-			this->_viewMatrix.updatePosValue(-camPos);
+		/*
+			worldMatrix's scale must be 1,1,1 or viewmatrix will be affected in a bad way, undefined behavior if we don't check
+			
+			extract euler angles and pos from worldMatrix, then:
+			this->_viewMatrix.viewMatrix(pos, rot);
+		*/
+		if (1) {
+			cout << "viewMatrix with parents (if there are) - only POS" << endl;
+			Math::Vector3 pos;
+			this->_worldMatrix.setOrder(ROW_MAJOR);
+			pos.x = this->_worldMatrix.tab[0][3];
+			pos.y = this->_worldMatrix.tab[1][3];
+			pos.z = this->_worldMatrix.tab[2][3];
+			this->_viewMatrix.viewMatrix(pos, this->local._rot);
+
+			if (0) {//rescale to 1,1,1
+				Math::Vector3	vectorX;
+				Math::Vector3	vectorY;
+				Math::Vector3	vectorZ;
+				vectorX.x = this->_worldMatrix.tab[0][0];
+				vectorX.y = this->_worldMatrix.tab[1][0];
+				vectorX.z = this->_worldMatrix.tab[2][0];
+				vectorY.x = this->_worldMatrix.tab[0][1];
+				vectorY.y = this->_worldMatrix.tab[1][1];
+				vectorY.z = this->_worldMatrix.tab[2][1];
+				vectorZ.x = this->_worldMatrix.tab[0][2];
+				vectorZ.y = this->_worldMatrix.tab[1][2];
+				vectorZ.z = this->_worldMatrix.tab[2][2];
+				Math::Vector3 scale;
+				scale.x = vectorX.magnitude();
+				scale.y = vectorY.magnitude();
+				scale.z = vectorZ.magnitude();
+				scale.printData();
+				this->_viewMatrix.setOrder(ROW_MAJOR);
+				this->_viewMatrix.tab[0][0] = this->_worldMatrix.tab[0][0] / scale.x;
+				this->_viewMatrix.tab[1][0] = this->_worldMatrix.tab[1][0] / scale.x;
+				this->_viewMatrix.tab[2][0] = this->_worldMatrix.tab[2][0] / scale.x;
+				this->_viewMatrix.tab[0][1] = this->_worldMatrix.tab[0][1] / scale.y;
+				this->_viewMatrix.tab[1][1] = this->_worldMatrix.tab[1][1] / scale.y;
+				this->_viewMatrix.tab[2][1] = this->_worldMatrix.tab[2][1] / scale.y;
+				this->_viewMatrix.tab[0][2] = this->_worldMatrix.tab[0][2] / scale.z;
+				this->_viewMatrix.tab[1][2] = this->_worldMatrix.tab[1][2] / scale.z;
+				this->_viewMatrix.tab[2][2] = this->_worldMatrix.tab[2][2] / scale.z;
+				// matrix pos vector isnt correct, need to extract euler angles from that
+				// then: this->_viewMatrix.viewMatrix(pos, eulerAngles);
+				this->_viewMatrix.setOrder(COLUMN_MAJOR);
+			}
+			this->_viewMatrix.printData();
+		} else {
+			cout << "viewMatrix without parents" << endl;
+			this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);// this does not take parents into account
 		}
-		else
-			this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
 	}
 }
 
@@ -117,34 +162,37 @@ void	Cam::events(Glfw& glfw, float fpsTick) {
 		void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 			/!\ need global Glfw to access mouse variables
 	*/
-	this->local._rot.setUnit(ROT_DEG);
-	this->local._rot.z = 0;
-	this->local._rot.y = -(float(glfw._mouseDiffX) * 360.0f / MOUSE_SENSIBILITY);//mouse's X pos for cam's Y rot axis
-	this->local._rot.x = -(float(glfw._mouseDiffY) * 360.0f / MOUSE_SENSIBILITY);//mouse's Y pos for cam's X rot axis
-	this->local._matrixUpdated = false;
-	this->updateCamVectors();
-
-	//this should be done only once too
-	float	effectiveSpeed = this->speed * fpsTick;
-	this->_mvt[0] = this->_forward;
-	this->_mvt[1] = this->_right;
-	this->_mvt[2] = this->_up;
-	this->_mvt[0].mult(effectiveSpeed);
-	this->_mvt[1].mult(effectiveSpeed);
-	this->_mvt[2].mult(effectiveSpeed);
-	//
-	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_W))
-		this->local._pos.add(this->_mvt[0]);
-	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_S))
-		this->local._pos.sub(this->_mvt[0]);
-	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_D))
-		this->local._pos.add(this->_mvt[1]);
-	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_A))
-		this->local._pos.sub(this->_mvt[1]);
-	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_R))
-		this->local._pos.add(this->_mvt[2]);
-	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_F))
-		this->local._pos.sub(this->_mvt[2]);
+	if (!this->lockedOrientation) {
+		this->local._rot.setUnit(ROT_DEG);
+		this->local._rot.z = 0;
+		this->local._rot.y = -(float(glfw._mouseDiffX) * 360.0f / MOUSE_SENSIBILITY);//mouse's X pos for cam's Y rot axis
+		this->local._rot.x = -(float(glfw._mouseDiffY) * 360.0f / MOUSE_SENSIBILITY);//mouse's Y pos for cam's X rot axis
+		this->local._matrixUpdated = false;
+		this->updateCamVectors();
+	}
+	if (!this->lockedMovement) {
+		//this should be done only once too
+		float	effectiveSpeed = this->speed * fpsTick;
+		this->_mvt[0] = this->_forward;
+		this->_mvt[1] = this->_right;
+		this->_mvt[2] = this->_up;
+		this->_mvt[0].mult(effectiveSpeed);
+		this->_mvt[1].mult(effectiveSpeed);
+		this->_mvt[2].mult(effectiveSpeed);
+		//
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_W))
+			this->local._pos.add(this->_mvt[0]);
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_S))
+			this->local._pos.sub(this->_mvt[0]);
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_D))
+			this->local._pos.add(this->_mvt[1]);
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_A))
+			this->local._pos.sub(this->_mvt[1]);
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_R))
+			this->local._pos.add(this->_mvt[2]);
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_F))
+			this->local._pos.sub(this->_mvt[2]);
+	}
 
 	this->updateViewMatrix();
 	if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_M))

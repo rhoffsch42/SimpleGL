@@ -132,7 +132,7 @@ public:
 		float*			getData() const;
 		uint8_t			getOrder() const;
 
-	private:
+	// private://comment this to test matrix
 		/*
 			Manipulation with tab 4x4
 			Important when COLUMN_MAJOR order:

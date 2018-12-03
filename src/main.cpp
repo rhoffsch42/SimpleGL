@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/11/13 19:33:00 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/12/03 11:17:48 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,22 +67,56 @@ void	demonstrate_scale_in_matrix(Object& obj) {//and try to extract euler angles
 	// this show that the elements (concerned by rot) are multiplied by the scale
 	// depending of scale xyz
 
+	Math::Vector3	XX;
+	Math::Vector3	YY;
+	Math::Vector3	ZZ;
+
 	cout << "test scale in matrix : ---------------------" << endl;
 	obj.local.setRot(47, 123.0f, 220);
 	obj.local.setScale(1, 1, 1);
 	obj.update();
 	Math::Matrix4&	mat1 = obj.getWorldMatrix();
+	mat1.setOrder(ROW_MAJOR);
+	// mat1.setOrder(COLUMN_MAJOR);
+	
 	mat1.printData();
+	XX.x = mat1.tab[0][0];
+	XX.y = mat1.tab[1][0];
+	XX.z = mat1.tab[2][0];
+	YY.x = mat1.tab[0][1];
+	YY.y = mat1.tab[1][1];
+	YY.z = mat1.tab[2][1];
+	ZZ.x = mat1.tab[0][2];
+	ZZ.y = mat1.tab[1][2];
+	ZZ.z = mat1.tab[2][2];
+	cout << "magnitude: " << XX.magnitude()/10.0f << " " << YY.magnitude()/10.0f << " " << ZZ.magnitude()/10.0f << endl;
+	cout << endl;
+
 
 	cout << endl;
 
-	// obj.local.setScale(10, 20, 30);
+	obj.local.setScale(12.2, 26.1, 32.8);
 	obj.update();
 	Math::Matrix4&	mat = obj.getWorldMatrix();
 	mat.setOrder(ROW_MAJOR);
 	// mat.setOrder(COLUMN_MAJOR);
-	mat.printData();
 
+	mat.printData();
+	XX.x = mat.tab[0][0];
+	XX.y = mat.tab[1][0];
+	XX.z = mat.tab[2][0];
+	YY.x = mat.tab[0][1];
+	YY.y = mat.tab[1][1];
+	YY.z = mat.tab[2][1];
+	ZZ.x = mat.tab[0][2];
+	ZZ.y = mat.tab[1][2];
+	ZZ.z = mat.tab[2][2];
+	cout << "magnitude: " << XX.magnitude()/10.0f << " " << YY.magnitude()/10.0f << " " << ZZ.magnitude()/10.0f << endl;
+	cout << endl;
+	// why scale is magnitude / 10 ?
+
+
+	exit(0);
 	//extract euler angles	
 	Math::Rotation euler;
 	euler.setUnit(ROT_RAD);
@@ -276,18 +310,32 @@ struct	followObjectArgs
 };
 void	followObject(Object& ref, void *ptr) {
 	followObjectArgs * st = (followObjectArgs*)ptr;
-	Math::Vector3	diff = st->o->local.getPos();
-	Math::Vector3	objPos = ref.local.getPos();
+
+	Math::Matrix4	targetWorldMat = st->o->getWorldMatrix();
+	Math::Vector3	targetPos;
+	targetWorldMat.setOrder(COLUMN_MAJOR);
+	targetPos.x = targetWorldMat.tab[3][0];
+	targetPos.y = targetWorldMat.tab[3][1];
+	targetPos.z = targetWorldMat.tab[3][2];
+
+	Math::Matrix4	worldMat = ref.getWorldMatrix();
+	worldMat.setOrder(COLUMN_MAJOR);
+	Math::Vector3	objPos;
+	objPos.x = worldMat.tab[3][0];
+	objPos.y = worldMat.tab[3][1];
+	objPos.z = worldMat.tab[3][2];
+
+	Math::Vector3	diff = targetPos;
 	diff.sub(objPos);
 	float	magnitude = diff.magnitude();
-	float	speed = 50 * st->fps->tick;
+	float	speed = 120.0f * st->fps->tick;
 	if (magnitude > speed) {
 		diff.div(magnitude);
 		diff.mult(speed);
 		objPos.add(diff);
 		ref.local.setPos(objPos);
 	} else {
-		ref.local.setPos(st->o->local.getPos());
+		ref.local.setPos(targetPos);
 	}
 }
 
@@ -326,6 +374,7 @@ void	scene1() {
 		the42_1.setTexture(texture1);
 		the42_1.displayTexture = true;
 		the42_1.setPolygonMode(GL_FILL);
+		the42_1.local.setScale(10, 10, 10);
 		// the42_1.centered = true;
 
 	Obj3d			the42_2(the42_1);
@@ -465,11 +514,12 @@ void	scene1() {
 
 	Cam		cam(glfw);
 	cam.local.centered = false;
-	cam.local.setPos(0, 0, 10);
+	cam.local.setPos(0, 1, 3);
 	cam.printProperties();
 
-	//we should block the camera movements here (not rotation for now)
 	cam.setParent(&rocket1);
+	cam.lockedMovement = true;
+	// cam.lockedOrientation = true;
 
 	cout << "Begin while loop" << endl;
 	Fps	fps144(144);
@@ -482,7 +532,7 @@ void	scene1() {
 	// cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
-			printFps();
+			// printFps();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderObj3d(obj3dList, cam);
 			renderSkybox(skybox, cam);
@@ -490,6 +540,10 @@ void	scene1() {
 			glfwPollEvents();
 			glfw.updateMouse();//to do before cam's events
 			cam.events(glfw, float(defaultFps->tick));
+			//////////////////////////////////////////
+			Math::Matrix4	matRocket = rocket1.getWorldMatrix();
+			matRocket.printData();
+			cout << "---------------" << endl;
 			//////////////////////////////////////////
 			if (false) {
 			cout << "---rocket1" << endl;
