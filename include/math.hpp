@@ -31,7 +31,6 @@
 	Math::Matrix4
 */
 
-
 typedef struct s_pp	t_pp;
 
 class Math
@@ -40,8 +39,8 @@ public:
 	Math();
 	~Math();
 
-	class Rotation;
 	class Matrix4;
+	class Rotation;
 	
 	//static
 	static float		toRadian(float degree);
@@ -157,5 +156,3 @@ typedef struct	s_pp {
 	Math::Rotation	rot;
 	Math::Vector3	scale;
 }				t_pp;
-
-

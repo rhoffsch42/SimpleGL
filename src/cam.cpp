@@ -72,8 +72,10 @@ void	Cam::updateViewMatrix() {
 	if (this->_worldMatrixChanged) {//for now this is always true, cf Cam::events (this->local._matrixUpdated = false;)
 		// check parent's matrix changed too ?
 		/*
-			worldMatrix's scale must be 1,1,1 or viewmatrix will be affected in a bad way, undefined behavior if we don't check
+			worldMatrix's scale must be 1,1,1 or viewmatrix will be affected in a bad way,
+			undefined behavior if we don't check
 			
+			rescale rotation part of the worldMatrix to a 1,1,1 scale
 			extract euler angles and pos from worldMatrix, then:
 			this->_viewMatrix.viewMatrix(pos, rot);
 		*/
@@ -87,7 +89,7 @@ void	Cam::updateViewMatrix() {
 			*/
 			this->_viewMatrix.viewMatrix(pp.pos, pp.rot);
 			this->_viewMatrix.setOrder(COLUMN_MAJOR);
-			this->_worldMatrixChanged = false;
+			this->_worldMatrixChanged = false;// is this needed ? for now updateViewMatrix is done at each frame
 			// this->_viewMatrix.printData();
 		} else {
 			// cout << "viewMatrix without parents" << endl;

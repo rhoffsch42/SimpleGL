@@ -33,7 +33,8 @@ Properties::~Properties() {
 }
 
 bool		Properties::updateMatrix() {
-	if (!this->_matrixUpdated) {
+	// cout << "* Properties::updateMatrix" << endl;
+	if (this->_matrixUpdated == false) {
 		this->_matrix.modelMatrix(this->_pos, this->_rot, this->_scale);
 		if (this->centered)
 			this->center();
@@ -104,6 +105,7 @@ void		Properties::rotate(float x, float y, float z) {// in degree!
 	this->_matrixUpdated = false;
 }
 void		Properties::rotate(Math::Rotation rot) {
+	// cout << "* Properties::rotate" << endl;
 	// this->_rot.operation(Math::Vector3);//cf .hpp
 	if (rot.isRadian() != this->_rot.isRadian()) {
 		rot.setAsRad();

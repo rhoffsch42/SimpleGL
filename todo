@@ -2,73 +2,52 @@
 float	(*Vector3::operation)(float,float);
 	inline?	add/sub/etc
 	compare execution speed, binary size
-check if consructor of mother class is called when child is destroyed
+check if destructor of mother class is called when child is destroyed
 similar constructors: make an init func ? with all common tasks
-check Cam::updateViewMatrix(), speed of viewmatrix construction
 ---- memory/leaks	-------------------------------------------------------
 delete data opengl:
 	Skybox
 	Blueprint and derived
 	Program and derived
----- text formating	-------------------------------------------------------
+---- text/file formating	-------------------------------------------------------
+maj in file name, OS dependant
+*.cpp: #include "SimpleGL.h" necessary? only need <iostream> ?
 void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
-constructor copy, const X& src
+constructor copy, const T& src (et pas const T& randomName)
 references: type& varname;
 class X { //brace here or next line
 if (condition)//bad, braces should englobe code
 	return ;
 	[...]
 public variables without underscore: _varname;
+regroup class and inherited class in the same file ? not everything would need that
 ---- Main features	-------------------------------------------------------
+Math::Vector3	make a "linear" mult? Vec3(2,2,2) * Vec3(2,3,4) = Vec3(4,6,8) //or change operator, see properties.hpp
+tab when pressing tab (size4), and not spaces
+polymorphisme: check for operator overloading with inheritence, and destructors
 cam.setParent() *finish Behavior and other fix before continuing this
 	working but movement are from worldSpace and not localSpace (need unlock mvt/orientation)
 class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 	class Program and derived: see SkyboxPG.hpp
 	class skybox : public Object.
 		+see SkyboxPG.hpp
-motion behavior:
-	generic: done
-		/!\ cannot have several func, except by calling another at the end of a first one
-	Obj3d dependent: need a virtual func
-		/!\ altered variables need to be set as protected in Obj3d class
-	What i want:
-		Obj3d::runX Behaviors/scripts/modifiers/
+motion behavior: see behavior.hpp
+	
 
-		public:
-		void	runX();
-		bool	Xactivated;
-		private:
-		list<classX>	Xvar;//references,pointers,copys?
-		//in render:
-		{
-			[...]
-			if (this->_Xactivated)
-				for (/*all list elements*/) {
-					element->run();
-				}
-		}
-
-		class X {
-		public:
-			X(var1, var2, var3, ...);
-			[...]
-			~X();
-			void	run() {
-				if (this->activated)
-				// code depending on vars and settings
-			}
-			bool	activated;
-		private:
-			Fps &	var1;
-			Obj3d &	var2;
-			Cam &	var3;
-			[...]
-			float	setting1;
-			float	setting2;
-			[...]
-		}
 
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
 ---- GUI			-------------------------------------------------------
 	Qt
+---- BUGS			-------------------------------------------------------
+glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	/!\ not working since old motion system is removed? memory bug ?
+
+TransformBH		b2 = b1;
+	bugs when doing that, is it linked to the list copy ? 
+	not really, bug if i do:
+		b2.addTarget(empty1);
+		b2.removeTarget(rocket1);
+	but if we do that, it doesnt bug:
+		b2.removeTarget(rocket1);
+		b2.addTarget(empty1);

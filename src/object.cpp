@@ -9,8 +9,6 @@ unsigned int	Object::_instanceId = 0;
 Object::Object() {
 	cout << "_ Object cons" << endl;
 	this->_id = Object::_instanceId;
-	this->_motionBehavior = false;
-	this->_motionBehaviorFunc = NULL;
 	this->_parent = NULL;
 	this->_worldMatrixChanged = true;
 
@@ -21,8 +19,6 @@ Object::Object() {
 Object::Object(Properties object_pp) : local(object_pp) {
 	cout << "_ Object cons with custom Properties" << endl;
 	this->_id = Object::_instanceId;
-	this->_motionBehavior = false;
-	this->_motionBehaviorFunc = NULL;
 	this->_parent = NULL;
 	this->_worldMatrixChanged = true;
 
@@ -37,9 +33,6 @@ Object::Object(const Object& src) {
 }
 
 Object&		Object::operator=(const Object& src) {
-	this->_motionBehavior = src._motionBehavior;
-	this->_motionBehaviorFunc = src.getMotionBehaviorFunc();
-
 	this->_id = Object::_instanceId;
 	this->local = src.getLocalProperties();
 	this->_worldMatrix = Math::Matrix4(src.getWorldMatrix());
@@ -54,16 +47,11 @@ Object&		Object::operator=(const Object& src) {
 Object::~Object() {
 	cout << "_ Object des" << endl;
 	Object::_instanceAmount--;
-}
-
-void		Object::runMothionBehavior(void * ptr) {
-	if (this->_motionBehaviorFunc && this->_motionBehavior)
-		this->_motionBehaviorFunc(*this, ptr);
-	else
-		cout << "No motion behavior is set/activated. Doing nothing." << endl;
+	//remove iteself from behaviors!
 }
 
 bool		Object::update() {//update Properties
+	// cout << "* Object::update" << endl;
 	this->local.updateMatrix();
 	if (this->_parent) {
 		this->_parent->update();
@@ -98,7 +86,6 @@ void			Object::setParent(Object* parent) {
 }
 //accessors
 unsigned int	Object::getId(void) const { return (this->_id); }
-void			(*Object::getMotionBehaviorFunc(void) const) (Object &, void*) { return (this->_motionBehaviorFunc); }
 Properties		Object::getLocalProperties() const { return (this->local); }
 Math::Matrix4&	Object::getWorldMatrix() const { return ((Math::Matrix4&)this->_worldMatrix); }
 Object*			Object::getParent() const { return (this->_parent); }

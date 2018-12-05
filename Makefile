@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2018/09/25 14:58:23 by rhoffsch         ###   ########.fr        #
+#    Updated: 2018/12/05 11:19:59 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,9 @@ SRC_FILE		=	main.cpp \
 					program.cpp \
 					skybox.cpp \
 					skyboxPG.cpp \
-					texture.cpp
+					texture.cpp \
+					behavior.cpp \
+					transformBH.cpp
 
 HDR_FILE		=	simplegl.h
 
@@ -78,3 +80,6 @@ fclean: clean
 pclean: fclean
 
 re: fclean all
+
+run: all
+	./SimpleGL ; echo $$?

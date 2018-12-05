@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/12/03 17:13:01 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/12/05 16:25:16 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,12 @@
 #include "skyboxPG.hpp"
 #include "skybox.hpp"
 #include "glfw.hpp"
+#include "transformBH.hpp"
 
 #include <string>
 #include <cstdio>
 #include <vector>
+#include <list>
 #ifdef _WIN32
 #include <direct.h>
 #else
@@ -78,7 +80,7 @@ void	printFps() {
 	last_time += ellapsed_time;
 }
 
-void	renderObj3d(vector<Obj3d*>	obj3dList, Cam& cam) {
+void	renderObj3d(list<Obj3d*>	obj3dList, Cam& cam) {
 	// cout << "render all Obj3d" << endl;
 	//assuming all Obj3d have the same program
 	Obj3d*		obj = *(obj3dList.begin());
@@ -227,6 +229,12 @@ void	followObject(Object& ref, void *ptr) {
 	}
 }
 
+// void	test_behaviors(Object& o) {
+	// #include <behavior.hpp>
+	// cout << &o << endl;
+	// exit(0);
+// }
+
 void	scene1() {
 	Glfw	glfw(1600, 900);
 	glfw.setTitle("This title is long, long enough to test how glfw manages oversized titles. At this point I dont really know what to write, so let's just bullshiting it ....................................................... is that enough? Well, it depends of the size of the current window. I dont really know how many characters i have to write for a width of 1920. Is it possible to higher the police ? It could save some characters. Ok, im bored, lets check if this title is long enough!");
@@ -262,8 +270,6 @@ void	scene1() {
 		the42_1.displayTexture = true;
 		the42_1.setPolygonMode(GL_FILL);
 		the42_1.local.setScale(1, 1, 1);
-		the42_1._motionBehavior = true;
-		the42_1._motionBehaviorFunc = rotY;
 		the42_1.local.centered = true;
 
 	Obj3d			the42_2(the42_1);
@@ -282,8 +288,6 @@ void	scene1() {
 		teapot1.setTexture(texture1);
 		teapot1.displayTexture = false;
 		teapot1.setPolygonMode(GL_LINE);
-		teapot1._motionBehaviorFunc = &followObject;
-		teapot1._motionBehavior = true;
 		// teapot1.setScale(1.5, 2, 0.75);
 
 	Obj3d			cube1(cubeBP, obj3d_prog);
@@ -292,8 +296,6 @@ void	scene1() {
 		cube1.displayTexture = false;
 
 	Object			empty1;
-		empty1._motionBehaviorFunc = &rotX;
-		empty1._motionBehavior = true;
 		empty1.local.setScale(1,1,1);
 
 	Obj3d			rocket1(rocketBP, obj3d_prog);
@@ -304,11 +306,9 @@ void	scene1() {
 		rocket1.displayTexture = true;
 		rocket1.local.centered = true;
 		// rocket1.setPolygonMode(GL_LINE);
-		rocket1._motionBehaviorFunc = &rotAndGoZaxis;
-		rocket1._motionBehavior = true;
 		s = 10.0f;
 		rocket1.local.setScale(s,s,s);
-		// rocket1.setParent(&empty1);
+		rocket1.setParent(&empty1);
 
 	// Properties::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
@@ -318,9 +318,6 @@ void	scene1() {
 		lambo1.displayTexture = true;
 		lambo1.local.centered = true;
 		// lambo1.setPolygonMode(GL_LINE);
-		lambo1._motionBehaviorFunc = growAndShrink;
-		lambo1._motionBehaviorFunc = rotY;
-		lambo1._motionBehavior = true;
 		s = 0.025f;
 		// lambo1.setScale(s, s, s);
 
@@ -332,8 +329,6 @@ void	scene1() {
 		lambo2.displayTexture = true;
 		lambo2.local.centered = true;
 		// lambo2.setPolygonMode(GL_LINE);
-		lambo2._motionBehaviorFunc = &rotY;
-		lambo2._motionBehavior = true;
 		s = 0.4f;
 		// lambo2.local.setScale(s, s, s);
 		// lambo2.setParent(&the42_1);
@@ -346,28 +341,27 @@ void	scene1() {
 		lambo3.displayTexture = true;
 		lambo3.local.centered = true;
 		// lambo3.setPolygonMode(GL_LINE);
-		// lambo3._motionBehaviorFunc = growAndShrink;
-		// lambo3._motionBehavior = true;
 		s = 30.0f;
 		// lambo3.local.setScale(s, s, s);
 		// lambo3.setParent(&the42_1);
 		lambo3.setParent(&lambo2);
 
-	// demonstrate_scale_in_matrix(lambo2);
 
 	// Properties::defaultSize = PP_DEFAULT_SIZE;
+
+	cout << &rocket1 << endl;
+	// test_behaviors(rocket1);
 
 	cout << "Object # : " << Object::getInstanceAmount() << endl;
 	cout << "Obj3d # : " << Obj3d::getInstanceAmount() << endl;
 	cout << endl;
-
 	cout << "GL_MAX_CUBE_MAP_TEXTURE_SIZE " << GL_MAX_CUBE_MAP_TEXTURE_SIZE << endl;
 	cout << "GL_MAX_TEXTURE_SIZE " << GL_MAX_TEXTURE_SIZE << endl;
 
 	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
 	Skybox		skybox(*texture4, sky_pg);
 	
-	vector<Obj3d*>	obj3dList;
+	list<Obj3d*>	obj3dList;
 	obj3dList.push_back(&the42_1);
 	// obj3dList.push_back(&the42_2);
 	obj3dList.push_back(&teapot1);
@@ -385,8 +379,6 @@ void	scene1() {
 			lamboPlus->displayTexture = (i % 2 ) ? true : false;
 			lamboPlus->local.centered = true;
 			lamboPlus->setTexture(&texture8);
-			// lamboPlus->_motionBehaviorFunc = &rotY;
-			lamboPlus->_motionBehavior = false;
 			float maxScale = 3;
 			float scale = (float)((i % (int)maxScale) - (maxScale/2));
 			lamboPlus->local.enlarge(scale, scale, scale);
@@ -407,7 +399,7 @@ void	scene1() {
 	cam.local.setPos(0, 0, 10);
 	cam.printProperties();
 
-	if (true) {
+	if (false) {//cam anchor to rocket1
 		cam.local.setPos(0, 1.5f, 3.5f);
 		cam.setParent(&rocket1);
 		cam.lockedMovement = true;
@@ -421,6 +413,35 @@ void	scene1() {
 	Fps* defaultFps = &fps60;
 
 	followObjectArgs	st = { defaultFps, &cam };
+
+	cout << "behavior:" << endl;
+	TransformBH		b1;
+	b1.transform.rot.setUnit(ROT_DEG);
+	b1.transform.rot.z = 180 * defaultFps->tick;
+	b1.modeRot = ADDITIVE;
+	float ss = 1.0f + 0.1f * defaultFps->tick;
+	b1.transform.scale = Math::Vector3(ss, ss, ss);
+	b1.modeScale = MULTIPLICATIVE;
+	b1.addTarget(rocket1);
+	b1.addTarget(lambo1);
+	b1.removeTarget(lambo1);
+	b1.setTargetStatus(rocket1, true);
+
+	TransformBH		b2 = b1;
+	b2.transform.scale = Math::Vector3(0,0,0);
+	b2.modeScale = ADDITIVE;
+	b2.transform.rot.z = 0.0f;
+	b2.transform.rot.x = -45.0f * defaultFps->tick;
+	b2.removeTarget(rocket1);
+	b2.addTarget(empty1);
+	/*
+		bug if i do
+	b2.addTarget(empty1);
+	b2.removeTarget(rocket1);
+	*/
+	cout << b1.getTargetList().size() << endl;
+	cout << b2.getTargetList().size() << endl;
+// exit(0);
 
 	// cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
@@ -444,30 +465,28 @@ void	scene1() {
 			}
 			//////////////////////////////////////////
 			if (false) {
-			cout << "---rocket1" << endl;
-			rocket1.local.getScale().printData();
-			// rocket1.getWorldMatrix().printData();
-			cout << "---lambo2" << endl;
-			lambo2.local.getScale().printData();
-			// lambo2.getWorldMatrix().printData();
-			cout << "---lambo3" << endl;
-			lambo3.local.getScale().printData();
-			// lambo3.getWorldMatrix().printData();
-			cout << "---------------" << endl;
-			lamboBP.getDimensions().printData();
-			cout << "---------------" << endl;
+				cout << "---rocket1" << endl;
+				rocket1.local.getScale().printData();
+				// rocket1.getWorldMatrix().printData();
+				cout << "---lambo2" << endl;
+				lambo2.local.getScale().printData();
+				// lambo2.getWorldMatrix().printData();
+				cout << "---lambo3" << endl;
+				lambo3.local.getScale().printData();
+				// lambo3.getWorldMatrix().printData();
+				cout << "---------------" << endl;
+				lamboBP.getDimensions().printData();
+				cout << "---------------" << endl;
 			}
 
-
-			////////////////////////////////////////// motion
+			////////////////////////////////////////// motion/behaviors
 			//this should be used in another func, life a special func managing all events/behavior at every frames
-			the42_1.runMothionBehavior((void*)defaultFps);
-			rocket1.runMothionBehavior((void*)defaultFps);
-			lambo1.runMothionBehavior((void*)defaultFps);
-			lambo2.runMothionBehavior((void*)defaultFps);
-			teapot1.runMothionBehavior((void*)&st);
-			empty1.render(cam.getProjectionMatrix());
-			empty1.runMothionBehavior((void*)defaultFps);
+			if (true) {
+				b1.run();
+				b2.run();
+				Math::Matrix4	matEmpty = empty1.getWorldMatrix();
+				matEmpty.printData();
+			}
 			////////////////////////////////////////// motion end
 		
 			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
@@ -486,56 +505,9 @@ void	scene1() {
 	delete texture7;
 }
 
-#include "properties.hpp"
-void	test_pp() {
-	Properties	parent_local;
-	parent_local.setPos(10.0f, 5.0f, 8.0f);
-	parent_local.setRot(40.0f, 89.72f, 50.0f);
-	Math::Matrix4&	plmatrix = parent_local.getMatrix();
-	plmatrix.modelMatrix(parent_local.getPos(), parent_local.getRot(), parent_local.getScale());
-
-	Math::Matrix4 mat(plmatrix);
-	mat.setOrder(ROW_MAJOR);
-	float	(&m)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat.getData());
-
-	// Angle Y
-	// m[0][2] = sinf(y)
-	// y = asinf(m[0][2])
-	
-	// Angle X
-	// m[2][2] = cosf(x) * cosf(y)
-	// cosf(x) = m[2][2] / cosf(y)
-	// x = acosf(m[2][2] / cosf(y))
-
-	// Angle Z
-	// m[0][0] = cosf(y) * cosf(z)
-	// cosf(z) = m[0][0] / cosf(y)
-	// z = acosf(m[0][0] / cosf(y))
-
-	float	x, y, z;
-	y = asinf(m[0][2]);
-	float	cos_y = cosf(y);
-	if (fabs(cos_y) < 0.005f) {
-		/*
-			get fucked by Gimball lock
-			in Properties mutators:
-				always check for a Yangle too close from 90.0f degrees
-				correct it with 0.17 degree from 90
-		*/
-		cout << "x and z angle are false" << endl;
-	}
-	x = acosf(m[2][2] / cos_y);
-	z = acosf(m[0][0] / cos_y);
-
-	cout << "angle x :\t" << x << " (" << Math::toDegree(x) << ")" << endl;
-	cout << "angle y :\t" << y << " (" << Math::toDegree(y) << ")" << endl;
-	cout << "angle z :\t" << z << " (" << Math::toDegree(z) << ")" << endl;
-	exit(0);
-}
-
 int		main(void) {
-	// test_pp();
 	check_paddings();
+	// test_behaviors();
 //	test_mult_mat4(); exit(0);
 	cout << "____START____" << endl;
 //	test_obj_loader();

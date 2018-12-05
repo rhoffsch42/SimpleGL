@@ -31,7 +31,7 @@ Obj3d::Obj3d(const Obj3d& src) : Object(src), _blueprint(src.getBlueprint()), _p
 	*this = src;
 }
 
-Obj3d&		Obj3d::operator=(const Obj3d& src) {
+Obj3d&		Obj3d::operator=(const Obj3d& src) {//doesnt call Object operator= ?
 	this->displayTexture = src.displayTexture;
 	this->_blueprint = src.getBlueprint();
 	this->_program = src.getProgram();
