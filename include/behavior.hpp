@@ -9,7 +9,10 @@
 
 class Behavior {
 public:
-	static bool areActive;
+	static bool						areActive;
+	// static std::list<Behavior&>		currentBehaviors;
+	// static void						addBehavior(const Behavior& b);
+	// static void						removeBehavior(const Behavior& b);
 
 	Behavior();
 	Behavior(const Behavior& src);

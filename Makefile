@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2018/12/05 11:19:59 by rhoffsch         ###   ########.fr        #
+#    Updated: 2018/12/05 17:28:11 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ CFLAGS			=	-Wall -Wextra -Werror #-Wpadded
 
 INCLUDE			=	-I include \
 					-I /Users/rhoffsch/.brew/Cellar/glfw/3.2.1/include \
-					-I /Users/rhoffsch/.brew/Cellar/glew/2.1.0/include \
+					-I /Users/rhoffsch/.brew/Cellar/glew/2.1.0/include 
 					#-I /System/Library/Frameworks/OpenGL.framework/Versions/A/Headers/
 					# -I /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers
 					# -I /Developer/NVIDIA/CUDA-9.0/extras/CUPTI/include #Mac42

@@ -23,7 +23,6 @@ public variables without underscore: _varname;
 regroup class and inherited class in the same file ? not everything would need that
 ---- Main features	-------------------------------------------------------
 Math::Vector3	make a "linear" mult? Vec3(2,2,2) * Vec3(2,3,4) = Vec3(4,6,8) //or change operator, see properties.hpp
-tab when pressing tab (size4), and not spaces
 polymorphisme: check for operator overloading with inheritence, and destructors
 cam.setParent() *finish Behavior and other fix before continuing this
 	working but movement are from worldSpace and not localSpace (need unlock mvt/orientation)
@@ -32,9 +31,8 @@ class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 	class skybox : public Object.
 		+see SkyboxPG.hpp
 motion behavior: see behavior.hpp
+	/!\ replace list<ref> to list<ptr> !
 	
-
-
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
 ---- GUI			-------------------------------------------------------
@@ -51,3 +49,6 @@ TransformBH		b2 = b1;
 	but if we do that, it doesnt bug:
 		b2.removeTarget(rocket1);
 		b2.addTarget(empty1);
+	this may be linked to the fact that lists make copy of the content
+		so list of reference are not a thing to do
+		https://stackoverflow.com/questions/7707842/stl-containers-with-reference-to-objects
