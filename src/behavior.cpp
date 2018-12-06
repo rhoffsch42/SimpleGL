@@ -26,7 +26,7 @@ Behavior::~Behavior() {
 }
 
 	//make this a template!
-void	Behavior::removeTarget(const void* target) {
+void	Behavior::removeTarget(BehaviorManager* target) {
 /*
 	lambda expression:
 	https://stackoverflow.com/questions/17965728/find-a-pair-in-a-stl-list-where-only-first-element-is-known
@@ -35,7 +35,7 @@ void	Behavior::removeTarget(const void* target) {
 	it just move the eligible one to the end, and return a pointer to the start of the moved stuff
 */
 	this->targetList.erase(std::remove_if(this->targetList.begin(), this->targetList.end(),
-		[&target](std::pair<void*, bool> elem) { return (&elem.first == &target); }),
+		[&target](std::pair<BehaviorManager*, bool> elem) { return (elem.first == target); }),
 		this->targetList.end());
 	/*
 		we can check here if the target has a BehaviorManager, and remove ourself from his list:
@@ -43,12 +43,15 @@ void	Behavior::removeTarget(const void* target) {
 			target->removeBehavior(this);
 		}
 	*/
+	auto	derived = dynamic_cast<BehaviorManager*>(target);//	need template ?
+	if (derived) {
+	}
 }
 
-void	Behavior::setTargetStatus(const void* target, bool status) {
+void	Behavior::setTargetStatus(BehaviorManager* target, bool status) {
 	auto it = std::find_if(this->targetList.begin(), this->targetList.end(),
-		[&target](std::pair<void*, bool> elem) { return (&elem.first == &target); });
+		[&target](std::pair<BehaviorManager*, bool> elem) { return (&elem.first == &target); });
 	(*it).second = status;
 }
 //accessor
-std::list< std::pair<void*, bool> >	Behavior::getTargetList() const { return (this->targetList); }
+std::list< std::pair<BehaviorManager*, bool> >	Behavior::getTargetList() const { return (this->targetList); }

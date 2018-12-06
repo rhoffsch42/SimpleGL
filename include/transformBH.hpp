@@ -1,6 +1,7 @@
 #pragma once
 #include <utility>
 
+#include "object.hpp"
 #include "behavior.hpp"
 #include "math.hpp"
 //include fps.h
@@ -22,7 +23,7 @@ public:
 	TransformBH&	operator=(const TransformBH& src);
 
 	void	run();
-	void	addTarget(const void* target);
+	void	addTarget(BehaviorManager* target);
 	/*
 		target must have a local variable:
 		class T {

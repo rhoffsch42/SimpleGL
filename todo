@@ -10,7 +10,8 @@ delete data opengl:
 	Blueprint and derived
 	Program and derived
 ---- text/file formating	-------------------------------------------------------
-const_cast	check if i is used everywhere, no: (Type)var
+dynamic_cast	check if it failed ?
+const_cast	check if it is used everywhere, no: (Type)var
 maj in file name, OS dependant
 *.cpp: #include "SimpleGL.h" necessary? only need <iostream> ?
 void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
@@ -67,9 +68,9 @@ using namespace std;
 
 class Object {
 public:
-    Object() { this->n = 0; }
-    ~Object() {}
-    int n;
+	Object() { this->n = 0; }
+	~Object() {}
+	int n;
 };
 
 ostream& operator<<(ostream& os, const Object& src)  

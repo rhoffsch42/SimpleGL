@@ -1,8 +1,11 @@
 #pragma once
 #include "math.hpp"
 #include "properties.hpp"
+#include "behavior.hpp"
 
-class Object
+class BehaviorManager;
+
+class Object : public BehaviorManager
 {
 public:
 	static unsigned int		getInstanceAmount();

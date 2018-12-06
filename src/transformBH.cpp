@@ -53,8 +53,8 @@ void	TransformBH::run() {
 	// cout << "_ TransformBH::run" << endl;
 	//	check TransformBH::areActive and Behavior::AreActive here ?
 	for (auto i : this->targetList) {
-		Object*	target = static_cast<Object*>(i.first);//specialisation part
-		if (i.second) {//check if behavior is active for this target
+		Object*	target = dynamic_cast<Object*>(i.first);//specialisation part
+		if (i.second) {//check if behavior status for this target
 			if (this->modePos == ADDITIVE) {
 				target->local.translate(this->transform.pos);
 			} else {
@@ -99,7 +99,9 @@ void	TransformBH::run() {
 	}
 }
 
-void	TransformBH::addTarget(const void* target) {
+void	TransformBH::addTarget(BehaviorManager* target) {
+	// cout << "_ TransformBH::addTarget" << endl;
+	// Object*	tmp = dynamic_cast<Object*>(target);//specialisation part
 	//	check here if the target is eligible for the behavior
 	// [...]
 
@@ -137,9 +139,9 @@ void	TransformBH::addTarget(const void* target) {
 		}
 	*/
 	if (std::find_if(this->targetList.begin(), this->targetList.end(), 
-			[&target](std::pair<void*, bool> elem) { return (&elem.first == &target); })
+			[target](std::pair<void*, bool> elem) { return (elem.first == target); })
 		== this->targetList.end()) {
-		std::pair<void*, bool>	p = pair<void*, bool>((Object*)target, true);
+		std::pair<BehaviorManager*, bool>	p = pair<BehaviorManager*, bool>(target, true);
 		this->targetList.push_back(p);
 	}
 	/*
@@ -148,4 +150,5 @@ void	TransformBH::addTarget(const void* target) {
 			target->addBehavior(this);
 		}
 	*/
+
 }

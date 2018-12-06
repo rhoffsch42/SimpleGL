@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/12/06 11:18:42 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/12/06 18:33:48 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -422,6 +422,7 @@ void	scene1() {
 	float ss = 1.0f + 0.1f * defaultFps->tick;
 	b1.transform.scale = Math::Vector3(ss, ss, ss);
 	b1.modeScale = MULTIPLICATIVE;
+	cout << "___ adding rocket1: " << &rocket1 << endl;
 	b1.addTarget(&rocket1);
 	b1.addTarget(&lambo1);
 	b1.removeTarget(&lambo1);
@@ -446,49 +447,50 @@ void	scene1() {
 	// cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
-			// printFps();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderObj3d(obj3dList, cam);
-			renderSkybox(skybox, cam);
-			glfwSwapBuffers(glfw._window);
-			glfwPollEvents();
-			glfw.updateMouse();//to do before cam's events
-			cam.events(glfw, float(defaultFps->tick));
 			//////////////////////////////////////////
-			if (false) {
-				Math::Matrix4	matRocket = rocket1.getWorldMatrix();
-				matRocket.printData();
-				cout << "---------------" << endl;
+			if (true) {
+				if (false) {
+					Math::Matrix4	matRocket = rocket1.getWorldMatrix();
+					matRocket.printData();
+					cout << "---------------" << endl;
+				}
+				if (false) {
+					the42_1.getWorldMatrix().printData();
+				}
+				if (false) {
+					cout << "---rocket1" << endl;
+					rocket1.local.getScale().printData();
+					// rocket1.getWorldMatrix().printData();
+					cout << "---lambo2" << endl;
+					lambo2.local.getScale().printData();
+					// lambo2.getWorldMatrix().printData();
+					cout << "---lambo3" << endl;
+					lambo3.local.getScale().printData();
+					// lambo3.getWorldMatrix().printData();
+					cout << "---------------" << endl;
+					lamboBP.getDimensions().printData();
+					cout << "---------------" << endl;
+				}
 			}
-			if (false) {
-				the42_1.getWorldMatrix().printData();
-			}
-			//////////////////////////////////////////
-			if (false) {
-				cout << "---rocket1" << endl;
-				rocket1.local.getScale().printData();
-				// rocket1.getWorldMatrix().printData();
-				cout << "---lambo2" << endl;
-				lambo2.local.getScale().printData();
-				// lambo2.getWorldMatrix().printData();
-				cout << "---lambo3" << endl;
-				lambo3.local.getScale().printData();
-				// lambo3.getWorldMatrix().printData();
-				cout << "---------------" << endl;
-				lamboBP.getDimensions().printData();
-				cout << "---------------" << endl;
-			}
-
 			////////////////////////////////////////// motion/behaviors
 			//this should be used in another func, life a special func managing all events/behavior at every frames
 			if (true) {
 				b1.run();
 				b2.run();
-				Math::Matrix4	matEmpty = empty1.getWorldMatrix();
-				matEmpty.printData();
+				// Math::Matrix4	matEmpty = empty1.getWorldMatrix();
+				// matEmpty.printData();
 			}
 			////////////////////////////////////////// motion end
-		
+
+			glfwPollEvents();
+			glfw.updateMouse();//to do before cam's events
+			cam.events(glfw, float(defaultFps->tick));
+			// printFps();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			renderObj3d(obj3dList, cam);
+			renderSkybox(skybox, cam);
+			glfwSwapBuffers(glfw._window);
+
 			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
 		}

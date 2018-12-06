@@ -4,8 +4,9 @@
 #include <utility>
 #include <algorithm>
 
-#include "object.hpp"
 //include fps.h
+
+class BehaviorManager;
 
 class Behavior {
 public:
@@ -21,14 +22,14 @@ public:
 
 	virtual void	run() = 0;
 	//template <typename T>	//cant with virtual pure ?
-	virtual	void	addTarget(const void* target) = 0;
-			void	removeTarget(const void* target);
-			void	setTargetStatus(const void* target, bool status);
-	std::list< std::pair<void*, bool> >	getTargetList() const;//return a copy!
+	virtual	void	addTarget(BehaviorManager* target) = 0;
+			void	removeTarget(BehaviorManager* target);
+			void	setTargetStatus(BehaviorManager* target, bool status);
+	std::list< std::pair<BehaviorManager*, bool> >	getTargetList() const;//return a copy!
 
 
 	bool	isActive;
-	std::list< std::pair<void*, bool> >	targetList;
+	std::list< std::pair<BehaviorManager*, bool> >	targetList;
 };
 
 /*
@@ -42,7 +43,7 @@ public:
 class BehaviorManager {
 public:
 	void	setBehaviorStatus(Behavior* be, bool status) {
-		be->setTargetStatus((void*)this, status);
+		be->setTargetStatus(this, status);
 	}
 	//make this a template!
 	void	addBehavior(Behavior* be) {
@@ -75,7 +76,21 @@ public:
 	bool					behaviorsActive;
 	std::list<Behavior*>	behaviorList;
 	protected://to avoid this class to be instanciated by its own, put all constructors here
-	BehaviorManager();	//or just dont put constructor ?
+	BehaviorManager() {	}
+	BehaviorManager(const BehaviorManager& src) {
+		this->behaviorsActive = src.behaviorsActive;
+		this->behaviorList = src.behaviorList;//copy ?
+		cout << "test BehaviorManager operator=" << endl;
+		cout << &this->behaviorList << endl;
+		cout << &this->behaviorList << endl;
+		exit(0);
+	}
+	virtual ~BehaviorManager() {
+		//	removes itself from all its Behaviors's list
+		for (auto i : this->behaviorList)
+			i->removeTarget(this);
+		//	erase/empty list ?
+	}
 };
 /*
 	Objectifs:
