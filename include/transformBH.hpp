@@ -22,7 +22,14 @@ public:
 	TransformBH&	operator=(const TransformBH& src);
 
 	void	run();
-	void	addTarget(const Object& target);//can be something else than Object?
+	void	addTarget(const void* target);
+	/*
+		target must have a local variable:
+		class T {
+		public:
+			Properties	local;
+		}
+	*/
 
 	//	true = additive, false = multiplicative (or absolute/relative)
 	//	see properties.hpp for a better system (changing operator)

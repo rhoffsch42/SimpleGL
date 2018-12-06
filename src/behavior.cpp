@@ -16,7 +16,7 @@ Behavior::Behavior(const Behavior& src) {
 Behavior&   Behavior::operator=(const Behavior& src) {
 	cout << "_ Behavior operator=" << endl;
 	this->isActive = src.isActive;
-	this->targetList = src.getTargetList();
+	this->targetList = src.getTargetList();//check for bugs
 	return (*this);
 }
 
@@ -25,7 +25,8 @@ Behavior::~Behavior() {
 	//need to delete/empty list?
 }
 
-void	Behavior::removeTarget(const Object& target) {
+	//make this a template!
+void	Behavior::removeTarget(const void* target) {
 /*
 	lambda expression:
 	https://stackoverflow.com/questions/17965728/find-a-pair-in-a-stl-list-where-only-first-element-is-known
@@ -34,14 +35,20 @@ void	Behavior::removeTarget(const Object& target) {
 	it just move the eligible one to the end, and return a pointer to the start of the moved stuff
 */
 	this->targetList.erase(std::remove_if(this->targetList.begin(), this->targetList.end(),
-		[&target](std::pair<Object&, bool> elem) { return (&elem.first == &target); }),
+		[&target](std::pair<void*, bool> elem) { return (&elem.first == &target); }),
 		this->targetList.end());
+	/*
+		we can check here if the target has a BehaviorManager, and remove ourself from his list:
+		if (hasTheManager) {
+			target->removeBehavior(this);
+		}
+	*/
 }
 
-void	Behavior::setTargetStatus(const Object& target, bool status) {
+void	Behavior::setTargetStatus(const void* target, bool status) {
 	auto it = std::find_if(this->targetList.begin(), this->targetList.end(),
-		[&target](std::pair<Object&, bool> elem) { return (&elem.first == &target); });
+		[&target](std::pair<void*, bool> elem) { return (&elem.first == &target); });
 	(*it).second = status;
 }
 //accessor
-std::list< std::pair<Object&, bool> >	Behavior::getTargetList() const { return (this->targetList); }
+std::list< std::pair<void*, bool> >	Behavior::getTargetList() const { return (this->targetList); }

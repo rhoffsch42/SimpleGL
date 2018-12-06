@@ -25,7 +25,7 @@ public:
 	Object*			getParent() const;
 
 	//settings
-	Properties		local;
+	Properties		local;//is public, is that safe? we can do: obj.local = anotherLocal;
 	bool			_worldMatrixChanged;
 protected:
 

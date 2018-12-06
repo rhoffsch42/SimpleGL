@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/12/05 16:25:16 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2018/12/06 11:18:42 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -422,18 +422,18 @@ void	scene1() {
 	float ss = 1.0f + 0.1f * defaultFps->tick;
 	b1.transform.scale = Math::Vector3(ss, ss, ss);
 	b1.modeScale = MULTIPLICATIVE;
-	b1.addTarget(rocket1);
-	b1.addTarget(lambo1);
-	b1.removeTarget(lambo1);
-	b1.setTargetStatus(rocket1, true);
+	b1.addTarget(&rocket1);
+	b1.addTarget(&lambo1);
+	b1.removeTarget(&lambo1);
+	b1.setTargetStatus(&rocket1, true);
 
-	TransformBH		b2 = b1;
+	TransformBH		b2;// = b1;//bug
 	b2.transform.scale = Math::Vector3(0,0,0);
 	b2.modeScale = ADDITIVE;
 	b2.transform.rot.z = 0.0f;
 	b2.transform.rot.x = -45.0f * defaultFps->tick;
-	b2.removeTarget(rocket1);
-	b2.addTarget(empty1);
+	// b2.removeTarget(&rocket1);
+	b2.addTarget(&empty1);
 	/*
 		bug if i do
 	b2.addTarget(empty1);

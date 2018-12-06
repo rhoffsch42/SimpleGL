@@ -20,16 +20,63 @@ public:
 	~Behavior();
 
 	virtual void	run() = 0;
-	virtual void	addTarget(const Object& target) = 0;//can be something else than Object?
-	void			removeTarget(const Object& target);
-	void			setTargetStatus(const Object& target, bool status);
-	std::list< std::pair<Object&, bool> >	getTargetList() const;
+	//template <typename T>	//cant with virtual pure ?
+	virtual	void	addTarget(const void* target) = 0;
+			void	removeTarget(const void* target);
+			void	setTargetStatus(const void* target, bool status);
+	std::list< std::pair<void*, bool> >	getTargetList() const;//return a copy!
 
 
 	bool	isActive;
-	std::list< std::pair<Object&, bool> >	targetList;
+	std::list< std::pair<void*, bool> >	targetList;
 };
 
+/*
+	transofrm Behavior with pointer (void) then specialise TransformBH in Object* (cast)
+	then we can create the BehaviorManager that will allow Object to manage their behavior
+		* Object and TransformBH are just examples
+		/!\	dangerous cauz if we do:	T->addTarget( (void*)(thing) )
+			thing must be the good type for T, if not: undefined behavior
+			compiler can't know if it's ok to do that
+*/
+class BehaviorManager {
+public:
+	void	setBehaviorStatus(Behavior* be, bool status) {
+		be->setTargetStatus((void*)this, status);
+	}
+	//make this a template!
+	void	addBehavior(Behavior* be) {
+		if (std::find_if(this->behaviorList.begin(), this->behaviorList.end(), 
+			[be](Behavior* elem) { return (elem == be); }) 
+			== this->behaviorList.end()) {
+			this->behaviorList.push_back(be);
+
+			be->addTarget(this);
+			/*
+				i dont know if it's ok, as this class should always be inherited
+				ex: class Object : BehaviorManager { [...] }
+				hope 'this' is type of Object* 
+			*/
+		}
+	}
+	//make this a template!
+	void	removeBehavior(Behavior* be) {
+		auto it = std::remove_if(this->behaviorList.begin(), this->behaviorList.end(),
+			[be](Behavior* elem) { return (elem == be); });
+		if (it != this->behaviorList.end()) {
+			this->behaviorList.erase(it, this->behaviorList.end());
+			be->removeTarget(this);
+		}
+		/*
+			same problem as above
+		*/
+	}
+
+	bool					behaviorsActive;
+	std::list<Behavior*>	behaviorList;
+	protected://to avoid this class to be instanciated by its own, put all constructors here
+	BehaviorManager();	//or just dont put constructor ?
+};
 /*
 	Objectifs:
 		-	appliquer un behavior a un object
@@ -71,7 +118,7 @@ public:
 			o4.behaviorsActive = false
 		</--	
 			to pause the behavior for a certain target, but not pause it for other objects:
-			find the object in the behavior targetList, and set to false the bool in the pair<bool, Object>
+			find the object in the behavior targetList, and set to false the bool in the pair<void*, bool>
 		--/>
 			
 			b2.removeTarget(o5);				//	remove the object from the behavior;
@@ -84,4 +131,29 @@ public:
 			/!\ fastidieux, on doit donc le faire sur toutes les list des behaviors
 				-> stocker le behavior dans l'object:	list<Behavior>	*beList;
 				target.beList
+		
+	Behavior::
+	bx	ox	bool
+	bx	ox	bool
+	bx	ox	bool
+	bx	ox	bool
+	bx	ox	bool
+	bx	ox	bool
+	sorted by b ?
+	sorted by o ?
+
+	b1			o1
+	ox	bool	bx	bool
+	ox	bool	bx	bool
+	ox	bool	bx	bool
+	ox	bool	bx	bool
+	ox	bool	bx	bool
+
+		o o o o o o o o o
+	b	. . . . . . . . .
+	b	. . . . . . . . .
+	b	. . . . . . . . .
+	b	. . . . . . . . .
+	b	. . . . . . . . .
+	b	. . . . . . . . .
 */

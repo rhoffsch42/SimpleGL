@@ -10,6 +10,7 @@ delete data opengl:
 	Blueprint and derived
 	Program and derived
 ---- text/file formating	-------------------------------------------------------
+const_cast	check if i is used everywhere, no: (Type)var
 maj in file name, OS dependant
 *.cpp: #include "SimpleGL.h" necessary? only need <iostream> ?
 void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
@@ -32,7 +33,9 @@ class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 		+see SkyboxPG.hpp
 motion behavior: see behavior.hpp
 	/!\ replace list<ref> to list<ptr> !
-	
+overload operator << for all classes to get a nice printing. overkill
+	at least replace X.printData (math.hpp)
+
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 
 ---- GUI			-------------------------------------------------------
@@ -52,3 +55,43 @@ TransformBH		b2 = b1;
 	this may be linked to the fact that lists make copy of the content
 		so list of reference are not a thing to do
 		https://stackoverflow.com/questions/7707842/stl-containers-with-reference-to-objects
+
+---- TIPS FOR LATER USE	-------------------------------------------------------
+http://cpp.sh/8wyol
+// Example program
+#include <iostream>
+#include <string>
+#include <functional>
+#include <list>
+using namespace std;
+
+class Object {
+public:
+    Object() { this->n = 0; }
+    ~Object() {}
+    int n;
+};
+
+ostream& operator<<(ostream& os, const Object& src)  
+{  
+    os << src.n << endl;  
+    return os;
+}  
+
+int main()
+{
+  std::list<std::reference_wrapper<Object>> container;
+
+  Object a;
+  a.n = 12;
+  container.push_back(a);  // or std::ref(a)
+
+  // now container = { 12 };
+
+  a.n = 13;
+  for (auto i : container) {
+      cout << i;
+  }
+  // now container = { 13 };
+  return (0);
+}
