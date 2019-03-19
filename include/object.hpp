@@ -8,7 +8,13 @@ class BehaviorManager;
 class Object : public BehaviorManager
 {
 public:
-	static unsigned int		getInstanceAmount();
+	static unsigned int		getInstanceAmount();//make a class for that ?
+	/*
+		class Object : public InstanceManager, public BehaviorManager
+		class OtherClass : public InstanceManager
+		/!\ the static variables will be common to every derived, we dont want that
+			-> search for a good way
+	*/
 
 	Object();
 	Object(Properties object_pp);
@@ -41,4 +47,5 @@ private:
 	//duplicate this in Obj (amount, Obj3d amount will be included in Obj amount)
 	static unsigned int	_instanceAmount;	// should never be altered manually
 	static unsigned int	_instanceId;		// should never be altered manually
+
 };

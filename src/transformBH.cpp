@@ -99,56 +99,8 @@ void	TransformBH::run() {
 	}
 }
 
-void	TransformBH::addTarget(BehaviorManager* target) {
-	// cout << "_ TransformBH::addTarget" << endl;
-	// Object*	tmp = dynamic_cast<Object*>(target);//specialisation part
-	//	check here if the target is eligible for the behavior
-	// [...]
-
-	/*
-		The part below should be common to all derived class of Bahavior
-		make a way to declare it directly in Behavior?
-			and call the derived part in it, is it even possible ?
-		class Behavior {
-					void	addTarget(const void* target);
-			virtual bool	isEligible(const void* target) = 0;
-		}
-		in .cpp:
-		void	Behavior::addTarget(const void* target) {
-			if this->isEligible(target) {
-				// do stuff below
-			}
-		}
-		/////////////	OR :
-		class Behavior {
-			virtual void	addTarget(const void* target);
-		}
-		in .cpp:
-		void	Behavior::addTarget(const void* target) {
-			// do stuff below
-		}
-		class TransforBH : public Behavior {
-			//override the function, possible ?
-			void	addTarget(const void* target);
-		}
-		in .cpp:
-		void	TransforBH::addTarget(const void* target) {
-			if ([...]) { //	check eligible
-				Behavior::addTarget(target);
-			}
-		}
-	*/
-	if (std::find_if(this->targetList.begin(), this->targetList.end(), 
-			[target](std::pair<void*, bool> elem) { return (elem.first == target); })
-		== this->targetList.end()) {
-		std::pair<BehaviorManager*, bool>	p = pair<BehaviorManager*, bool>(target, true);
-		this->targetList.push_back(p);
-	}
-	/*
-		we can check here if the target has a BehaviorManager, and add ourself from his list:
-		if (hasTheManager) {
-			target->addBehavior(this);
-		}
-	*/
-
+bool	TransformBH::isCompatible(BehaviorManager* target) const {
+	//dynamic_cast check
+	(void)target;
+	return (true);
 }

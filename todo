@@ -10,6 +10,7 @@ delete data opengl:
 	Blueprint and derived
 	Program and derived
 ---- text/file formating	-------------------------------------------------------
+pointer/ref declaration: Class* ptr || Class *ptr
 dynamic_cast	check if it failed ?
 const_cast	check if it is used everywhere, no: (Type)var
 maj in file name, OS dependant
@@ -33,7 +34,8 @@ class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 	class skybox : public Object.
 		+see SkyboxPG.hpp
 motion behavior: see behavior.hpp
-	/!\ replace list<ref> to list<ptr> !
+	sync all list when removing o or b
+	set the lists as private ?
 overload operator << for all classes to get a nice printing. overkill
 	at least replace X.printData (math.hpp)
 

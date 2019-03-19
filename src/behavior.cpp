@@ -13,7 +13,7 @@ Behavior::Behavior(const Behavior& src) {
 	*this = src;
 }
 
-Behavior&   Behavior::operator=(const Behavior& src) {
+Behavior&	Behavior::operator=(const Behavior& src) {
 	cout << "_ Behavior operator=" << endl;
 	this->isActive = src.isActive;
 	this->targetList = src.getTargetList();//check for bugs
@@ -26,14 +26,25 @@ Behavior::~Behavior() {
 }
 
 	//make this a template!
+void	Behavior::addTarget(BehaviorManager* target) {
+	if (this->isCompatible(target)) {
+		if (std::find_if(this->targetList.begin(), this->targetList.end(), 
+				[target](std::pair<BehaviorManager*, bool> elem) { return (elem.first == target); })
+			== this->targetList.end()) {
+			std::pair<BehaviorManager*, bool>	p = pair<BehaviorManager*, bool>(target, true);//cast
+			this->targetList.push_back(p);
+		}
+	}
+	/*
+		we can check here if the target has a BehaviorManager, and add ourself from his list:
+		if (hasTheManager) {
+			target->addBehavior(this);
+		}
+	*/
+}
+
+	//make this a template!
 void	Behavior::removeTarget(BehaviorManager* target) {
-/*
-	lambda expression:
-	https://stackoverflow.com/questions/17965728/find-a-pair-in-a-stl-list-where-only-first-element-is-known
-	remove_if:
-	https://stackoverflow.com/questions/22729906/stdremove-if-not-working-properly/22729987#22729987
-	it just move the eligible one to the end, and return a pointer to the start of the moved stuff
-*/
 	this->targetList.erase(std::remove_if(this->targetList.begin(), this->targetList.end(),
 		[&target](std::pair<BehaviorManager*, bool> elem) { return (elem.first == target); }),
 		this->targetList.end());
@@ -43,9 +54,6 @@ void	Behavior::removeTarget(BehaviorManager* target) {
 			target->removeBehavior(this);
 		}
 	*/
-	auto	derived = dynamic_cast<BehaviorManager*>(target);//	need template ?
-	if (derived) {
-	}
 }
 
 void	Behavior::setTargetStatus(BehaviorManager* target, bool status) {

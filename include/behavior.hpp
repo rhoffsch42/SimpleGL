@@ -6,6 +6,28 @@
 
 //include fps.h
 
+/*
+	lambda expression:
+	https://stackoverflow.com/questions/17965728/find-a-pair-in-a-stl-list-where-only-first-element-is-known
+	remove_if:
+	https://stackoverflow.com/questions/22729906/stdremove-if-not-working-properly/22729987#22729987
+	it just move the eligible one to the end, and return a pointer to the start of the moved stuff
+*/
+/*
+	why target MUST be BehaviorManager* (managed), and not void*
+	https://stackoverflow.com/questions/4131091/dynamic-cast-from-void
+	
+	-> we could use template list:
+		template<T>
+		class Behavior {
+			...
+			std::list< std::pair<T*, bool> >	targetList;
+		}
+	to then do:
+		TransformBH<Object*>	b1;
+	it implies that all targets must have a common Base class (above example is Object)
+	so why not make all targets derived from BehaviorManager directly? ...
+*/
 class BehaviorManager;
 
 class Behavior {
@@ -21,12 +43,11 @@ public:
 	~Behavior();
 
 	virtual void	run() = 0;
-	//template <typename T>	//cant with virtual pure ?
-	virtual	void	addTarget(BehaviorManager* target) = 0;
+			void	addTarget(BehaviorManager* target);
+	virtual	bool	isCompatible(BehaviorManager* target) const = 0; // decides if we can add target
 			void	removeTarget(BehaviorManager* target);
 			void	setTargetStatus(BehaviorManager* target, bool status);
 	std::list< std::pair<BehaviorManager*, bool> >	getTargetList() const;//return a copy!
-
 
 	bool	isActive;
 	std::list< std::pair<BehaviorManager*, bool> >	targetList;

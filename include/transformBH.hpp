@@ -23,7 +23,7 @@ public:
 	TransformBH&	operator=(const TransformBH& src);
 
 	void	run();
-	void	addTarget(BehaviorManager* target);
+	bool	isCompatible(BehaviorManager* target) const;
 	/*
 		target must have a local variable:
 		class T {
