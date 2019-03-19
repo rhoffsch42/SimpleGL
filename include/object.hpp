@@ -3,6 +3,7 @@
 #include "properties.hpp"
 #include "behavior.hpp"
 
+class Properties;
 class BehaviorManager;
 
 class Object : public BehaviorManager

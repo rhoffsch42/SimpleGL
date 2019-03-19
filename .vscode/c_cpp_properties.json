@@ -10,6 +10,7 @@
                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
                 "/usr/include",
                 "${workspaceFolder}/include",
+                "${workspaceFolder}/src",
                 "/Users/rhoffsch/.brew/Cellar/glfw/3.2.1/include",
                 "/Users/rhoffsch/.brew/Cellar/glew/2.1.0/include"
             ],

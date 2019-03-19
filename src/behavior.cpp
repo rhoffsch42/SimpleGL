@@ -25,7 +25,7 @@ Behavior::~Behavior() {
 	//need to delete/empty list?
 }
 
-	//make this a template!
+	//make this a template! (another)
 void	Behavior::addTarget(BehaviorManager* target) {
 	if (this->isCompatible(target)) {
 		if (std::find_if(this->targetList.begin(), this->targetList.end(), 
@@ -43,7 +43,7 @@ void	Behavior::addTarget(BehaviorManager* target) {
 	*/
 }
 
-	//make this a template!
+	//make this a template! (another)
 void	Behavior::removeTarget(BehaviorManager* target) {
 	this->targetList.erase(std::remove_if(this->targetList.begin(), this->targetList.end(),
 		[&target](std::pair<BehaviorManager*, bool> elem) { return (elem.first == target); }),

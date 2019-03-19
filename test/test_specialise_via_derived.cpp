@@ -6,9 +6,9 @@ public:
 	virtual	bool	isFunction(const void* target) = 0;
 			void	doStuff(const void* target) {
 				if (this->isFunction(target))
-					std::cout << "doing stuff with the target ( ͡° ͜ʖ ͡°) : " << (size_t)target << std::endl;
+					std::cout << "Doing stuff with the target ( ͡° ͜ʖ ͡°) : " << (size_t)target << std::endl;
 				else
-					std::cout << "doing nothing with the target : " << (size_t)target << std::endl;
+					std::cout << "Doing nothing with the target : " << (size_t)target << std::endl;
 			}
 };
 
@@ -25,7 +25,12 @@ int		main(void)
 {
 	char			*str = strdup("hehe");
 	Specialised		*var1 = new Specialised();
-	
 	var1->doStuff(str);
+
+	Base			*basedVar = dynamic_cast<Base*>(var1);
+	if (basedVar)
+		std::cout << "We can get the base! ( ͡° ͜ʖ ͡°) " << std::endl;
+	else
+		std::cout << "We can't get the base..." << std::endl;
 	return (0);
 }

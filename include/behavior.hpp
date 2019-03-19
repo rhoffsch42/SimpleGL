@@ -16,7 +16,9 @@
 /*
 	why target MUST be BehaviorManager* (managed), and not void*
 	https://stackoverflow.com/questions/4131091/dynamic-cast-from-void
-	
+	and it CANNOT be Object*, because Object is an incomplete type atm
+		Object : BehaviorManager, BehaviorManager would need Object that is derived from BehaviorManager...
+
 	-> we could use template list:
 		template<T>
 		class Behavior {
@@ -28,6 +30,7 @@
 	it implies that all targets must have a common Base class (above example is Object)
 	so why not make all targets derived from BehaviorManager directly? ...
 */
+
 class BehaviorManager;
 
 class Behavior {
@@ -52,6 +55,8 @@ public:
 	bool	isActive;
 	std::list< std::pair<BehaviorManager*, bool> >	targetList;
 };
+//#include "behavior.cpp" // this is needed for template!
+// https://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
 
 /*
 	transofrm Behavior with pointer (void) then specialise TransformBH in Object* (cast)
@@ -61,18 +66,18 @@ public:
 			thing must be the good type for T, if not: undefined behavior
 			compiler can't know if it's ok to do that
 */
+
 class BehaviorManager {
 public:
 	void	setBehaviorStatus(Behavior* be, bool status) {
 		be->setTargetStatus(this, status);
 	}
-	//make this a template!
+	//make this a template! (another)
 	void	addBehavior(Behavior* be) {
 		if (std::find_if(this->behaviorList.begin(), this->behaviorList.end(), 
-			[be](Behavior* elem) { return (elem == be); }) 
-			== this->behaviorList.end()) {
+		[be](Behavior* elem) { return (elem == be); }) 
+		== this->behaviorList.end()) {
 			this->behaviorList.push_back(be);
-
 			be->addTarget(this);
 			/*
 				i dont know if it's ok, as this class should always be inherited
@@ -81,7 +86,7 @@ public:
 			*/
 		}
 	}
-	//make this a template!
+	//make this a template! (another)
 	void	removeBehavior(Behavior* be) {
 		auto it = std::remove_if(this->behaviorList.begin(), this->behaviorList.end(),
 			[be](Behavior* elem) { return (elem == be); });
@@ -96,7 +101,8 @@ public:
 
 	bool					behaviorsActive;
 	std::list<Behavior*>	behaviorList;
-	protected://to avoid this class to be instanciated by its own, put all constructors here
+
+protected://to avoid this class to be instanciated by its own, put all constructors here
 	BehaviorManager() {	}
 	BehaviorManager(const BehaviorManager& src) {
 		this->behaviorsActive = src.behaviorsActive;
@@ -108,8 +114,9 @@ public:
 	}
 	virtual ~BehaviorManager() {
 		//	removes itself from all its Behaviors's list
-		for (auto i : this->behaviorList)
+		for (auto i : this->behaviorList) {
 			i->removeTarget(this);
+		}
 		//	erase/empty list ?
 	}
 };
