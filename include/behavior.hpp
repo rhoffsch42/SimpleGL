@@ -14,10 +14,10 @@
 	it just move the eligible one to the end, and return a pointer to the start of the moved stuff
 */
 /*
-	why target MUST be BehaviorManager* (managed), and not void*
+	why target MUST be BehaviorManaged* (managed), and not void*
 	https://stackoverflow.com/questions/4131091/dynamic-cast-from-void
 	and it CANNOT be Object*, because Object is an incomplete type atm
-		Object : BehaviorManager, BehaviorManager would need Object that is derived from BehaviorManager...
+		Object : BehaviorManaged, BehaviorManaged would need Object that is derived from BehaviorManaged...
 
 	-> we could use template list:
 		template<T>
@@ -28,10 +28,10 @@
 	to then do:
 		TransformBH<Object*>	b1;
 	it implies that all targets must have a common Base class (above example is Object)
-	so why not make all targets derived from BehaviorManager directly? ...
+	so why not make all targets derived from BehaviorManaged directly? ...
 */
 
-class BehaviorManager;
+class BehaviorManaged;
 
 class Behavior {
 public:
@@ -46,28 +46,28 @@ public:
 	~Behavior();
 
 	virtual void	run() = 0;
-			void	addTarget(BehaviorManager* target);
-	virtual	bool	isCompatible(BehaviorManager* target) const = 0; // decides if we can add target
-			void	removeTarget(BehaviorManager* target);
-			void	setTargetStatus(BehaviorManager* target, bool status);
-	std::list< std::pair<BehaviorManager*, bool> >	getTargetList() const;//return a copy!
+			void	addTarget(BehaviorManaged* target);
+	virtual	bool	isCompatible(BehaviorManaged* target) const = 0; // decides if we can add target
+			void	removeTarget(BehaviorManaged* target);
+			void	setTargetStatus(BehaviorManaged* target, bool status);
+	std::list< std::pair<BehaviorManaged*, bool> >	getTargetList() const;//return a copy!
 
 	bool	isActive;
-	std::list< std::pair<BehaviorManager*, bool> >	targetList;
+	std::list< std::pair<BehaviorManaged*, bool> >	targetList;
 };
 //#include "behavior.cpp" // this is needed for template!
 // https://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
 
 /*
 	transofrm Behavior with pointer (void) then specialise TransformBH in Object* (cast)
-	then we can create the BehaviorManager that will allow Object to manage their behavior
+	then we can create the BehaviorManaged that will allow Object to manage their behavior
 		* Object and TransformBH are just examples
 		/!\	dangerous cauz if we do:	T->addTarget( (void*)(thing) )
 			thing must be the good type for T, if not: undefined behavior
 			compiler can't know if it's ok to do that
 */
 
-class BehaviorManager {
+class BehaviorManaged {
 public:
 	void	setBehaviorStatus(Behavior* be, bool status) {
 		be->setTargetStatus(this, status);
@@ -81,7 +81,7 @@ public:
 			be->addTarget(this);
 			/*
 				i dont know if it's ok, as this class should always be inherited
-				ex: class Object : BehaviorManager { [...] }
+				ex: class Object : BehaviorManaged { [...] }
 				hope 'this' is type of Object* 
 			*/
 		}
@@ -100,19 +100,22 @@ public:
 	}
 
 	bool					behaviorsActive;
-	std::list<Behavior*>	behaviorList;
+	std::list<Behavior*>	behaviorList;//private?
 
 protected://to avoid this class to be instanciated by its own, put all constructors here
-	BehaviorManager() {	}
-	BehaviorManager(const BehaviorManager& src) {
+	BehaviorManaged() {
+		cout << "_ BehaviorManaged cons" << endl;
+		this->behaviorsActive = true;
+	}
+	BehaviorManaged(const BehaviorManaged& src) {
 		this->behaviorsActive = src.behaviorsActive;
 		this->behaviorList = src.behaviorList;//copy ?
-		cout << "test BehaviorManager operator=" << endl;
+		cout << "test BehaviorManaged operator=" << endl;
 		cout << &this->behaviorList << endl;
 		cout << &this->behaviorList << endl;
 		exit(0);
 	}
-	virtual ~BehaviorManager() {
+	virtual ~BehaviorManaged() {
 		//	removes itself from all its Behaviors's list
 		for (auto i : this->behaviorList) {
 			i->removeTarget(this);

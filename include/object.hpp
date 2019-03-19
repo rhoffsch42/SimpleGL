@@ -4,9 +4,9 @@
 #include "behavior.hpp"
 
 class Properties;
-class BehaviorManager;
+class BehaviorManaged;
 
-class Object : public BehaviorManager
+class Object : public BehaviorManaged
 {
 public:
 	static unsigned int		getInstanceAmount();//make a class for that ?

@@ -6,7 +6,7 @@ unsigned int	Object::getInstanceAmount() { return (Object::_instanceAmount); }
 unsigned int	Object::_instanceAmount = 0;
 unsigned int	Object::_instanceId = 0;
 
-Object::Object() {
+Object::Object() : BehaviorManaged() {
 	cout << "_ Object cons" << endl;
 	this->_id = Object::_instanceId;
 	this->_parent = NULL;
@@ -16,7 +16,7 @@ Object::Object() {
 	Object::_instanceId++;
 }
 
-Object::Object(Properties object_pp) : local(object_pp) {
+Object::Object(Properties object_pp) : BehaviorManaged(), local(object_pp) {
 	cout << "_ Object cons with custom Properties" << endl;
 	this->_id = Object::_instanceId;
 	this->_parent = NULL;

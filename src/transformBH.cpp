@@ -54,7 +54,7 @@ void	TransformBH::run() {
 	//	check TransformBH::areActive and Behavior::AreActive here ?
 	for (auto i : this->targetList) {
 		Object*	target = dynamic_cast<Object*>(i.first);//specialisation part
-		if (i.second) {//check if behavior status for this target
+		if (i.second && i.first->behaviorsActive) {//check behavior status for this target
 			if (this->modePos == ADDITIVE) {
 				target->local.translate(this->transform.pos);
 			} else {
@@ -99,7 +99,7 @@ void	TransformBH::run() {
 	}
 }
 
-bool	TransformBH::isCompatible(BehaviorManager* target) const {
+bool	TransformBH::isCompatible(BehaviorManaged* target) const {
 	//dynamic_cast check
 	(void)target;
 	return (true);

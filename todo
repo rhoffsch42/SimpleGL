@@ -4,6 +4,8 @@ float	(*Vector3::operation)(float,float);
 	compare execution speed, binary size
 check if destructor of mother class is called when child is destroyed
 similar constructors: make an init func ? with all common tasks
+check derived constructor: call to base constructor ?
+check the copy constructor with derived class: good call to base copy constructor?
 ---- memory/leaks	-------------------------------------------------------
 delete data opengl:
 	Skybox

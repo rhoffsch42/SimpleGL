@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2018/12/06 18:33:48 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2019/03/19 16:40:28 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -416,32 +416,62 @@ void	scene1() {
 
 	cout << "behavior:" << endl;
 	TransformBH		b1;
-	b1.transform.rot.setUnit(ROT_DEG);
-	b1.transform.rot.z = 180 * defaultFps->tick;
-	b1.modeRot = ADDITIVE;
-	float ss = 1.0f + 0.1f * defaultFps->tick;
-	b1.transform.scale = Math::Vector3(ss, ss, ss);
-	b1.modeScale = MULTIPLICATIVE;
-	cout << "___ adding rocket1: " << &rocket1 << endl;
-	b1.addTarget(&rocket1);
-	b1.addTarget(&lambo1);
-	b1.removeTarget(&lambo1);
-	b1.setTargetStatus(&rocket1, true);
+		b1.transform.rot.setUnit(ROT_DEG);
+		b1.transform.rot.z = 180 * defaultFps->tick;
+		b1.modeRot = ADDITIVE;
+		float ss = 1.0f + 0.1f * defaultFps->tick;
+		b1.transform.scale = Math::Vector3(ss, ss, ss);
+		b1.modeScale = MULTIPLICATIVE;
+		cout << "___ adding rocket1: " << &rocket1 << endl;
+		b1.addTarget(&rocket1);
+		b1.addTarget(&lambo1);
+		b1.removeTarget(&lambo1);
+		b1.setTargetStatus(&rocket1, true);
 
 	TransformBH		b2;// = b1;//bug
-	b2.transform.scale = Math::Vector3(0,0,0);
-	b2.modeScale = ADDITIVE;
-	b2.transform.rot.z = 0.0f;
-	b2.transform.rot.x = -45.0f * defaultFps->tick;
-	// b2.removeTarget(&rocket1);
-	b2.addTarget(&empty1);
-	/*
-		bug if i do
-	b2.addTarget(empty1);
-	b2.removeTarget(rocket1);
-	*/
+		b2.transform.scale = Math::Vector3(0,0,0);
+		b2.modeScale = ADDITIVE;
+		b2.transform.rot.z = 0.0f;
+		b2.transform.rot.x = -45.0f * defaultFps->tick;
+		// b2.removeTarget(&rocket1);
+		b2.addTarget(&empty1);
+		/*
+			bug if i do
+		b2.addTarget(empty1);
+		b2.removeTarget(rocket1);
+		*/
+
 	cout << b1.getTargetList().size() << endl;
 	cout << b2.getTargetList().size() << endl;
+
+	cout << "behaviorsActive: " << (empty1.behaviorsActive ? "true" : "false") << endl;
+
+	cout << "------------" << endl;
+	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+	cout << "b2:    \t" << b2.getTargetList().size() << endl;
+	cout << "b2.addTarget(&lambo1);" << endl;
+	b2.addTarget(&lambo1);
+	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+	cout << "b2:    \t" << b2.getTargetList().size() << endl;
+	cout << "b2.removeTarget(&lambo1);" << endl;
+	b2.removeTarget(&lambo1);
+	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+	cout << "b2:    \t" << b2.getTargetList().size() << endl;
+
+	cout << "------------" << endl;
+	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+	cout << "b2:    \t" << b2.getTargetList().size() << endl;
+	cout << "lambo1.addBehavior(&b2);" << endl;
+	lambo1.addBehavior(&b2);
+	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+	cout << "b2:    \t" << b2.getTargetList().size() << endl;
+	cout << "lambo1.removeBehavior(&b2);" << endl;
+	lambo1.removeBehavior(&b2);
+	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+	cout << "b2:    \t" << b2.getTargetList().size() << endl;
+
+	empty1.behaviorsActive = false;
+
 // exit(0);
 
 	// cam.local.setScale(s,s,s);//bad, undefined behavior

@@ -26,40 +26,45 @@ Behavior::~Behavior() {
 }
 
 	//make this a template! (another)
-void	Behavior::addTarget(BehaviorManager* target) {
+void	Behavior::addTarget(BehaviorManaged* target) {
 	if (this->isCompatible(target)) {
 		if (std::find_if(this->targetList.begin(), this->targetList.end(), 
-				[target](std::pair<BehaviorManager*, bool> elem) { return (elem.first == target); })
+				[target](std::pair<BehaviorManaged*, bool> elem) { return (elem.first == target); })
 			== this->targetList.end()) {
-			std::pair<BehaviorManager*, bool>	p = pair<BehaviorManager*, bool>(target, true);//cast
+			std::pair<BehaviorManaged*, bool>	p = pair<BehaviorManaged*, bool>(target, true);//cast
 			this->targetList.push_back(p);
-		}
-	}
-	/*
-		we can check here if the target has a BehaviorManager, and add ourself from his list:
-		if (hasTheManager) {
+			/*
+				we can check here if the target has a BehaviorManaged, and add ourself from his list:
+				if (hasTheManager) {
+					target->addBehavior(this);
+				}
+				edit: it should always have it!
+			*/
 			target->addBehavior(this);
 		}
-	*/
+	}
+
 }
 
 	//make this a template! (another)
-void	Behavior::removeTarget(BehaviorManager* target) {
+void	Behavior::removeTarget(BehaviorManaged* target) {
 	this->targetList.erase(std::remove_if(this->targetList.begin(), this->targetList.end(),
-		[&target](std::pair<BehaviorManager*, bool> elem) { return (elem.first == target); }),
+		[&target](std::pair<BehaviorManaged*, bool> elem) { return (elem.first == target); }),
 		this->targetList.end());
 	/*
-		we can check here if the target has a BehaviorManager, and remove ourself from his list:
+		we can check here if the target has a BehaviorManaged, and remove ourself from his list:
 		if (hasTheManager) {
 			target->removeBehavior(this);
 		}
+		edit: it should always have it!
 	*/
+	target->removeBehavior(this);
 }
 
-void	Behavior::setTargetStatus(BehaviorManager* target, bool status) {
+void	Behavior::setTargetStatus(BehaviorManaged* target, bool status) {
 	auto it = std::find_if(this->targetList.begin(), this->targetList.end(),
-		[&target](std::pair<BehaviorManager*, bool> elem) { return (&elem.first == &target); });
+		[&target](std::pair<BehaviorManaged*, bool> elem) { return (&elem.first == &target); });
 	(*it).second = status;
 }
 //accessor
-std::list< std::pair<BehaviorManager*, bool> >	Behavior::getTargetList() const { return (this->targetList); }
+std::list< std::pair<BehaviorManaged*, bool> >	Behavior::getTargetList() const { return (this->targetList); }
