@@ -12,6 +12,7 @@ delete data opengl:
 	Blueprint and derived
 	Program and derived
 ---- text/file formating	-------------------------------------------------------
+#include "simplegl.h" in class.cpp is bad? the class.hpp have to be self-sufficient
 pointer/ref declaration: Class* ptr || Class *ptr
 dynamic_cast	check if it failed ?
 const_cast	check if it is used everywhere, no: (Type)var
@@ -35,9 +36,6 @@ class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)
 	class Program and derived: see SkyboxPG.hpp
 	class skybox : public Object.
 		+see SkyboxPG.hpp
-motion behavior: see behavior.hpp
-	sync all list when removing o or b
-	set the lists as private ?
 overload operator << for all classes to get a nice printing. overkill
 	at least replace X.printData (math.hpp)
 
@@ -49,17 +47,7 @@ quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
 glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	/!\ not working since old motion system is removed? memory bug ?
 
-TransformBH		b2 = b1;
-	bugs when doing that, is it linked to the list copy ? 
-	not really, bug if i do:
-		b2.addTarget(empty1);
-		b2.removeTarget(rocket1);
-	but if we do that, it doesnt bug:
-		b2.removeTarget(rocket1);
-		b2.addTarget(empty1);
-	this may be linked to the fact that lists make copy of the content
-		so list of reference are not a thing to do
-		https://stackoverflow.com/questions/7707842/stl-containers-with-reference-to-objects
+list of ref: https://stackoverflow.com/questions/7707842/stl-containers-with-reference-to-objects
 
 ---- TIPS FOR LATER USE	-------------------------------------------------------
 http://cpp.sh/8wyol

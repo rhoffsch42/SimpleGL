@@ -1,10 +1,10 @@
 #pragma once
 #include "math.hpp"
 #include "properties.hpp"
-#include "behavior.hpp"
+#include "behaviormanaged.hpp"
 
 class Properties;
-class BehaviorManaged;
+// class BehaviorManaged;
 
 class Object : public BehaviorManaged
 {

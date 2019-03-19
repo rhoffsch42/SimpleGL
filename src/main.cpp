@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2019/03/19 16:40:28 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2019/03/19 18:34:33 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,15 +252,16 @@ void	scene1() {
 	Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_no_collider.obj", true);
 	cout << "======" << endl;
 
-	Texture*	texture1 = new Texture("images/lena.bmp");
-	Texture*	texture2 = new Texture("images/skybox2.bmp");
-	Texture*	texture3 = new Texture("images/skyboxfuck.bmp");
-	Texture*	texture4 = new Texture("images/skybox4096.bmp");
-	Texture*	texture5 = new Texture("images/skytest.bmp");
-	// Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
-	Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
-	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
-	Texture		texture8 = *texture7;
+	//texture
+		Texture*	texture1 = new Texture("images/lena.bmp");
+		Texture*	texture2 = new Texture("images/skybox2.bmp");
+		Texture*	texture3 = new Texture("images/skyboxfuck.bmp");
+		Texture*	texture4 = new Texture("images/skybox4096.bmp");
+		Texture*	texture5 = new Texture("images/skytest.bmp");
+		// Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
+		Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
+		Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
+		Texture		texture8 = *texture7;
 
 	float s = 1.0f;//scale
 	//Create Obj3d with the blueprint & by copy
@@ -317,7 +318,7 @@ void	scene1() {
 		lambo1.setTexture(texture7);
 		lambo1.displayTexture = true;
 		lambo1.local.centered = true;
-		// lambo1.setPolygonMode(GL_LINE);
+		lambo1.setPolygonMode(GL_LINE);
 		s = 0.025f;
 		// lambo1.setScale(s, s, s);
 
@@ -410,7 +411,7 @@ void	scene1() {
 	Fps	fps144(144);
 	Fps	fps60(60);
 	Fps	fps30(30);
-	Fps* defaultFps = &fps60;
+	Fps* defaultFps = &fps144;
 
 	followObjectArgs	st = { defaultFps, &cam };
 
@@ -435,42 +436,40 @@ void	scene1() {
 		b2.transform.rot.x = -45.0f * defaultFps->tick;
 		// b2.removeTarget(&rocket1);
 		b2.addTarget(&empty1);
-		/*
-			bug if i do
-		b2.addTarget(empty1);
-		b2.removeTarget(rocket1);
-		*/
+		//bug if i do:
+		b2.addTarget(&empty1);
+		b2.removeTarget(&rocket1);
+	
+		cout << "b1: " << b1.getTargetList().size() << endl;
+		cout << "b2: " << b2.getTargetList().size() << endl;
+// exit(0);
+	if (false) {// check behavior target, add remove
 
-	cout << b1.getTargetList().size() << endl;
-	cout << b2.getTargetList().size() << endl;
+		cout << "behaviorsActive: " << (empty1.behaviorsActive ? "true" : "false") << endl;
+		cout << "------------" << endl;
+		cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+		cout << "b2:    \t" << b2.getTargetList().size() << endl;
+		cout << "b2.addTarget(&lambo1);" << endl;
+		b2.addTarget(&lambo1);
+		cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+		cout << "b2:    \t" << b2.getTargetList().size() << endl;
+		cout << "b2.removeTarget(&lambo1);" << endl;
+		b2.removeTarget(&lambo1);
+		cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+		cout << "b2:    \t" << b2.getTargetList().size() << endl;
 
-	cout << "behaviorsActive: " << (empty1.behaviorsActive ? "true" : "false") << endl;
-
-	cout << "------------" << endl;
-	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
-	cout << "b2:    \t" << b2.getTargetList().size() << endl;
-	cout << "b2.addTarget(&lambo1);" << endl;
-	b2.addTarget(&lambo1);
-	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
-	cout << "b2:    \t" << b2.getTargetList().size() << endl;
-	cout << "b2.removeTarget(&lambo1);" << endl;
-	b2.removeTarget(&lambo1);
-	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
-	cout << "b2:    \t" << b2.getTargetList().size() << endl;
-
-	cout << "------------" << endl;
-	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
-	cout << "b2:    \t" << b2.getTargetList().size() << endl;
-	cout << "lambo1.addBehavior(&b2);" << endl;
-	lambo1.addBehavior(&b2);
-	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
-	cout << "b2:    \t" << b2.getTargetList().size() << endl;
-	cout << "lambo1.removeBehavior(&b2);" << endl;
-	lambo1.removeBehavior(&b2);
-	cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
-	cout << "b2:    \t" << b2.getTargetList().size() << endl;
-
-	empty1.behaviorsActive = false;
+		cout << "------------" << endl;
+		cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+		cout << "b2:    \t" << b2.getTargetList().size() << endl;
+		cout << "lambo1.addBehavior(&b2);" << endl;
+		lambo1.addBehavior(&b2);
+		cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+		cout << "b2:    \t" << b2.getTargetList().size() << endl;
+		cout << "lambo1.removeBehavior(&b2);" << endl;
+		lambo1.removeBehavior(&b2);
+		cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
+		cout << "b2:    \t" << b2.getTargetList().size() << endl;
+	}
 
 // exit(0);
 

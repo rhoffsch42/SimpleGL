@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/03/19 15:49:29 by rhoffsch         ###   ########.fr        #
+#    Updated: 2019/03/19 17:40:43 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,6 +43,7 @@ SRC_FILE		=	main.cpp \
 					skyboxPG.cpp \
 					texture.cpp \
 					behavior.cpp \
+					behaviormanaged.cpp \
 					transformBH.cpp
 
 HDR_FILE		=	simplegl.h
