@@ -75,7 +75,7 @@ public:
 		void	mult(float coef);
 		void	div(float coef);
 		float	magnitude() const;
-		Math::Vector3	operator-();
+		Math::Vector3	operator-();// pk que lui et pas + * /
 		//static
 		// https://physics.info/vector-multiplication/
 		static Math::Vector3	cross(Math::Vector3 v1, Math::Vector3 v2);// ie mult

@@ -1,20 +1,22 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
+#    Makefile.ut                                        :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/03/20 17:29:22 by rhoffsch         ###   ########.fr        #
+#    Updated: 2019/03/20 19:12:16 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME			=	SimpleGL
+NAME			=	UnitTests_SimpleGL
+TEST_DIR		=	unittests
 CC				=	g++ -std=c++11
 CFLAGS			=	-Wall -Wextra -Werror #-Wpadded
 
-INCLUDE			=	-I include \
+INCLUDE			=	-I $(TEST_DIR)/include \
+					-I include \
 					-I /Users/rhoffsch/.brew/Cellar/glfw/3.2.1/include \
 					-I /Users/rhoffsch/.brew/Cellar/glew/2.1.0/include 
 					#-I /System/Library/Frameworks/OpenGL.framework/Versions/A/Headers/
@@ -28,46 +30,36 @@ FRAMEWORKS		=	-framework OpenGL #-framework Cocoa
 CC_NEEDS		=	$(INCLUDE) $(FRAMEWORKS) $(GLFW) $(GLEW)
 
 SRC_FILE		=	main.cpp \
-					blueprint.cpp \
-					cam.cpp \
-					glfw.cpp \
-					math.cpp \
-					misc.cpp \
-					properties.cpp \
-					object.cpp \
-					obj3d.cpp \
-					obj3dBP.cpp \
-					obj3dPG.cpp \
-					program.cpp \
-					skybox.cpp \
-					skyboxPG.cpp \
-					texture.cpp \
-					behavior.cpp \
-					behaviormanaged.cpp \
-					transformBH.cpp
+					unittests.cpp \
+					mathtests.cpp
 
-HDR_FILE		=	simplegl.h
+HDR_FILE		=	unittests.hpp
 
-SRC_DIR			=	src
-OBJ_DIR			=	obj
-HDR_DIR			=	include
+SRC_DIR			=	$(TEST_DIR)/src
+OBJ_DIR			=	$(TEST_DIR)/obj
+HDR_DIR			=	$(TEST_DIR)/include
 SRC				=	$(addprefix $(SRC_DIR)/, $(SRC_FILE))
 OBJ				=	$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC_FILE))
 HDR				=	$(addprefix $(HDR_DIR)/, $(HDR_FILE))
 
-DEPENDS			=	$(OBJ:.o=.d)
-UT_MAKEFILE		=	Makefile.ut
+TESTED_SRC_FILE	=	math.cpp
+TESTED_OBJ_DIR	=	obj
+TESTED_OBJ		=	$(patsubst %.cpp, $(TESTED_OBJ_DIR)/%.o, $(TESTED_SRC_FILE))
 
-.PHONY: all compile clean fclean pclean re test run
+ALL_OBJ			=	$(OBJ)
+ALL_OBJ			+=	$(TESTED_OBJ) #add all .o to tests .o
+
+.PHONY: all compile clean fclean pclean re run
 
 all: compile
 
 compile:
+	@$(MAKE) -f Makefile
 	@mkdir -p $(OBJ_DIR)
-	@$(MAKE) $(NAME)
+	@$(MAKE) $(NAME) -f Makefile.ut
 
 $(NAME): $(SRC) $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(CC_NEEDS)
+	$(CC) $(CFLAGS) $(ALL_OBJ) -o $(NAME) $(CC_NEEDS)
 	@# $(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LIBS) $(FRAMEWORKS) $(GLFW) $(GLEW)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDR) $(HDR_DIR)/%.hpp
@@ -80,12 +72,8 @@ fclean: clean
 	rm -f $(NAME)
 
 pclean: fclean
-	@$(MAKE) pclean -f $(UT_MAKEFILE)
 
 re: fclean all
-
-test:
-	make -f $(UT_MAKEFILE)
 
 run: all
 	./$(NAME) ; echo $$?
