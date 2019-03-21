@@ -56,7 +56,7 @@ public:
 		Vector3();
 		Vector3(float valx, float valy, float valz);
 		Vector3(const Math::Vector3& src);
-		Math::Vector3&	operator=(const Math::Vector3& src);
+		Math::Vector3&	operator=(const Math::Vector3& src);//useless?
 		~Vector3();
 
 		void	rotate(Math::Rotation rot, float rotWay);
@@ -75,7 +75,7 @@ public:
 		void	mult(float coef);
 		void	div(float coef);
 		float	magnitude() const;
-		Math::Vector3	operator-();// pk que lui et pas + * /
+		Math::Vector3	operator-();// in fact its for the sign minus
 		//static
 		// https://physics.info/vector-multiplication/
 		static Math::Vector3	cross(Math::Vector3 v1, Math::Vector3 v2);// ie mult
@@ -83,7 +83,7 @@ public:
 		//other
 		void	printData() const;
 	};
-
+	
 	class Rotation : public Vector3
 	{
 	public:

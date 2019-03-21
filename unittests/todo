@@ -1,0 +1,7 @@
+preprocessor TEST defines:
+	#if TEST_MATH_UTIL == true
+	#endif
+	/!\ need recompile, mais modulable
+	-> se baser sur un fichier de conf,
+	~> faire la conf dans le main, et recompiler seulement le main
+		/!\ moins modulable que les #if

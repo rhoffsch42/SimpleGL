@@ -1,7 +1,4 @@
-#include <iostream>
-
-#include "unittests.hpp"
-#include "mathtests.hpp"
+#include "main_ut.hpp"
 
 template <typename T>
 class LaunchTests {
@@ -11,6 +8,7 @@ public:
 		test->setUp();
 		test->testEverything();
 		test->tearDown();
+		delete test;
 	}
 };
 
@@ -25,6 +23,8 @@ int		main(int ac, char **av)
 	std::cout << "\nTests passed: " << UT_OK << "  " << UnitTest::getTestPassed() << " / " << UnitTest::getTestAmount() << std::endl;;
 	if (UnitTest::getTestFailed())
 		std::cout << "Tests failed: " << UT_FAIL << "  " << UnitTest::getTestFailed() << std::endl;
+	if (UnitTest::getTestErrors())
+		std::cout << "Tests errors: " << UT_ERROR << "  " << UnitTest::getTestErrors() << std::endl;
 
 	return (0);
 }
