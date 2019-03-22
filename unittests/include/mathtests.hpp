@@ -10,6 +10,15 @@
 #define TEST_MATH_ROTATION	true
 #define TEST_MATH_MATRIX4	true
 
+class MathTests;
+
+template <typename T>
+class FreeAccess : public T {
+public:
+	FreeAccess() : T() {} //if the class T doesnt have default constructor? boom?
+	friend class MathTests;
+};
+
 typedef struct	s_var {
 	float			degree125;
 	float			radian2_18166;
@@ -26,6 +35,15 @@ typedef struct	s_var {
 	Math::Rotation	rotB_1_2_3_d;
 	Math::Rotation	rotC_r;	// 180, 0, 100
 	Math::Rotation	rotD_180_0_100_d;
+	FreeAccess<Math::Matrix4>	mat4_identity;
+	FreeAccess<Math::Matrix4>	mat4_clear;
+	FreeAccess<Math::Matrix4>	mat4_0_to_15_RM;
+	FreeAccess<Math::Matrix4>	mat4_0_to_15_RM_transposed;
+	FreeAccess<Math::Matrix4>	mat4_15_to_0_CM;
+	FreeAccess<Math::Matrix4>	mat4_only2_RM;
+	FreeAccess<Math::Matrix4>	mat4_only8_RM;
+	FreeAccess<Math::Matrix4>	mat4_scale_1_1_1_RM;
+	FreeAccess<Math::Matrix4>	mat4_scale_4_5_6_RM;
 }				t_var;
 
 class MathTests {
@@ -36,11 +54,12 @@ public:
 	void	tearDown();
 	void	testEverything();
 
-	void	test_ToRadian();
-	void	test_ToDegree();
+	void	test_toRadian();
+	void	test_toDegree();
 	// void	testExtractFromMatrix();
 
 	// Vector3
+	void	testVector3_everything();
 	void	testVector3();
 	void	testVector3_operatorEqual();
 	void	testVector3_rotate();
@@ -50,23 +69,37 @@ public:
 	void	testVector3_mult();
 	void	testVector3_div();
 	void	testVector3_magnitude();
-	void	testVector3_operatorMinus(); // in fact its for the sign minus
+	void	testVector3_operatorMinus(); // in fact its for the sign minus, not the mathematical term operator
 	void	testVector3_cross();
 	void	testVector3_dot();
 	
 	// Rotation
+	void	testRotation_everything();
 	void	testRotation();
-	void	testRotation_OperatorEqual();
-	void	testRotation_SetAsRad();
-	void	testRotation_SetAsDegree();
-	void	testRotation_SetUnit(uint8_t unit);
-	void	testRotation_ToRadian();
-	void	testRotation_ToDegree();
-	void	testRotation_IsRadian();
-	void	testRotation_IsDegree();
+	void	testRotation_operatorEqual();
+	void	testRotation_setAsRad();
+	void	testRotation_setAsDegree();
+	void	testRotation_setUnit();
+	void	testRotation_toRadian();
+	void	testRotation_toDegree();
+	void	testRotation_isRadian();
+	void	testRotation_isDegree();
 
-/*
 	// Matrix4
+	void	testMatrix4_everything();
 	void	testMatrix4();
-*/
+	void	testMatrix4_operatorEqual();
+	void	testMatrix4_projectionMatrix();
+	void	testMatrix4_viewMatrix();
+	void	testMatrix4_modelMatrix();
+	void	testMatrix4_scaleMatrix();
+	void	testMatrix4_identity();
+	void	testMatrix4_reset();
+	void	testMatrix4_transpose();
+	void	testMatrix4_printData();
+	void	testMatrix4_updatePosValue();
+	void	testMatrix4_div();
+	void	testMatrix4_mult();
+	void	testMatrix4_getData();
+	void	testMatrix4_getOrder();
 };

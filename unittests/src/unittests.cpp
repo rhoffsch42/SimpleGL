@@ -8,6 +8,14 @@ unsigned int UnitTest::_test_errors = 0;
 UnitTest::UnitTest(){
 }
 
+void			UnitTest::printResult() {
+	std::cout << "Tests passed: " << UT_OK << "  " << UnitTest::getTestPassed() << " / " << UnitTest::getTestAmount() << std::endl;;
+	if (UnitTest::getTestFailed())
+		std::cout << "Tests failed: " << UT_FAIL << "  " << UnitTest::getTestFailed() << std::endl;
+	if (UnitTest::getTestErrors())
+		std::cout << "Tests errors: " << UT_ERROR << "  " << UnitTest::getTestErrors() << std::endl;
+}
+
 std::string		UnitTest::test_ok() {
 	UnitTest::_test_amount++;
 	UnitTest::_test_passed++;

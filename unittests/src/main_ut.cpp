@@ -20,11 +20,7 @@ int		main(int ac, char **av)
 
 	LaunchTests<MathTests>	math;
 
-	std::cout << "\nTests passed: " << UT_OK << "  " << UnitTest::getTestPassed() << " / " << UnitTest::getTestAmount() << std::endl;;
-	if (UnitTest::getTestFailed())
-		std::cout << "Tests failed: " << UT_FAIL << "  " << UnitTest::getTestFailed() << std::endl;
-	if (UnitTest::getTestErrors())
-		std::cout << "Tests errors: " << UT_ERROR << "  " << UnitTest::getTestErrors() << std::endl;
-
+	std::cout << std::endl;
+	UnitTest::printResult();
 	return (0);
 }

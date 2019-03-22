@@ -34,6 +34,10 @@
 using namespace std;
 #include "misc.hpp"
 
+#define EMOTE_OK			"\xe2\x9c\x85 " // ✅
+#define EMOTE_FAIL			"\xe2\x9d\x8c " // ❌
+#define EMOTE_WARNING		"\xe2\x9a\xa0\xef\xb8\x8f " // ⚠️
+
 #define LOGFILES	true
 
 #define OBJ3D_VS_FILE			"shaders/obj3d.vs.glsl"

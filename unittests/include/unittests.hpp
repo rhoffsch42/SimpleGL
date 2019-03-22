@@ -16,6 +16,8 @@
 
 class UnitTest {
 public:
+	static void				printResult();
+
 	static std::string		test_ok();
 	static std::string		test_fail();
 	static std::string		test_error();

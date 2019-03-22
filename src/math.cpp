@@ -378,6 +378,7 @@ void			Math::Matrix4::modelMatrix(Math::Vector3 pos, Math::Rotation rot, Math::V
 	this->setOrder(COLUMN_MAJOR);
 }
 void			Math::Matrix4::scaleMatrix(Math::Vector3 scale) {
+	// no reset ? or identity ? what if we do: m.modelMatrix(); m.scale(1, 1, 1);
 	this->tab[0][0] = scale.x;
 	this->tab[1][1] = scale.y;
 	this->tab[2][2] = scale.z;
@@ -406,28 +407,29 @@ void			Math::Matrix4::transpose() {
 	e[12] = v[3];	e[13] = v[7];	e[14] = v[11];
 }
 void			Math::Matrix4::printData() const {
-	if (this->_order == ROW_MAJOR)
-		cout << "row major" << endl;
-	else
-		cout << "column major" << endl;
-
 	std::ios oldState(nullptr);
 	oldState.copyfmt(std::cout);
 	cout << std::fixed << std::setprecision(2);
 
 	for (int i = 0; i < 16; i++) {
-		cout << this->e[i] << " ";
+		cout << setfill('0') << setw(5) << this->e[i] << " ";
 		if (i % 4 == 3)
 			cout << " ";
 	}
 	cout << endl << endl;
 
+	std::cout << "Matrix representation ( " << EMOTE_WARNING << " not the data as a tab[][] )" << std::endl;
+	if (this->_order == ROW_MAJOR)
+		cout << "row major" << endl;
+	else
+		cout << "column major" << endl;
+
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (this->_order == ROW_MAJOR)
-				cout << this->tab[i][j] << " ";
+				cout << setfill('0') << setw(5) << this->tab[i][j] << " ";
 			else
-				cout << this->tab[j][i] << " ";
+				cout << setfill('0') << setw(5) << this->tab[j][i] << " ";
 		}
 		cout << endl;
 	}
