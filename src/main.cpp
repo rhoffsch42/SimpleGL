@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2019/03/19 18:34:33 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2019/03/28 15:50:06 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,16 +204,18 @@ void	followObject(Object& ref, void *ptr) {
 	Math::Matrix4	targetWorldMat = st->o->getWorldMatrix();
 	Math::Vector3	targetPos;
 	targetWorldMat.setOrder(COLUMN_MAJOR);
-	targetPos.x = targetWorldMat.tab[3][0];
-	targetPos.y = targetWorldMat.tab[3][1];
-	targetPos.z = targetWorldMat.tab[3][2];
+	float	(&m1)[4][4] = *reinterpret_cast<float(*)[4][4]>(targetWorldMat.getData());
+	targetPos.x = m1[3][0];
+	targetPos.y = m1[3][1];
+	targetPos.z = m1[3][2];
 
 	Math::Matrix4	worldMat = ref.getWorldMatrix();
 	worldMat.setOrder(COLUMN_MAJOR);
+	float	(&m2)[4][4] = *reinterpret_cast<float(*)[4][4]>(worldMat.getData());
 	Math::Vector3	objPos;
-	objPos.x = worldMat.tab[3][0];
-	objPos.y = worldMat.tab[3][1];
-	objPos.z = worldMat.tab[3][2];
+	objPos.x = m2[3][0];
+	objPos.y = m2[3][1];
+	objPos.z = m2[3][2];
 
 	Math::Vector3	diff = targetPos;
 	diff.sub(objPos);

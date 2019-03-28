@@ -86,6 +86,9 @@ public:
 	
 	class Rotation : public Vector3
 	{
+#if UNIT_TESTS == true
+		friend class UnitTests;
+#endif
 	public:
 		Rotation();//default unit is degree
 		Rotation(float valx, float valy, float valz);//default unit is degree
@@ -107,6 +110,9 @@ public:
 
 	class Matrix4
 	{
+#if UNIT_TESTS == true
+		friend class UnitTests;
+#endif
 	public:
 		Matrix4();
 		Matrix4(const Matrix4& src);
@@ -120,7 +126,7 @@ public:
 		void		scaleMatrix(Math::Vector3 scale);
 		void		identity();
 		void		reset();
-		void		setOrder(uint8_t order);
+		void		setOrder(uint8_t order);//not a mutator
 		void		transpose();
 		void		printData() const;
 
@@ -136,7 +142,7 @@ public:
 		float*			getData() const;
 		uint8_t			getOrder() const;
 
-	// private://comment this to test matrix
+	private:
 		/*
 			Manipulation with tab 4x4
 			Important when COLUMN_MAJOR order:

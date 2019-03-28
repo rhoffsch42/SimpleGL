@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/03/21 12:55:53 by rhoffsch         ###   ########.fr        #
+#    Updated: 2019/03/28 16:00:26 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@ NAME			=	UnitTests_SimpleGL
 TEST_DIR		=	unittests
 CC				=	g++ -std=c++11
 CFLAGS			=	-Wall -Wextra -Werror #-Wpadded
+TEST_FLAGS		=	-DUNIT_TESTS=true
 
 INCLUDE			=	-I $(TEST_DIR)/include \
 					-I include \
@@ -31,7 +32,8 @@ CC_NEEDS		=	$(INCLUDE) $(FRAMEWORKS) $(GLFW) $(GLEW)
 
 SRC_FILE		=	main_ut.cpp \
 					unittests.cpp \
-					mathtests.cpp
+					math_tests.cpp \
+					properties_tests.cpp
 
 HDR_FILE		=	unittests.hpp
 
@@ -42,7 +44,9 @@ SRC				=	$(addprefix $(SRC_DIR)/, $(SRC_FILE))
 OBJ				=	$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC_FILE))
 HDR				=	$(addprefix $(HDR_DIR)/, $(HDR_FILE))
 
-TESTED_SRC_FILE	=	math.cpp
+TESTED_SRC_FILE	=	math.cpp \
+					properties.cpp
+
 TESTED_OBJ_DIR	=	obj
 TESTED_OBJ		=	$(patsubst %.cpp, $(TESTED_OBJ_DIR)/%.o, $(TESTED_SRC_FILE))
 
@@ -63,7 +67,7 @@ $(NAME): $(SRC) $(OBJ)
 	@# $(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LIBS) $(FRAMEWORKS) $(GLFW) $(GLEW)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDR) $(HDR_DIR)/%.hpp
-	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+	$(CC) $(TEST_FLAGS) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR)

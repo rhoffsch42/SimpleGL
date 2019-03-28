@@ -1,8 +1,13 @@
 #pragma once
 #include "math.hpp"
 
-class Properties
-{
+class Properties {
+#if UNIT_TESTS == true
+	friend class UnitTests;
+#endif
+	friend class Object;
+	friend class Obj3d;
+	friend class Cam;
 public:
 	static bool				defaultCentered;
 
@@ -76,9 +81,5 @@ private://public ?
 
 	Math::Vector3	_centerOffset;
 	Math::Vector3	_centeredPos;
-	void	center();
-
-	friend class Object;
-	friend class Obj3d;
-	friend class Cam;
+	void			center();
 };
