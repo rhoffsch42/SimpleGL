@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/03/28 16:00:26 by rhoffsch         ###   ########.fr        #
+#    Updated: 2019/03/29 18:39:44 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,9 @@ CC_NEEDS		=	$(INCLUDE) $(FRAMEWORKS) $(GLFW) $(GLEW)
 SRC_FILE		=	main_ut.cpp \
 					unittests.cpp \
 					math_tests.cpp \
-					properties_tests.cpp
+					properties_tests.cpp \
+					glfw_tests.cpp \
+					texture_tests.cpp
 
 HDR_FILE		=	unittests.hpp
 
@@ -44,8 +46,15 @@ SRC				=	$(addprefix $(SRC_DIR)/, $(SRC_FILE))
 OBJ				=	$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC_FILE))
 HDR				=	$(addprefix $(HDR_DIR)/, $(HDR_FILE))
 
+# requisite for TESTED_SRC_FILE, thus not tested
+DEPENDENCY		=	misc.cpp
+
 TESTED_SRC_FILE	=	math.cpp \
-					properties.cpp
+					properties.cpp \
+					glfw.cpp \
+					texture.cpp
+
+TESTED_SRC_FILE	+=	$(DEPENDENCY)
 
 TESTED_OBJ_DIR	=	obj
 TESTED_OBJ		=	$(patsubst %.cpp, $(TESTED_OBJ_DIR)/%.o, $(TESTED_SRC_FILE))

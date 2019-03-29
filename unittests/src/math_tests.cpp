@@ -118,7 +118,6 @@ void	UnitTests::MathTests::testEverything() const {
 #endif
 #if TEST_MATH_MATRIX4
 	testMatrix4_everything();
-	std::cout << std::endl;
 #endif
 }
 

@@ -1,9 +1,9 @@
-#include "properties_tests.hpp"
+#include "sample_tests.hpp"
 
 
-void	PropertiesTests::setUp() {
+void	UnitTests::SampleTests::setUp() {
 }
-void	PropertiesTests::tearDown() {
+void	UnitTests::SampleTests::tearDown() {
 }
-void	PropertiesTests::testEverything() {
+void	UnitTests::SampleTests::testEverything() const {
 }

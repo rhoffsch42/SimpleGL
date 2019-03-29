@@ -28,6 +28,7 @@ if (condition)//bad, braces should englobe code
 public variables without underscore: _varname;
 regroup class and inherited class in the same file ? not everything would need that
 ---- Main features	-------------------------------------------------------
+Transform all exit() by trow exception that could be catched by user
 Nath::Matrix4::scaleMatrix probablement fausse, check les ut aussi
 Math::Vector3	make a "linear" mult? Vec3(2,2,2) * Vec3(2,3,4) = Vec3(4,6,8) //or change operator, see properties.hpp
 polymorphisme: check for operator overloading with inheritence, and destructors

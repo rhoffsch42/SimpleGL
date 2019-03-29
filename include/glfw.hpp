@@ -47,17 +47,20 @@
 
 class Glfw
 {
+#if UNIT_TESTS == true
+	friend class UnitTests;
+#endif
 public:
 	Glfw();
 	Glfw(unsigned int width, unsigned int height);
 	~Glfw();
-	void		updateMouse();
+	void			updateMouse();
 	//mutator
-	void		setMouseAngle(double angle);//degree, set to negative to deactivate
-	void		setTitle(std::string newTitle);
+	void			setMouseAngle(double angle);//degree, set to negative to deactivate
+	void			setTitle(std::string newTitle);
 	//accesor
-	double		getMouseAngle() const;
-	std::string	getTitle() const;
+	double			getMouseAngle() const;
+	std::string		getTitle() const;
 
 	GLFWwindow *	_window;//private?
 

@@ -30,6 +30,8 @@ public:
 	// tests classes
 	class MathTests;
 	class PropertiesTests;
+	class GlfwTests;
+	class TextureTests;
 protected:
 	UnitTests();
 private:
@@ -38,3 +40,9 @@ private:
 	static unsigned int		_test_failed;
 	static unsigned int		_test_errors;
 };
+
+// include AFTER the declaration of UnitTests to resolve incomplete Types (tests classes)
+#include "math_tests.hpp"
+#include "properties_tests.hpp"
+#include "glfw_tests.hpp"
+#include "texture_tests.hpp"

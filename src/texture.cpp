@@ -2,7 +2,7 @@
 #include "texture.hpp"
 
 Texture::Texture(std::string filename) : _filename(filename) {
-	cout << "_ Texture cons by filename: " << filename.c_str() << endl;
+	// cout << "_ Texture cons by filename: " << filename.c_str() << endl;
 
 	filename = Misc::crossPlatPath(filename);
 	std::ifstream file(filename, std::ios::binary);
@@ -84,7 +84,7 @@ Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _widt
 }
 
 Texture::Texture(const Texture& src) {
-	cout << "_ Texture cons by copy" << endl;
+	// cout << "_ Texture cons by copy" << endl;
 	*this = src;
 }
 
@@ -100,7 +100,7 @@ Texture&	Texture::operator=(const Texture& src) {
 }
 
 Texture::~Texture() {
-	cout << "_ Texture des" << endl;
+	// cout << "_ Texture des" << endl;
 	delete[] this->_data;
 }
 
