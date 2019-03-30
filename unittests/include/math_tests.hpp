@@ -71,7 +71,7 @@ public:
 private:
 	float			degree125;
 	float			radian2_18166;
-	float			coo_1_2_3[3];
+	Math::Vector3	coo_1_2_3;
 	Math::Vector3	vecA_0_0_0;
 	Math::Vector3	vecB_4_5_6;
 	Math::Vector3	vecC_90_0_m45;

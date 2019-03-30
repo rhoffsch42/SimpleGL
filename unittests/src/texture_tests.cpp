@@ -22,7 +22,7 @@ void	UnitTests::TextureTests::tearDown() {
 	delete textureLena;
 }
 void	UnitTests::TextureTests::testEverything() const {
-	// std::cout << "texture tests" << std::endl;
+	// UnitTests::streamTests << "texture tests" << std::endl;
 	testTexture();
 	testTexture_operatorEqual();
 	testTexture_getId();
@@ -47,7 +47,7 @@ void	UnitTests::TextureTests::testTexture_operatorEqual() const {
 	TEST("Texture operator=", texture2._height == textureLena->_height);
 	TEST("Texture operator=", texture2._data != textureLena->_data);
 	TEST("Texture operator=", memcmp(texture2._data, textureLena->_data, texture2._width * texture2._height) == 0);
-	std::cout << UT_ERROR << "  this operator should never be used, see TextureTests::testTexture_operatorEqual() in texture_tests.cpp" << std::endl;
+	UnitTests::streamTests << UT_ERROR << "  this operator should never be used, see TextureTests::testTexture_operatorEqual() in texture_tests.cpp" << std::endl;
 	/*
 		its useless to copy the data, more: its useless to copy the entire Texture class
 		if we want to copy a texture and rebuild it (modified or not), we have to use the following constructor:

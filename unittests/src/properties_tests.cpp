@@ -28,7 +28,7 @@ void	UnitTests::PropertiesTests::setUp() {
 void	UnitTests::PropertiesTests::tearDown() {
 }
 void	UnitTests::PropertiesTests::testEverything() const {
-	// std::cout << "pp tests" << std::endl;
+	// UnitTests::streamTests << "pp tests" << std::endl;
 	testProperties();
 	testProperties_operatorEqual();
 	testProperties_updateMatrix();

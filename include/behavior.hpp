@@ -29,7 +29,7 @@ public:
 	virtual Behavior&	operator=(const Behavior& src);
 	~Behavior();
 
-	virtual void	run() = 0;
+	virtual void	run() = 0; // should be const ? can be restrictive, see transformBH.cpp
 	virtual	bool	isCompatible(BehaviorManaged* target) const = 0; // decides if we can add target
 			void	addTarget(BehaviorManaged* target);
 			void	removeTarget(BehaviorManaged* target);

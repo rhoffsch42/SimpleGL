@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 #define	ASSERT_MODE		false
 #define UT_OK			"\xe2\x9c\x85" // ✅
@@ -11,12 +12,14 @@
 #define UT_HUMAN		"\xf0\x9f\x91\x81" // 👁
 #define UT_PAD			40
 
-#define NOT_TESTED(title, comment, func)	std::cout << func() << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << "Not tested" << comment << std::endl
+#define NOT_TESTED(title, comment, func)	UnitTests::streamTests << func() << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << "Not tested" << comment << std::endl
 #define TEST(title, cond)	if (ASSERT_MODE) {assert(cond);}\
-					std::cout << ((cond) ? UnitTests::test_ok() : UnitTests::test_fail()) << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << #cond << std::endl
+					UnitTests::streamTests << ((cond) ? UnitTests::test_ok() : UnitTests::test_fail()) << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << #cond << std::endl
 
 class UnitTests {
 public:
+	static std::stringstream	streamTests;
+
 	static void				printResult();
 
 	static std::string		test_ok();
@@ -36,6 +39,7 @@ public:
 	class GlfwTests;
 	class TextureTests;
 	class ObjectTests;
+	class BehaviorManagedTests;
 protected:
 	UnitTests();
 private:
@@ -52,3 +56,4 @@ private:
 #include "glfw_tests.hpp"
 #include "texture_tests.hpp"
 #include "object_tests.hpp"
+#include "behaviormanaged_tests.hpp"

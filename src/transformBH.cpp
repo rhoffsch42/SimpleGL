@@ -78,8 +78,8 @@ void	TransformBH::run() {
 				apparently working ...
 			*/
 				Math::Rotation	newrot = target->local.getRot();
-				newrot.setAsRad();
-				this->transform.rot.setAsRad();
+				newrot.setAsRad();// target and behavior have to have the same unit for rot
+				this->transform.rot.setAsRad();// "
 				newrot.x *= this->transform.rot.x;
 				newrot.y *= this->transform.rot.y;
 				newrot.z *= this->transform.rot.z;

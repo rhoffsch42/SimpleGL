@@ -12,7 +12,7 @@ void	UnitTests::ObjectTests::setUp() {
 void	UnitTests::ObjectTests::tearDown() {
 }
 void	UnitTests::ObjectTests::testEverything() const {
-	std::cout << "object tests" << std::endl;
+	// std::cout << "object tests" << std::endl;
 	testObject();
 	testObject_operatorEqual();
 	testObject_update();

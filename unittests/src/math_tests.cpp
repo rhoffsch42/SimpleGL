@@ -21,7 +21,7 @@ bool	UnitTests::MathTests::isEqualMat4(const Math::Matrix4 *m1, const Math::Matr
 }
 
 bool	UnitTests::MathTests::isEqualVector3(const Math::Vector3 *v1, const Math::Vector3 *v2) {
-	return (v1->x == v2->x && v1->y == v2->y && v1->z == v2->z);
+	return (isEqualf(v1->x, v2->x, ULP) && isEqualf(v1->y, v2->y, ULP) && isEqualf(v1->z, v2->z, ULP));
 }
 
 void	printTrueFalse(bool val) {
@@ -34,21 +34,21 @@ void	UnitTests::MathTests::setUp() {
 	radian2_18166 = 2.18166f;
 	
 	// Vector3
-	coo_1_2_3[0] = 1.0f;			coo_1_2_3[1] = 2.0f;			coo_1_2_3[2] = 3.0f;
+	coo_1_2_3.x = 1.0f;				coo_1_2_3.y = 2.0f;				coo_1_2_3.z = 3.0f;
 	vecA_0_0_0.x = 0.0f;			vecA_0_0_0.y = 0.0f;			vecA_0_0_0.z = 0.0f;
 	vecB_4_5_6.x = 4.0f;			vecB_4_5_6.y = 5.0f;			vecB_4_5_6.z = 6.0f;
-	vecC_90_0_m45.x = -90.0f;		vecC_90_0_m45.y = 0.0f;		vecC_90_0_m45.z = -45.0f;
+	vecC_90_0_m45.x = -90.0f;		vecC_90_0_m45.y = 0.0f;			vecC_90_0_m45.z = -45.0f;
 	vecD_3_4_5.x = 3.0f;			vecD_3_4_5.y = 4.0f;			vecD_3_4_5.z = 5.0f;
 	vecE_1_1_1.x = 1.0f;			vecE_1_1_1.y = 1.0f;			vecE_1_1_1.z = 1.0f;
-	vecF_m3_6_m3.x = -3.0f;		vecF_m3_6_m3.y = 6.0f;		vecF_m3_6_m3.z = -3.0f;
+	vecF_m3_6_m3.x = -3.0f;			vecF_m3_6_m3.y = 6.0f;			vecF_m3_6_m3.z = -3.0f;
 	magnitude_18 = 18.0f;
 	dot_122 = 122.0f;
 	
 	// Rotation
-	rotA_0_0_0_d.x = 0.0f;		rotA_0_0_0_d.y = 0.0f;		rotA_0_0_0_d.z = 0.0f;		rotA_0_0_0_d._unit = ROT_DEG;
-	rotB_1_2_3_d.x = 1.0f;		rotB_1_2_3_d.y = 2.0f;		rotB_1_2_3_d.z = 3.0f;		rotB_1_2_3_d._unit = ROT_DEG;
+	rotA_0_0_0_d.x = 0.0f;			rotA_0_0_0_d.y = 0.0f;			rotA_0_0_0_d.z = 0.0f;			rotA_0_0_0_d._unit = ROT_DEG;
+	rotB_1_2_3_d.x = 1.0f;			rotB_1_2_3_d.y = 2.0f;			rotB_1_2_3_d.z = 3.0f;			rotB_1_2_3_d._unit = ROT_DEG;
 	rotC_r.x = 3.14159f;			rotC_r.y = 0.0f;				rotC_r.z = 1.74533f;			rotC_r._unit = ROT_RAD; // 180, 0, 100 deg
-	rotD_180_0_100_d.x = 180.0f;	rotD_180_0_100_d.y = 0.0f;	rotD_180_0_100_d.z = 100.0f;	rotD_180_0_100_d._unit = ROT_DEG;
+	rotD_180_0_100_d.x = 180.0f;	rotD_180_0_100_d.y = 0.0f;		rotD_180_0_100_d.z = 100.0f;	rotD_180_0_100_d._unit = ROT_DEG;
 	
 	// Matrix4
 	mat4_identity._order = ROW_MAJOR;
@@ -106,15 +106,15 @@ void	UnitTests::MathTests::testEverything() const {
 #if TEST_MATH_UTIL
 	test_toRadian();
 	test_toDegree();
-	std::cout << std::endl;
+	UnitTests::streamTests << std::endl;
 #endif
 #if TEST_MATH_VECTOR3
 	testVector3_everything();
-	std::cout << std::endl;
+	UnitTests::streamTests << std::endl;
 #endif
 #if TEST_MATH_ROTATION
 	testRotation_everything();
-	std::cout << std::endl;
+	UnitTests::streamTests << std::endl;
 #endif
 #if TEST_MATH_MATRIX4
 	testMatrix4_everything();
@@ -148,96 +148,66 @@ void	UnitTests::MathTests::testEverything() const {
 	}
 	void	UnitTests::MathTests::testVector3() const {
 		Math::Vector3	v1;
-		TEST("Math::Vector3()", isEqualf(v1.x, 0, ULP) &&
-								isEqualf(v1.y, 0, ULP) &&
-								isEqualf(v1.z, 0, ULP)
-		);
-		Math::Vector3	v2(coo_1_2_3[0], coo_1_2_3[1], coo_1_2_3[2]);
-		TEST("Math::Vector3(x, y, z)", isEqualf(v2.x, coo_1_2_3[0], ULP) &&
-										isEqualf(v2.y, coo_1_2_3[1], ULP) &&
-										isEqualf(v2.z, coo_1_2_3[2], ULP)
-		);
+		TEST("Math::Vector3()", isEqualVector3(&v1, &vecA_0_0_0));
+
+		Math::Vector3	v2(coo_1_2_3.x, coo_1_2_3.y, coo_1_2_3.z);
+		TEST("Math::Vector3(x, y, z)", isEqualVector3(&v2, &coo_1_2_3));
+
 		Math::Vector3	v3(v2);
-		TEST("Math::Vector3(vec)", isEqualf(v3.x, v2.x, ULP) &&
-										isEqualf(v3.y, v2.y, ULP) &&
-										isEqualf(v3.z, v2.z, ULP)
-		);
+		TEST("Math::Vector3(vec)", isEqualVector3(&v3, &v2));
 	}
 	void	UnitTests::MathTests::testVector3_operatorEqual() const {
 		Math::Vector3	v4 = vecB_4_5_6;
-		TEST("Math::Vector3 operator=", isEqualf(v4.x, vecB_4_5_6.x, ULP) &&
-										isEqualf(v4.y, vecB_4_5_6.y, ULP) &&
-										isEqualf(v4.z, vecB_4_5_6.z, ULP)
-		);
+		TEST("Math::Vector3 operator=", isEqualVector3(&v4, &vecB_4_5_6));
 	}
 	void	UnitTests::MathTests::testVector3_rotate() const {
 
 		Math::Vector3	v5(45, 0, -90);
 		v5.rotate(90, 90, -90, ROT_WAY);
-		TEST("Math::Vector3 rotate", isEqualf(v5.x, vecC_90_0_m45.x, ULP) &&
-										isEqualf(v5.y, vecC_90_0_m45.y, ULP) &&
-										isEqualf(v5.z, vecC_90_0_m45.z, ULP)
-		);
+		TEST("Math::Vector3 rotate", isEqualVector3(&v5, &vecC_90_0_m45));
 		NOT_TESTED("Math::Vector3 rotate(rot, ROT_WAY)", "", UnitTests::test_error);
 		NOT_TESTED("Math::Vector3 ZYXrotate(rot, ROT_WAY)", "", UnitTests::test_error);
 	}
 	void	UnitTests::MathTests::testVector3_translate() const {
 		Math::Vector3	v6(1, 1, 1);
 		v6.translate(3, 4, 5);
-		TEST("Math::Vector3 translate(x, y, z)", isEqualf(v6.x, vecB_4_5_6.x, ULP) &&
-												isEqualf(v6.y, vecB_4_5_6.y, ULP) &&
-												isEqualf(v6.z, vecB_4_5_6.z, ULP)
-		);
+		TEST("Math::Vector3 translate(x, y, z)", isEqualVector3(&v6, &vecB_4_5_6));
+
 		Math::Vector3	v7(1, 1, 1);
 		v7.translate(vecD_3_4_5);
-		TEST("Math::Vector3 translate(vec)", isEqualf(v7.x, vecB_4_5_6.x, ULP) &&
-											isEqualf(v7.y, vecB_4_5_6.y, ULP) &&
-											isEqualf(v7.z, vecB_4_5_6.z, ULP)
-		);
+		TEST("Math::Vector3 translate(vec)", isEqualVector3(&v7, &vecB_4_5_6));
 	}
 	void	UnitTests::MathTests::testVector3_add() const {
 		Math::Vector3	v8(1, 1, 1);
 		v8.add(3, 4, 5);
-		TEST("Math::Vector3 add(x, y, z)", isEqualf(v8.x, vecB_4_5_6.x, ULP) &&
-											isEqualf(v8.y, vecB_4_5_6.y, ULP) &&
-											isEqualf(v8.z, vecB_4_5_6.z, ULP)
-		);
+		TEST("Math::Vector3 add(x, y, z)", isEqualVector3(&v8, &vecB_4_5_6));
+
 		Math::Vector3	v9(1, 1, 1);
 		v9.add(vecD_3_4_5);
-		TEST("Math::Vector3 add(vec)", isEqualf(v9.x, vecB_4_5_6.x, ULP) &&
-										isEqualf(v9.y, vecB_4_5_6.y, ULP) &&
-										isEqualf(v9.z, vecB_4_5_6.z, ULP)
-		);
+		TEST("Math::Vector3 add(vec)", isEqualVector3(&v9, &vecB_4_5_6));
 	}
 	void	UnitTests::MathTests::testVector3_sub() const {
 		Math::Vector3	v10(5, 6, 7);
 		v10.sub(4, 5, 6);
-		TEST("Math::Vector3 sub(x, y, z)", isEqualf(v10.x, vecE_1_1_1.x, ULP) &&
-											isEqualf(v10.y, vecE_1_1_1.y, ULP) &&
-											isEqualf(v10.z, vecE_1_1_1.z, ULP)
-		);
+		TEST("Math::Vector3 sub(x, y, z)", isEqualVector3(&v10, &vecE_1_1_1));
+
 		Math::Vector3	v11(5, 6, 7);
 		v11.sub(vecB_4_5_6);
 		TEST("Math::Vector3 sub(vec)", isEqualf(v11.x, vecE_1_1_1.x, ULP) &&
 										isEqualf(v11.y, vecE_1_1_1.y, ULP) &&
 										isEqualf(v11.z, vecE_1_1_1.z, ULP)
 		);
+		TEST("Math::Vector3 sub(vec)", isEqualVector3(&v11, &vecE_1_1_1));
 	}
 	void	UnitTests::MathTests::testVector3_mult() const {
 		Math::Vector3	v12(2, 2.5f, 3);
 		v12.mult(2);
-		TEST("Math::Vector3 mult(coef)", isEqualf(v12.x, vecB_4_5_6.x, ULP) &&
-										isEqualf(v12.y, vecB_4_5_6.y, ULP) &&
-										isEqualf(v12.z, vecB_4_5_6.z, ULP)
-		);
+		TEST("Math::Vector3 mult(coef)", isEqualVector3(&v12, &vecB_4_5_6));
 	}
 	void	UnitTests::MathTests::testVector3_div() const {
 		Math::Vector3	v13(2, 2, 2);
 		v13.div(2);
-		TEST("Math::Vector3 div(coef)", isEqualf(v13.x, vecE_1_1_1.x, ULP) &&
-										isEqualf(v13.y, vecE_1_1_1.y, ULP) &&
-										isEqualf(v13.z, vecE_1_1_1.z, ULP)
-		);
+		TEST("Math::Vector3 div(coef)", isEqualVector3(&v13, &vecE_1_1_1));
 	}
 	void	UnitTests::MathTests::testVector3_magnitude() const {
 		Math::Vector3	v14(2, 16, 8);
@@ -247,19 +217,13 @@ void	UnitTests::MathTests::testEverything() const {
 	void	UnitTests::MathTests::testVector3_operatorMinus() const {
 		Math::Vector3	v15(-1, -1, -1);
 		Math::Vector3	v16 = -v15;
-		TEST("Math::Vector3 sign-", isEqualf(v16.x, vecE_1_1_1.x, ULP) &&
-									isEqualf(v16.y, vecE_1_1_1.y, ULP) &&
-									isEqualf(v16.z, vecE_1_1_1.z, ULP)
-		);
+		TEST("Math::Vector3 sign-", isEqualVector3(&v16, &vecE_1_1_1));
 	}
 	void	UnitTests::MathTests::testVector3_cross() const {
 		Math::Vector3	v17(2, 3, 4);
 		Math::Vector3	v18(5, 6, 7);
 		Math::Vector3	v19 = Math::Vector3::cross(v17, v18);
-		TEST("Math::Vector3 cross(v1, v2)", isEqualf(v19.x, vecF_m3_6_m3.x, ULP) &&
-											isEqualf(v19.y, vecF_m3_6_m3.y, ULP) &&
-											isEqualf(v19.z, vecF_m3_6_m3.z, ULP)
-		);
+		TEST("Math::Vector3 cross(v1, v2)", isEqualVector3(&v19, &vecF_m3_6_m3));
 	}
 	void	UnitTests::MathTests::testVector3_dot() const {
 		Math::Vector3	v20(9, 2, 7);
@@ -288,55 +252,38 @@ void	UnitTests::MathTests::testEverything() const {
 	void	UnitTests::MathTests::testRotation() const {
 
 		Math::Rotation	rot1;
-		TEST("Math::Rotation()", isEqualf(rot1.x, rotA_0_0_0_d.x, ULP) &&
-								isEqualf(rot1.y, rotA_0_0_0_d.y, ULP) &&
-								isEqualf(rot1.z, rotA_0_0_0_d.z, ULP) &&
-								rot1.isDegree()
-		);
+		TEST("Math::Rotation()", isEqualVector3(&rot1, &rotA_0_0_0_d));
+		TEST("Math::Rotation()", rot1.isDegree());
+
 		Math::Rotation	rot2(1, 2, 3);
-		TEST("Math::Rotation(x, y, z)", isEqualf(rot2.x, rotB_1_2_3_d.x, ULP) &&
-										isEqualf(rot2.y, rotB_1_2_3_d.y, ULP) &&
-										isEqualf(rot2.z, rotB_1_2_3_d.z, ULP) &&
-										rot2.isDegree()
-		);
+		TEST("Math::Rotation(x, y, z)", isEqualVector3(&rot2, &rotB_1_2_3_d));
+		TEST("Math::Rotation(x, y, z)", rot2.isDegree());
+
 		Math::Rotation	rot3(1, 2, 3, ROT_DEG);
-		TEST("Math::Rotation(x, y, z, ROT_DEG)", isEqualf(rot3.x, rotB_1_2_3_d.x, ULP) &&
-												isEqualf(rot3.y, rotB_1_2_3_d.y, ULP) &&
-												isEqualf(rot3.z, rotB_1_2_3_d.z, ULP) &&
-												rot3.isDegree()
-		);
+		TEST("Math::Rotation(x, y, z, ROT_DEG)", isEqualVector3(&rot3, &rotB_1_2_3_d));
+		TEST("Math::Rotation(x, y, z, ROT_DEG)", rot3.isDegree());
+
 		Math::Rotation	rot4(3.14159f, 0, 1.74533f, ROT_RAD);	// 180, 0, 100
-		TEST("Math::Rotation(x, y, z, ROT_RAD)", isEqualf(rot4.x, rotC_r.x, ULP) &&
-												isEqualf(rot4.y, rotC_r.y, ULP) &&
-												isEqualf(rot4.z, rotC_r.z, ULP) &&
-												rot4.isRadian()
-		);
+		TEST("Math::Rotation(x, y, z, ROT_RAD)", isEqualVector3(&rot4, &rotC_r));
+		TEST("Math::Rotation(x, y, z, ROT_RAD)", rot4.isRadian());
+
 	}
 	void	UnitTests::MathTests::testRotation_operatorEqual() const {
 		Math::Rotation	rot5 = rotC_r;	// 180, 0, 100
-		TEST("Math::Rotation operator=", isEqualf(rot5.x, rotC_r.x, ULP) &&
-										isEqualf(rot5.y, rotC_r.y, ULP) &&
-										isEqualf(rot5.z, rotC_r.z, ULP) &&
-										rot5.isRadian()
-		);
+		TEST("Math::Rotation operator=", isEqualVector3(&rot5, &rotC_r));
+		TEST("Math::Rotation operator=", rot5.isRadian());
 	}
 	void	UnitTests::MathTests::testRotation_setAsRad() const {
 		Math::Rotation	rot6 = rotD_180_0_100_d;
 		rot6.setAsRad();
-		TEST("Math::Rotation setAsRad()", isEqualf(rot6.x, rotC_r.x, ULP) &&
-											isEqualf(rot6.y, rotC_r.y, ULP) &&
-											isEqualf(rot6.z, rotC_r.z, ULP) &&
-											rot6.isRadian()
-		);
+		TEST("Math::Rotation setAsRad", isEqualVector3(&rot6, &rotC_r));
+		TEST("Math::Rotation setAsRad", rot6.isRadian());
 	}
 	void	UnitTests::MathTests::testRotation_setAsDegree() const {
 		Math::Rotation	rot7 = rotC_r;	// 180, 0, 100
 		rot7.setAsDegree();
-		TEST("Math::Rotation setAsDegree()", isEqualf(rot7.x, rotD_180_0_100_d.x, ULP) &&
-											isEqualf(rot7.y, rotD_180_0_100_d.y, ULP) &&
-											isEqualf(rot7.z, rotD_180_0_100_d.z, ULP) &&
-											rot7.isDegree()
-		);
+		TEST("Math::Rotation setAsDegree", isEqualVector3(&rot7, &rotD_180_0_100_d));
+		TEST("Math::Rotation setAsDegree", rot7.isDegree());
 	}
 	void	UnitTests::MathTests::testRotation_setUnit() const {
 		Math::Rotation	rotDegree = rotC_r;
@@ -348,19 +295,13 @@ void	UnitTests::MathTests::testEverything() const {
 	}
 	void	UnitTests::MathTests::testRotation_toRadian() const {
 		Math::Rotation		rot8 = rotD_180_0_100_d.toRadian();
-		TEST("Math::Rotation toRadian()", isEqualf(rot8.x, rotC_r.x, ULP) &&
-											isEqualf(rot8.y, rotC_r.y, ULP) &&
-											isEqualf(rot8.z, rotC_r.z, ULP) &&
-											rot8.isRadian()
-		);
+		TEST("Math::Rotation toRadian", isEqualVector3(&rot8, &rotC_r));
+		TEST("Math::Rotation toRadian", rot8.isRadian());
 	}
 	void	UnitTests::MathTests::testRotation_toDegree() const {
 		Math::Rotation		rot9 = rotC_r.toDegree();	// 180 0 100 deg
-		TEST("Math::Rotation toDegree()", isEqualf(rot9.x, rotD_180_0_100_d.x, ULP) &&
-											isEqualf(rot9.y, rotD_180_0_100_d.y, ULP) &&
-											isEqualf(rot9.z, rotD_180_0_100_d.z, ULP) &&
-											rot9.isDegree()
-		);
+		TEST("Math::Rotation toDegree", isEqualVector3(&rot9, &rotD_180_0_100_d));
+		TEST("Math::Rotation toDegree", rot9.isDegree());
 	}
 	void	UnitTests::MathTests::testRotation_isRadian() const {
 		Math::Rotation	rot0;

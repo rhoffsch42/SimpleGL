@@ -5,11 +5,13 @@ unsigned int UnitTests::_test_passed = 0;
 unsigned int UnitTests::_test_failed = 0;
 unsigned int UnitTests::_test_errors = 0;
 unsigned int UnitTests::_test_human = 0;
+std::stringstream	UnitTests::streamTests;
 
 UnitTests::UnitTests(){
 }
 
 void			UnitTests::printResult() {
+	std::cout << streamTests.str();
 	std::cout << "Tests passed: " << UT_OK << "  " << UnitTests::getTestPassed() << " / " << UnitTests::getTestAmount() << std::endl;;
 	if (UnitTests::getTestFailed())
 		std::cout << "Tests failed: " << UT_FAIL << "  " << UnitTests::getTestFailed() << std::endl;
