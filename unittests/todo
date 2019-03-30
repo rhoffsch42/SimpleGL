@@ -4,3 +4,9 @@ tests sur les retour de value (double, int, Vector3, Rotation, etc)
 		Vector3  vec = getVec3();
 	si oui : alors les test sur les adresses sont legit
 	si non : pas besoin de ces tests!
+
+prints:
+	redirect stdcout dans un fichier avant de faire les tests
+	put les test dans un stream
+	clear stdcout apres les tests
+	print le stream des tests dans stdcout

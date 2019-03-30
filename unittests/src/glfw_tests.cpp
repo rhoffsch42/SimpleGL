@@ -58,7 +58,7 @@ void	UnitTests::GlfwTests::testGlfw() const {
 	glfwDestroyWindow(gl3._window);
 }
 void	UnitTests::GlfwTests::testGlfw_updateMouse() const {
-	NOT_TESTED("Glfw updateMouse", " : need human touch");
+	NOT_TESTED("Glfw updateMouse", " : need human touch (check the cursor visually)", UnitTests::test_human);
 }
 void	UnitTests::GlfwTests::testGlfw_setMouseAngle() const {
 	std::cout.setstate(std::ios::failbit);
@@ -69,7 +69,7 @@ void	UnitTests::GlfwTests::testGlfw_setMouseAngle() const {
 	TEST("Glfw setMouseAngle(150)", gl4._mouseAngle == MOUSE_MAX_ANGLE);
 	gl4.setMouseAngle(angleA_45);
 	TEST("Glfw setMouseAngle(45)", gl4._mouseAngle == angleA_45);
-	NOT_TESTED("Glfw setMouseAngle", " : need to check _mouseWall, see calculation in glfw.cpp");
+	NOT_TESTED("Glfw setMouseAngle", " : need to check _mouseWall, see calculation in glfw.cpp", UnitTests::test_human);
 	glfwDestroyWindow(gl4._window);
 }
 void	UnitTests::GlfwTests::testGlfw_setTitle() const {
@@ -79,7 +79,7 @@ void	UnitTests::GlfwTests::testGlfw_setTitle() const {
 
 	gl5.setTitle(title);
 	TEST("Glfw setTitle(\"A random title\")", gl5._title == title);
-	NOT_TESTED("Glfw setTitle(\"A random title\")", " : need human touch (check window title visually)");
+	NOT_TESTED("Glfw setTitle(\"A random title\")", " : need human touch (check window title visually)", UnitTests::test_human);
 }
 void	UnitTests::GlfwTests::testGlfw_getMouseAngle() const {
 	std::cout.setstate(std::ios::failbit);

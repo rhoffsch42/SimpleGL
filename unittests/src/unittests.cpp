@@ -4,6 +4,7 @@ unsigned int UnitTests::_test_amount = 0;
 unsigned int UnitTests::_test_passed = 0;
 unsigned int UnitTests::_test_failed = 0;
 unsigned int UnitTests::_test_errors = 0;
+unsigned int UnitTests::_test_human = 0;
 
 UnitTests::UnitTests(){
 }
@@ -14,6 +15,8 @@ void			UnitTests::printResult() {
 		std::cout << "Tests failed: " << UT_FAIL << "  " << UnitTests::getTestFailed() << std::endl;
 	if (UnitTests::getTestErrors())
 		std::cout << "Tests errors: " << UT_ERROR << "  " << UnitTests::getTestErrors() << std::endl;
+	if (UnitTests::getTestHuman())
+		std::cout << "Tests human touch: " << UT_HUMAN << "  " << UnitTests::getTestHuman() << std::endl;
 }
 
 std::string		UnitTests::test_ok() {
@@ -33,11 +36,17 @@ std::string		UnitTests::test_error() {
 	UnitTests::_test_errors++;
 	return (UT_ERROR);
 }
+std::string		UnitTests::test_human() {
+	UnitTests::_test_amount++;
+	UnitTests::_test_human++;
+	return (UT_HUMAN);
+}
 
 unsigned int	UnitTests::getTestAmount() { return UnitTests::_test_amount; }
 unsigned int	UnitTests::getTestPassed() { return UnitTests::_test_passed; }
 unsigned int	UnitTests::getTestFailed() { return UnitTests::_test_failed; }
 unsigned int	UnitTests::getTestErrors() { return UnitTests::_test_errors; }
+unsigned int	UnitTests::getTestHuman() { return UnitTests::_test_human; }
 
 std::string		UnitTests::padded(std::string str, int n) {
 	std::string pad(str); pad.resize(n, ' ');\

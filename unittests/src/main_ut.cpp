@@ -20,6 +20,7 @@ int		main(int ac, char **av)
 	launchTests<UnitTests::PropertiesTests>();
 	launchTests<UnitTests::GlfwTests>();
 	launchTests<UnitTests::TextureTests>();
+	launchTests<UnitTests::ObjectTests>();
 
 	std::cout << std::endl;
 	UnitTests::printResult();

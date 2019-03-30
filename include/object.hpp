@@ -9,6 +9,9 @@ class Properties;
 class Object : public BehaviorManaged
 {
 public:
+#if UNIT_TESTS == true
+	friend class UnitTests;
+#endif
 	static unsigned int		getInstanceAmount();//make a class for that ?
 	/*
 		class Object : public InstanceManager, public BehaviorManager
@@ -18,7 +21,7 @@ public:
 	*/
 
 	Object();
-	Object(Properties object_pp);
+	Object(Properties object_pp);	// need ref ?
 	Object(const Object& src);
 	~Object();
 	Object&	operator=(const Object& src);

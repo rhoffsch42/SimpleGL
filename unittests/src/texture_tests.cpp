@@ -78,5 +78,5 @@ void	UnitTests::TextureTests::testTexture_getData() const {
 	TEST("Texture getData", data == textureLena->_data);
 }
 void	UnitTests::TextureTests::testTexture_genTexture() const {
-	NOT_TESTED("Texture genTexture", " : need a human touch (check the texture visually");
+	NOT_TESTED("Texture genTexture", " : need a human touch (check the texture visually)", UnitTests::test_human);
 }

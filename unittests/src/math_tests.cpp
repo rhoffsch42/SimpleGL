@@ -178,8 +178,8 @@ void	UnitTests::MathTests::testEverything() const {
 										isEqualf(v5.y, vecC_90_0_m45.y, ULP) &&
 										isEqualf(v5.z, vecC_90_0_m45.z, ULP)
 		);
-		NOT_TESTED("Math::Vector3 rotate(rot, ROT_WAY", "");
-		NOT_TESTED("Math::Vector3 ZYXrotate(rot, ROT_WAY", "");
+		NOT_TESTED("Math::Vector3 rotate(rot, ROT_WAY)", "", UnitTests::test_error);
+		NOT_TESTED("Math::Vector3 ZYXrotate(rot, ROT_WAY)", "", UnitTests::test_error);
 	}
 	void	UnitTests::MathTests::testVector3_translate() const {
 		Math::Vector3	v6(1, 1, 1);
@@ -414,7 +414,7 @@ void	UnitTests::MathTests::testEverything() const {
 		float	win_width = 0;
 		float	win_height = 0;
 		m6.projectionMatrix(fovRadian, far, near, win_width, win_height);
-		NOT_TESTED("Math::Matrix4 projectionMatrix", " : ca peut dependre du rendu que l'on veut");
+		NOT_TESTED("Math::Matrix4 projectionMatrix", " : ca peut dependre du rendu que l'on veut", UnitTests::test_error);
 		/*
 			see math.cpp
 			la matrice peut changer selon qu'on veux etirer le rendu dans la fenetre, ou bien toujours garder un aspect ratio de 1/1.
@@ -424,12 +424,12 @@ void	UnitTests::MathTests::testEverything() const {
 	void	UnitTests::MathTests::testMatrix4_viewMatrix() const {
 		Math::Matrix4	m7;
 		m7.viewMatrix(vecD_3_4_5, rotD_180_0_100_d);
-		NOT_TESTED("Math::Matrix4 viewMatrix", " : todo");
+		NOT_TESTED("Math::Matrix4 viewMatrix", " : todo", UnitTests::test_error);
 	}
 	void	UnitTests::MathTests::testMatrix4_modelMatrix() const {
 		Math::Matrix4	m8;
 		m8.modelMatrix(vecD_3_4_5, rotD_180_0_100_d, vecE_1_1_1);
-		NOT_TESTED("Math::Matrix4 modelMatrix", " : todo");
+		NOT_TESTED("Math::Matrix4 modelMatrix", " : todo", UnitTests::test_error);
 	}
 	void	UnitTests::MathTests::testMatrix4_scaleMatrix() const {
 		Math::Matrix4	m9;
@@ -462,10 +462,10 @@ void	UnitTests::MathTests::testEverything() const {
 		TEST("Math::Matrix4 transpose()", UnitTests::MathTests::isEqualMat4(&m10, &(mat4_0_to_15_RM_transposed)));
 	}
 	void	UnitTests::MathTests::testMatrix4_printData() const {
-		NOT_TESTED("Math::Matrix4 printData()", " : not needed");
+		NOT_TESTED("Math::Matrix4 printData()", " : not needed", UnitTests::test_error);
 	}
 	void	UnitTests::MathTests::testMatrix4_updatePosValue() const {
-		NOT_TESTED("Math::Matrix4 updatePosValue", " : todo");
+		NOT_TESTED("Math::Matrix4 updatePosValue", " : todo", UnitTests::test_error);
 	}
 	void	UnitTests::MathTests::testMatrix4_div() const {
 		Math::Matrix4	m13 = mat4_only8_RM;

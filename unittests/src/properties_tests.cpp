@@ -72,7 +72,7 @@ void	UnitTests::PropertiesTests::testProperties_operatorEqual() const {
 	TEST("Properties operator=", UnitTests::MathTests::isEqualVector3(&pp2._centeredPos, &ppA._centeredPos));
 }
 void	UnitTests::PropertiesTests::testProperties_updateMatrix() const {
-	NOT_TESTED("Properties updateMatrix", " : todo");
+	NOT_TESTED("Properties updateMatrix", " : todo", UnitTests::test_error);
 }
 void	UnitTests::PropertiesTests::testProperties_translate() const {
 	Properties pp3 = ppA;
@@ -90,7 +90,7 @@ void	UnitTests::PropertiesTests::testProperties_translate() const {
 	TEST("Properties translate", pp3._matrixUpdated == same_as_before);
 }
 void	UnitTests::PropertiesTests::testProperties_rotate() const {
-	NOT_TESTED("Properties rotate", " : todo");
+	NOT_TESTED("Properties rotate", " : todo", UnitTests::test_error);
 }
 void	UnitTests::PropertiesTests::testProperties_enlarge() const {
 	Properties pp4 = ppA;
@@ -157,5 +157,5 @@ void	UnitTests::PropertiesTests::testProperties_getCenteredPos() const {
 	TEST("Properties getCenteredPos", &v12 != &ppA._centeredPos);
 }
 void	UnitTests::PropertiesTests::testProperties_center() const {
-	NOT_TESTED("Properties center", " : todo");
+	NOT_TESTED("Properties center", " : todo", UnitTests::test_error);
 }

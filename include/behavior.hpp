@@ -30,8 +30,8 @@ public:
 	~Behavior();
 
 	virtual void	run() = 0;
-			void	addTarget(BehaviorManaged* target);
 	virtual	bool	isCompatible(BehaviorManaged* target) const = 0; // decides if we can add target
+			void	addTarget(BehaviorManaged* target);
 			void	removeTarget(BehaviorManaged* target);
 			void	setTargetStatus(BehaviorManaged* target, bool status);
 	std::list< std::pair<BehaviorManaged*, bool> >	getTargetList() const;//return a copy!
