@@ -3,22 +3,12 @@
 #include "unittests.hpp"
 #include "behaviormanaged.hpp"
 
-class EmptyClass : public BehaviorManaged {
-};
-
-class EmptyBehavior : public Behavior {
-	void	run() {
-		std::cout << "doing nothing on the classes, here are there adresses:" << std::endl;
-		for (auto i : this->targetList) {
-			std::cout << &i.first << std::endl;
-		}
-	}
-	bool	isCompatible(BehaviorManaged* target) const {
-		if (!target)
-			std::cout << "OMG shitty NULL \n";
-		return (true);
-	}
-};
+/*
+	include behavior_tests.hpp for
+	EmptyBehavior : Behavior
+	EmptyClass : BehaviorManaged
+*/
+#include "behavior_tests.hpp"
 
 class UnitTests::BehaviorManagedTests {
 public:

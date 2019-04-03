@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/09/18 22:45:30 by rhoffsch          #+#    #+#             */
-/*   Updated: 2019/03/30 13:13:36 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2019/04/03 14:58:50 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -428,7 +428,10 @@ void	scene1() {
 		b1.addTarget(&rocket1);
 		b1.addTarget(&lambo1);
 		b1.removeTarget(&lambo1);
+		b1.setTargetStatus(&rocket1, false);
+		std::cout << "rocket1 status: " << b1.getTargetStatus(&rocket1) << std::endl;
 		b1.setTargetStatus(&rocket1, true);
+		std::cout << "rocket1 status: " << b1.getTargetStatus(&rocket1) << std::endl;
 
 	TransformBH		b2;// = b1;//bug
 		b2.transform.scale = Math::Vector3(0,0,0);

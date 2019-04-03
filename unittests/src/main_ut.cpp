@@ -26,11 +26,9 @@ int		main(int ac, char **av)
 	launchTests<UnitTests::TextureTests>();
 	launchTests<UnitTests::ObjectTests>();
 	launchTests<UnitTests::BehaviorManagedTests>();
-	// launchTests<UnitTests::BehaviorTests>();
+	launchTests<UnitTests::BehaviorTests>();
 	/*
 		Tests:
-			refacto Math
-			Behavior
 			TransformBH : Behavior
 			Cam
 			Obj3dBP
@@ -41,7 +39,6 @@ int		main(int ac, char **av)
 			Skybox
 			Obj3D
 		end
-
 	*/
 
 	std::cout.rdbuf(old);// <-- restore

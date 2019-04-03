@@ -49,53 +49,48 @@ TransformBH::~TransformBH() {
 	//need to delete/empty list? parent des is called ?
 }
 
-void	TransformBH::run() {
+void	TransformBH::behaveOnTarget(BehaviorManaged *target) {
 	// cout << "_ TransformBH::run" << endl;
-	//	check TransformBH::areActive and Behavior::AreActive here ?
-	for (auto i : this->targetList) {
-		Object*	target = dynamic_cast<Object*>(i.first);//specialisation part
-		if (i.second && i.first->behaviorsActive) {//check behavior status for this target
-			if (this->modePos == ADDITIVE) {
-				target->local.translate(this->transform.pos);
-			} else {
-				Math::Vector3	newpos = target->local.getPos();
-				newpos.x *= this->transform.pos.x;
-				newpos.y *= this->transform.pos.y;
-				newpos.z *= this->transform.pos.z;
-				target->local.setPos(newpos);
-			}
+	Object*	speTarget = dynamic_cast<Object*>(target);//specialisation part
+	if (this->modePos == ADDITIVE) {
+		speTarget->local.translate(this->transform.pos);
+	} else {
+		Math::Vector3	newpos = speTarget->local.getPos();
+		newpos.x *= this->transform.pos.x;
+		newpos.y *= this->transform.pos.y;
+		newpos.z *= this->transform.pos.z;
+		speTarget->local.setPos(newpos);
+	}
 
-			if (this->modeRot == ADDITIVE) {
-				target->local.rotate(this->transform.rot);
-			} else {
-			/*
-				can have weird results? as rotations can have equivalent values:
-				in degrees:
-				-10 = +350
-				-10x2 = +350x2
-				-20 = +700 (%360)
-				-20 = +340
-				apparently working ...
-			*/
-				Math::Rotation	newrot = target->local.getRot();
-				newrot.setAsRad();// target and behavior have to have the same unit for rot
-				this->transform.rot.setAsRad();// "
-				newrot.x *= this->transform.rot.x;
-				newrot.y *= this->transform.rot.y;
-				newrot.z *= this->transform.rot.z;
-				target->local.setRot(newrot);
-			}
+	if (this->modeRot == ADDITIVE) {
+		speTarget->local.rotate(this->transform.rot);
+	} else {
+	/*
+		can have weird results? as rotations can have equivalent values:
+		in degrees:
+		-10 = +350
+		-10x2 = +350x2
+		-20 = +700 (%360)
+		-20 = +340
+		apparently working ...
+	*/
+		Math::Rotation	newrot = speTarget->local.getRot();
+		newrot.setAsRad();// speTarget and behavior have to have the same unit for rot
+		this->transform.rot.setAsRad();// "
+		newrot.x *= this->transform.rot.x;
+		newrot.y *= this->transform.rot.y;
+		newrot.z *= this->transform.rot.z;
+		speTarget->local.setRot(newrot);
+	}
 
-			if (this->modeScale == ADDITIVE) {
-				target->local.enlarge(this->transform.scale);
-			} else {
-				Math::Vector3	newscale = target->local.getScale();
-				newscale.x *= this->transform.scale.x;
-				newscale.y *= this->transform.scale.y;
-				newscale.z *= this->transform.scale.z;
-				target->local.setScale(newscale);
-			}
-		}
+	if (this->modeScale == ADDITIVE) {
+		speTarget->local.enlarge(this->transform.scale);
+	} else {
+		Math::Vector3	newscale = speTarget->local.getScale();
+		newscale.x *= this->transform.scale.x;
+		newscale.y *= this->transform.scale.y;
+		newscale.z *= this->transform.scale.z;
+		speTarget->local.setScale(newscale);
 	}
 }
 

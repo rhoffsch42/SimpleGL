@@ -18,7 +18,7 @@ void			UnitTests::printResult() {
 	if (UnitTests::getTestErrors())
 		std::cout << "Tests errors: " << UT_ERROR << "  " << UnitTests::getTestErrors() << std::endl;
 	if (UnitTests::getTestHuman())
-		std::cout << "Tests human touch: " << UT_HUMAN << "  " << UnitTests::getTestHuman() << std::endl;
+		std::cout << "Tests humans: " << UT_HUMAN << "  " << UnitTests::getTestHuman() << std::endl;
 }
 
 std::string		UnitTests::test_ok() {

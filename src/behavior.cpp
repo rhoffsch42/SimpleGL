@@ -25,6 +25,16 @@ Behavior::~Behavior() {
 	//need to delete/empty list?
 }
 
+void	Behavior::run() {
+	if (Behavior::areActive && this->isActive) {
+		for (auto i : this->targetList) {
+			if (i.second && i.first->behaviorsActive) {
+				this->behaveOnTarget(i.first);
+			}
+		}
+	}
+}
+
 	//make this a template! (another)
 void	Behavior::addTarget(BehaviorManaged* target) {
 	if (this->isCompatible(target)) {
@@ -63,8 +73,27 @@ void	Behavior::removeTarget(BehaviorManaged* target) {
 
 void	Behavior::setTargetStatus(BehaviorManaged* target, bool status) {
 	auto it = std::find_if(this->targetList.begin(), this->targetList.end(),
-		[&target](std::pair<BehaviorManaged*, bool> elem) { return (&elem.first == &target); });
-	(*it).second = status;
+		[target](std::pair<BehaviorManaged*, bool> elem) { std::cout << "f# set\n"; return (elem.first == target); });
+	
+	if (it != this->targetList.end()) {
+		std::cout << "Behavior::setTargetStatus : " << it->first << std::endl;
+		it->second = status;
+	}
 }
 //accessor
+bool	Behavior::getTargetStatus(BehaviorManaged* target) const {
+	auto it = std::find_if(this->targetList.begin(), this->targetList.end(),
+		[target](std::pair<BehaviorManaged*, bool> elem) { std::cout << "f# get\n"; return (elem.first == target); });
+	
+	if (it != this->targetList.end()) {
+		return (it->second);
+	}
+	/*
+		What if not found ?
+		- should throw an error?
+	 	- return a copied pair? ptr to NULL if not found
+	*/
+	return (false);
+}
+
 std::list< std::pair<BehaviorManaged*, bool> >	Behavior::getTargetList() const { return (this->targetList); }

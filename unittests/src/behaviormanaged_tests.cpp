@@ -54,6 +54,7 @@ void	UnitTests::BehaviorManagedTests::testBehaviorManaged_addBehavior() const {
 	empty4.addBehavior(be);
 	TEST("_ : BehaviorManaged (re)addBehavior", empty4.behaviorList.size() == 1);
 	TEST("_ : BehaviorManaged (re)addBehavior", be->targetList.size() == 1);
+	NOT_TESTED("_ : BehaviorManaged addBehavior(NULL)", " : todo", UnitTests::test_error);
 }
 void	UnitTests::BehaviorManagedTests::testBehaviorManaged_removeBehavior() const {
 	EmptyClass	empty5;

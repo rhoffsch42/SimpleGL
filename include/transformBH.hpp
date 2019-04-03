@@ -22,7 +22,7 @@ public:
 	~TransformBH();
 	TransformBH&	operator=(const TransformBH& src);
 
-	void	run();
+	void	behaveOnTarget(BehaviorManaged *target);
 	bool	isCompatible(BehaviorManaged* target) const;
 	/*
 		target must have a local variable:

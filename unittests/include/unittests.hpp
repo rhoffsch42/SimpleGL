@@ -16,6 +16,8 @@
 #define TEST(title, cond)	if (ASSERT_MODE) {assert(cond);}\
 					UnitTests::streamTests << ((cond) ? UnitTests::test_ok() : UnitTests::test_fail()) << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << #cond << std::endl
 
+
+
 class UnitTests {
 public:
 	static std::stringstream	streamTests;
@@ -40,6 +42,7 @@ public:
 	class TextureTests;
 	class ObjectTests;
 	class BehaviorManagedTests;
+	class BehaviorTests;
 protected:
 	UnitTests();
 private:
@@ -56,4 +59,5 @@ private:
 #include "glfw_tests.hpp"
 #include "texture_tests.hpp"
 #include "object_tests.hpp"
+#include "behavior_tests.hpp"
 #include "behaviormanaged_tests.hpp"

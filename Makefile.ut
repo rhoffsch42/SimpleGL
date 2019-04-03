@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/03/30 16:03:18 by rhoffsch         ###   ########.fr        #
+#    Updated: 2019/04/03 11:29:47 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,6 +37,7 @@ SRC_FILE		=	main_ut.cpp \
 					glfw_tests.cpp \
 					texture_tests.cpp \
 					object_tests.cpp \
+					behavior_tests.cpp \
 					behaviormanaged_tests.cpp
 
 HDR_FILE		=	unittests.hpp
@@ -50,13 +51,13 @@ HDR				=	$(addprefix $(HDR_DIR)/, $(HDR_FILE))
 
 # requisite for TESTED_SRC_FILE, thus not tested
 DEPENDENCY		=	misc.cpp \
-					behavior.cpp
 
 TESTED_SRC_FILE	=	math.cpp \
 					properties.cpp \
 					glfw.cpp \
 					texture.cpp \
 					object.cpp \
+					behavior.cpp \
 					behaviormanaged.cpp
 
 TESTED_SRC_FILE	+=	$(DEPENDENCY)

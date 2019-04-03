@@ -19,6 +19,9 @@ class BehaviorManaged;
 
 class Behavior {
 public:
+#if UNIT_TESTS == true
+	friend class UnitTests;
+#endif
 	static bool						areActive;
 	// static std::list<Behavior&>		currentBehaviors;
 	// static void						addBehavior(const Behavior& b);
@@ -29,11 +32,18 @@ public:
 	virtual Behavior&	operator=(const Behavior& src);
 	~Behavior();
 
-	virtual void	run() = 0; // should be const ? can be restrictive, see transformBH.cpp
+	/*
+		run () could be virtual + final, but useless here (at least for now)
+		https://stackoverflow.com/questions/4465686/how-to-prevent-a-method-from-being-overridden-in-derived-class
+	*/
+			void	run();			// constness herits from behaveOnTarget()
+	virtual void	behaveOnTarget(BehaviorManaged *target) = 0;	// should be const ? can be restrictive, see transformBH.cpp, maybe need a refacto with mutators in transformBH
 	virtual	bool	isCompatible(BehaviorManaged* target) const = 0; // decides if we can add target
 			void	addTarget(BehaviorManaged* target);
 			void	removeTarget(BehaviorManaged* target);
 			void	setTargetStatus(BehaviorManaged* target, bool status);
+	
+			bool	getTargetStatus(BehaviorManaged* target) const;	// assume target is in the list, return false if no found
 	std::list< std::pair<BehaviorManaged*, bool> >	getTargetList() const;//return a copy!
 
 	bool	isActive;
