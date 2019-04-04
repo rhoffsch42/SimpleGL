@@ -6,7 +6,7 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/03/28 16:00:51 by rhoffsch         ###   ########.fr        #
+#    Updated: 2019/04/04 20:17:08 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,7 +59,7 @@ HDR				=	$(addprefix $(HDR_DIR)/, $(HDR_FILE))
 DEPENDS			=	$(OBJ:.o=.d)
 UT_MAKEFILE		=	Makefile.ut
 
-.PHONY: all compile clean fclean pclean re test run
+.PHONY: all compile clean fclean pclean re tests run
 
 all: compile
 
@@ -85,7 +85,7 @@ pclean: fclean
 
 re: fclean all
 
-test:
+tests:
 	make run -f $(UT_MAKEFILE)
 
 run: all

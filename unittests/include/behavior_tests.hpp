@@ -6,6 +6,8 @@
 #include "behavior.hpp"
 #include "behaviormanaged.hpp"
 class EmptyClass : public BehaviorManaged {
+public:
+	int	value;	
 };
 
 class EmptyBehavior : public Behavior {

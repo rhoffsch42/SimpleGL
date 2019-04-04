@@ -3,6 +3,7 @@
 void	UnitTests::BehaviorManagedTests::setUp() {
 	emptyA_1bh_false.addBehavior(&bh_printAdress);
 	emptyA_1bh_false.behaviorsActive = false;
+	emptyA_1bh_false.value = 1223;
 }
 void	UnitTests::BehaviorManagedTests::tearDown() {
 }
@@ -31,17 +32,17 @@ void	UnitTests::BehaviorManagedTests::testBehaviorManaged_setBehaviorStatus() co
 	EmptyClass	empty3;
 	EmptyBehavior	bh_printAdresstmp;
 	Behavior*	be = &bh_printAdresstmp;
+	empty3.value = 678;
 	empty3.addBehavior(be);
 	empty3.setBehaviorStatus(be, false);
 	bool	object_found = false;
-	for (auto i : bh_printAdress.targetList) {
+	for (auto i : bh_printAdresstmp.targetList) {
 		if (i.first == &empty3) {
 			TEST("_ : BehaviorManaged setBehaviorStatus", i.second == false);
 			object_found = true;
 		}
 	}
 	TEST("_ : BehaviorManaged setBehaviorStatus", object_found == true);
-	// TEST("_ : BehaviorManaged setBehaviorStatus", empty2.behaviorsActive == emptyA_1bh_false.behaviorsActive);
 }
 void	UnitTests::BehaviorManagedTests::testBehaviorManaged_addBehavior() const {
 	EmptyClass	empty4;

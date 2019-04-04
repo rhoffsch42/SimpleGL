@@ -16,7 +16,7 @@ int		main(int ac, char **av)
 	if (ac == 2)
 		detailsDepth = atoi(av[1]);
 
-	std::streambuf		*old = std::cout.rdbuf(); // <-- save
+	// std::streambuf		*old = std::cout.rdbuf(); // <-- save
 	std::stringstream	tested_output;
 	std::cout.rdbuf(tested_output.rdbuf());// <-- redirect
 
@@ -41,7 +41,7 @@ int		main(int ac, char **av)
 		end
 	*/
 
-	std::cout.rdbuf(old);// <-- restore
+	std::cout.rdbuf(UnitTests::oldStream);// <-- restore
 	std::cout << std::endl;
 	UnitTests::printResult();
 	// std::cout << tested_output.str();

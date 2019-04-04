@@ -12,15 +12,16 @@
 #define UT_HUMAN		"\xf0\x9f\x91\x81" // 👁
 #define UT_PAD			40
 
+#define PRINT_EXIT	std::cout.rdbuf(UnitTests::oldStream); UnitTests::printResult(); exit(0);
 #define NOT_TESTED(title, comment, func)	UnitTests::streamTests << func() << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << "Not tested" << comment << std::endl
 #define TEST(title, cond)	if (ASSERT_MODE) {assert(cond);}\
-					UnitTests::streamTests << ((cond) ? UnitTests::test_ok() : UnitTests::test_fail()) << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << #cond << std::endl
-
-
+		UnitTests::streamTests << ((cond) ? UnitTests::test_ok() : UnitTests::test_fail()) << "\t" << UnitTests::padded(title, UT_PAD) << "\t\t" << #cond << std::endl
 
 class UnitTests {
 public:
 	static std::stringstream	streamTests;
+	static std::streambuf*		oldStream;
+	static bool					continueTests;
 
 	static void				printResult();
 

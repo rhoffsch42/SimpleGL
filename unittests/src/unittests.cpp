@@ -5,7 +5,9 @@ unsigned int UnitTests::_test_passed = 0;
 unsigned int UnitTests::_test_failed = 0;
 unsigned int UnitTests::_test_errors = 0;
 unsigned int UnitTests::_test_human = 0;
+std::streambuf*		UnitTests::oldStream = std::cout.rdbuf();
 std::stringstream	UnitTests::streamTests;
+bool		UnitTests::continueTests = true;
 
 UnitTests::UnitTests(){
 }

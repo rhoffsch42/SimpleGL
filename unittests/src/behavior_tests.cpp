@@ -88,13 +88,15 @@ void	UnitTests::BehaviorTests::testBehavior_setTargetStatus() const {
 void	UnitTests::BehaviorTests::testBehavior_getTargetStatus() const {
 	EmptyBehavior	b6;
 	EmptyClass		empty6;
+	EmptyClass		empty_not_added;
 
 	b6.addTarget(&empty6);
 	TEST("_ : Behavior addTarget", b6.targetList.size() == 1);
 	TEST("_ : Behavior getTargetStatus", b6.getTargetStatus(&empty6) == true);
 	b6.targetList.begin()->second = false;
 	TEST("_ : Behavior getTargetStatus", b6.getTargetStatus(&empty6) == false);
-	NOT_TESTED("_ : Behavior getTargetStatus", " : 404 function not found", UnitTests::test_error);
+	TEST("_ : Behavior getTargetStatus", b6.getTargetStatus(&empty_not_added) == false);	// can't make difference between a real false, and a not found false
+	NOT_TESTED("_ : Behavior getTargetStatus", " : when searching for an object not added, see behavior.cpp", UnitTests::test_error);
 }
 void	UnitTests::BehaviorTests::testBehavior_getTargetList() const {
 	std::list< std::pair<BehaviorManaged*, bool> >	listCpy;
