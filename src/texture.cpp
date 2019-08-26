@@ -2,7 +2,7 @@
 #include "texture.hpp"
 
 Texture::Texture(std::string filename) : _filename(filename) {
-	// cout << "_ Texture cons by filename: " << filename.c_str() << endl;
+	cout << "_ Texture cons by filename: " << filename.c_str() << endl;
 
 	filename = Misc::crossPlatPath(filename);
 	std::ifstream file(filename, std::ios::binary);

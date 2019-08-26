@@ -2,10 +2,11 @@
 float	(*Vector3::operation)(float,float);
 	inline?	add/sub/etc
 	compare execution speed, binary size
-check if destructor of mother class is called when child is destroyed
+check if destructor of mother class is called when child is destroyed -> virtual destructor
 similar constructors: make an init func ? with all common tasks
 check derived constructor: call to base constructor ?
 check the copy constructor with derived class: good call to base copy constructor?
+polymorphisme: check for operator overloading with inheritence, and destructors
 ---- memory/leaks	-------------------------------------------------------
 delete data opengl:
 	Skybox
@@ -13,25 +14,25 @@ delete data opengl:
 	Program and derived
 ---- text/file formating	-------------------------------------------------------
 #include "simplegl.h" in class.cpp is bad? the class.hpp have to be self-sufficient
+*.cpp: #include "SimpleGL.h" necessary? only need <iostream> ?
 pointer/ref declaration: Class* ptr || Class *ptr
 dynamic_cast	check if it failed ?
 const_cast	check if it is used everywhere, no: (Type)var
 maj in file name, OS dependant
-*.cpp: #include "SimpleGL.h" necessary? only need <iostream> ?
 void on all accessors ? https://stackoverflow.com/questions/20617067/returning-function-pointer-type
 constructor copy, const T& src (et pas const T& randomName)
 references: type& varname;
 class X { //brace here or next line
-if (condition)//bad, braces should englobe code
+if (condition)//bad but tolerated, braces should englobe code
 	return ;
 	[...]
 public variables without underscore: _varname;
 regroup class and inherited class in the same file ? not everything would need that
 ---- Main features	-------------------------------------------------------
-Transform all exit() by throw exception that could be catched by user
+make a CounterManaged to destroy easely all instances, or do whatever ( Texture : public CounterManaged  ->  Texture::DestroyAll)
+change all exit() by throw exception that could be catched by user
 Nath::Matrix4::scaleMatrix probablement fausse, check les ut aussi
 Math::Vector3	make a "linear" mult? Vec3(2,2,2) * Vec3(2,3,4) = Vec3(4,6,8) //or change operator, see properties.hpp
-polymorphisme: check for operator overloading with inheritence, and destructors
 cam.setParent() *finish Behavior and other fix before continuing this
 	working but movement are from worldSpace and not localSpace (need unlock mvt/orientation)
 class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)

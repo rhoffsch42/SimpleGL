@@ -3,6 +3,7 @@
 #include "blueprint.hpp"
 #include "math.hpp"
 #include <iomanip>
+#include <algorithm>
 
 #define OBJ3DBP_DEFAULT_SIZE	4.0f
 

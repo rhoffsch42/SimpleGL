@@ -111,7 +111,7 @@ void	renderSkybox(Skybox& skybox, Cam& cam) {
 
 void	check_paddings() {
 	//	cout << sizeof(BITMAPINFOHEADER) << " = " << sizeof(BMPINFOHEADER) << endl;
-#ifdef _WIN32
+#ifdef _WIN322
 	cout << sizeof(BITMAPFILEHEADER) << " = " << sizeof(BMPFILEHEADER) << endl;
 	cout << "bfType\t" << offsetof(BMPINFOHEADERBITMAPFILEHEADER, bfType) << endl;
 	cout << "bfSize\t" << offsetof(BITMAPFILEHEADER, bfSize) << endl;
@@ -148,6 +148,8 @@ void	check_paddings() {
 		exit(ERROR_PADDING);
 	}
 }
+
+#ifdef OLD_BH
 
 void	growAndShrink(Object& ref, void* ptr) {
 	static float	growCoef = 1;
@@ -230,13 +232,66 @@ void	followObject(Object& ref, void *ptr) {
 		ref.local.setPos(targetPos);
 	}
 }
+#endif
 
-// void	test_behaviors(Object& o) {
-	// #include <behavior.hpp>
-	// cout << &o << endl;
-	// exit(0);
-// }
+class AnchorCameraBH : public Behavior
+{
+	/*
+		La rotation fonctionne bien sur la cam (ca a l'air),
+		mais le probleme vient de l'ordre de rotation sur l'anchor.
+		? Ne pas utiliser ce simple system de rotation
+		? rotater par rapport au system local de l'avion
+		? se baser sur une matrice cam-point-at
+			https://mikro.naprvyraz.sk/docs/Coding/Atari/Maggie/3DCAM.TXT
+	*/
+public:
+	AnchorCameraBH() : Behavior() {
+		this->copyRotation = true;
+	}
+	void	behaveOnTarget(BehaviorManaged* target) {
+		if (this->_anchor) {
+			Object*	speAnchor = dynamic_cast<Object*>(this->_anchor);//specialisation part
+			// turn this in Obj3d to get the BP, to get the size of the ovject,
+			// to position the camera relatively to the obj's size.
 
+			Cam*	speTarget = dynamic_cast<Cam*>(target);//specialisation part
+
+			Math::Vector3	forward(0, -15, -35);
+			if (this->copyRotation) {
+				Math::Rotation	rot = speAnchor->local.getRot();
+				forward.rotate(rot, 1);
+				rot.mult(-1);
+				speTarget->local.setRot(rot);
+			}
+			forward.mult(-1);// invert the forward to position the cam on the back, a bit up
+			Math::Vector3	pos = speAnchor->local.getPos();
+			pos.translate(forward);
+			speTarget->local.setPos(pos);
+		}
+	}
+	bool	isCompatible(BehaviorManaged* target) const {
+		//dynamic_cast check for Cam
+		(void)target;
+		return (true);
+	}
+
+	void			setAnchor(Object* anchor) {
+		this->_anchor = anchor;
+	}
+
+	bool			copyRotation;
+private:
+	Object*			_anchor;
+	Math::Vector3	_offset;
+
+};
+
+#define BLUEPRINTS	1
+#define TEXTURES	1
+#define OBJ3D		1
+#define CAM			1
+#define BEHAVIORS	1
+#define RENDER		1
 void	scene1() {
 	Glfw	glfw(1600, 900);
 	glfw.setTitle("This title is long, long enough to test how glfw manages oversized titles. At this point I dont really know what to write, so let's just bullshiting it ....................................................... is that enough? Well, it depends of the size of the current window. I dont really know how many characters i have to write for a width of 1920. Is it possible to higher the police ? It could save some characters. Ok, im bored, lets check if this title is long enough!");
@@ -244,6 +299,7 @@ void	scene1() {
 	//Program for Obj3d (can render Obj3d) with vertex & fragmetns shaders
 	Obj3dPG			obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);
 
+#ifdef BLUEPRINTS
 	//Create Obj3dBP from .obj files
 	Obj3dBP			the42BP("obj3d/42.obj", true);
 	Obj3dBP			cubeBP("obj3d/cube.obj", true);
@@ -253,17 +309,20 @@ void	scene1() {
 	// Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador.obj", true);
 	Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_no_collider.obj", true);
 	cout << "======" << endl;
-
-	//texture
+#endif
+#ifdef TEXTURES
 		Texture*	texture1 = new Texture("images/lena.bmp");
 		Texture*	texture2 = new Texture("images/skybox2.bmp");
 		Texture*	texture3 = new Texture("images/skyboxfuck.bmp");
-		Texture*	texture4 = new Texture("images/skybox4096.bmp");
+	//	Texture*	texture4 = new Texture("images/skybox4096.bmp");
 		Texture*	texture5 = new Texture("images/skytest.bmp");
 		// Texture*	texture6 = new Texture("obj3d/Rocket_Phoenix/AIM-54_Phoenix_OBJ/Phoenix.bmp");
-		Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
-		Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
-		Texture		texture8 = *texture7;
+		// Texture*	texture6 = new Texture("obj3d/ARSENAL_VG33/Arsenal_VG33.bmp");
+	//	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
+		Texture		texture8 = *texture1;
+#endif
+#ifdef OBJ3D
+	list<Obj3d*>	obj3dList;
 
 	float s = 1.0f;//scale
 	//Create Obj3d with the blueprint & by copy
@@ -305,7 +364,7 @@ void	scene1() {
 		// rocket1.local.setPos(-10, -20, -2000);
 		rocket1.local.setPos(0, -300, 0);
 		rocket1.local.rotate(0, 180, 0);
-		rocket1.setTexture(texture6);
+		rocket1.setTexture(texture5);
 		rocket1.displayTexture = true;
 		rocket1.local.centered = true;
 		// rocket1.setPolygonMode(GL_LINE);
@@ -313,11 +372,12 @@ void	scene1() {
 		rocket1.local.setScale(s,s,s);
 		rocket1.setParent(&empty1);
 
+
 	// Properties::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
 		lambo1.local.setPos(-20, 0, 0);
 		lambo1.local.setPos(0, -5, 7);
-		lambo1.setTexture(texture7);
+		lambo1.setTexture(texture1);
 		lambo1.displayTexture = true;
 		lambo1.local.centered = true;
 		lambo1.setPolygonMode(GL_LINE);
@@ -328,7 +388,7 @@ void	scene1() {
 		// lambo2.local.setPos(0, -1.9f, 0);
 		lambo2.local.setPos(0, -6.0f, 0);
 		lambo2.local.setRot(0, 180.0f, 0);
-		lambo2.setTexture(texture7);
+		lambo2.setTexture(texture1);
 		lambo2.displayTexture = true;
 		lambo2.local.centered = true;
 		// lambo2.setPolygonMode(GL_LINE);
@@ -349,6 +409,38 @@ void	scene1() {
 		// lambo3.setParent(&the42_1);
 		lambo3.setParent(&lambo2);
 
+		obj3dList.push_back(&the42_1);
+		// obj3dList.push_back(&the42_2);
+		obj3dList.push_back(&teapot1);
+		// obj3dList.push_back(&cube1);
+		obj3dList.push_back(&rocket1);
+		obj3dList.push_back(&lambo1);
+		obj3dList.push_back(&lambo2);
+		obj3dList.push_back(&lambo3);
+
+		if (false) {//spiral
+			// Obj3d*	backObj = &lambo3;
+			for (int i = 0; i < 20; i++) {
+				Obj3d* lamboPlus = new Obj3d(lamboBP, obj3d_prog);
+				lamboPlus->setParent(&lambo3);
+				lamboPlus->displayTexture = (i % 2) ? true : false;
+				lamboPlus->local.centered = true;
+				lamboPlus->setTexture(&texture8);
+				float maxScale = 3;
+				float scale = (float)((i % (int)maxScale) - (maxScale / 2));
+				lamboPlus->local.enlarge(scale, scale, scale);
+				float	val = cosf(Math::toRadian(i * 10)) * 10;
+				float	coef = 1.0f;
+				lamboPlus->local.setPos(lambo3.local.getPos());
+				lamboPlus->local.translate(float(i) / coef, val / coef, val / coef);
+				lamboPlus->local.rotate(Math::Rotation(i * 5, i * 5, i * 5));
+
+				obj3dList.push_back(lamboPlus);
+				// backObj = lamboPlus;
+			}
+		}
+#endif
+
 
 	// Properties::defaultSize = PP_DEFAULT_SIZE;
 
@@ -362,68 +454,45 @@ void	scene1() {
 	cout << "GL_MAX_TEXTURE_SIZE " << GL_MAX_TEXTURE_SIZE << endl;
 
 	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
-	Skybox		skybox(*texture4, sky_pg);
-	
-	list<Obj3d*>	obj3dList;
-	obj3dList.push_back(&the42_1);
-	// obj3dList.push_back(&the42_2);
-	obj3dList.push_back(&teapot1);
-	// obj3dList.push_back(&cube1);
-	obj3dList.push_back(&rocket1);
-	obj3dList.push_back(&lambo1);
-	obj3dList.push_back(&lambo2);
-	obj3dList.push_back(&lambo3);
+	Skybox		skybox(*texture3, sky_pg);
 
-	if (true) {//spiral
-		// Obj3d*	backObj = &lambo3;
-		for (int i = 0; i < 20; i++) {
-			Obj3d*			lamboPlus = new Obj3d(lamboBP, obj3d_prog);
-			lamboPlus->setParent(&lambo3);
-			lamboPlus->displayTexture = (i % 2 ) ? true : false;
-			lamboPlus->local.centered = true;
-			lamboPlus->setTexture(&texture8);
-			float maxScale = 3;
-			float scale = (float)((i % (int)maxScale) - (maxScale/2));
-			lamboPlus->local.enlarge(scale, scale, scale);
-			float	val = cosf(Math::toRadian(i*10)) * 10;
-			float	coef = 1.0f;
-			lamboPlus->local.setPos(lambo3.local.getPos());
-			lamboPlus->local.translate(float(i)/coef, val/coef, val/coef);
-			lamboPlus->local.rotate(Math::Rotation(i*5,i*5,i*5));
-
-			obj3dList.push_back(lamboPlus);
-			// backObj = lamboPlus;
-		}
-	}
-
+#ifdef CAM
 	Cam		cam(glfw);
 	cam.local.centered = false;
 	cam.local.setPos(0, 0, 10);
 	cam.printProperties();
+	cam.lockedMovement = false;
+	cam.lockedOrientation = false;
 
-	if (false) {//cam anchor to rocket1
+	glfw.setMouseAngle(-1);
+	std::cout << "MouseAngle: " <<  glfw.getMouseAngle() << std::endl;
+	//exit(0);
+
+	if (false) {//cam anchor to rocket1, bugged with Z rot
 		cam.local.setPos(0, 1.5f, 3.5f);
 		cam.setParent(&rocket1);
 		cam.lockedMovement = true;
 		cam.lockedOrientation = true;
 	}
+#endif
 
-	cout << "Begin while loop" << endl;
 	Fps	fps144(144);
 	Fps	fps60(60);
 	Fps	fps30(30);
 	Fps* defaultFps = &fps144;
 
-	followObjectArgs	st = { defaultFps, &cam };
+	//followObjectArgs	st = { defaultFps, &cam };
 
+
+#ifdef BEHAVIORS
 	cout << "behavior:" << endl;
 	TransformBH		b1;
 		b1.transform.rot.setUnit(ROT_DEG);
-		b1.transform.rot.z = 180 * defaultFps->tick;
+		b1.transform.rot.z = 10 * defaultFps->tick;
 		b1.modeRot = ADDITIVE;
 		float ss = 1.0f + 0.1f * defaultFps->tick;
-		b1.transform.scale = Math::Vector3(ss, ss, ss);
-		b1.modeScale = MULTIPLICATIVE;
+		//b1.transform.scale = Math::Vector3(ss, ss, ss);
+	//	b1.modeScale = MULTIPLICATIVE;
 		cout << "___ adding rocket1: " << &rocket1 << endl;
 		b1.addTarget(&rocket1);
 		b1.addTarget(&lambo1);
@@ -446,7 +515,8 @@ void	scene1() {
 	
 		cout << "b1: " << b1.getTargetList().size() << endl;
 		cout << "b2: " << b2.getTargetList().size() << endl;
-// exit(0);
+	// exit(0);
+
 	if (false) {// check behavior target, add remove
 
 		cout << "behaviorsActive: " << (empty1.behaviorsActive ? "true" : "false") << endl;
@@ -474,9 +544,11 @@ void	scene1() {
 		cout << "lambo1:\t" << lambo1.behaviorList.size() << endl;
 		cout << "b2:    \t" << b2.getTargetList().size() << endl;
 	}
-
+#endif
 // exit(0);
 
+#ifdef RENDER
+	cout << "Begin while loop" << endl;
 	// cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
 		if (defaultFps->wait_for_next_frame()) {
@@ -529,25 +601,181 @@ void	scene1() {
 		}
 	}
 	cout << "End while loop" << endl;
+#endif
 
 	cout << "deleting textures..." << endl;
 	delete texture1;
 	delete texture2;
 	delete texture3;
-	delete texture4;
+//	delete texture4;
 	delete texture5;
-	delete texture6;
-	delete texture7;
+//	delete texture6;
+	//delete texture7;
+}
+
+void scene2() {
+	Glfw	glfw(1600, 900);
+	glfw.setTitle("Tests camera anchor");
+
+	//Program for Obj3d (can render Obj3d) with vertex & fragmetns shaders
+	Obj3dPG			obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);
+	SkyboxPG		sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
+
+	Obj3dBP			rocketBP("obj3d/ARSENAL_VG33/Arsenal_VG33.obj", true);
+
+	Texture* texture3 = new Texture("images/skyboxfuck.bmp");
+	Texture* texture5 = new Texture("images/skytest.bmp");
+
+	Skybox		skybox(*texture3, sky_pg);
+
+
+	list<Obj3d*>	obj3dList;
+
+	Obj3d			rocket(rocketBP, obj3d_prog);
+	rocket.local.setPos(0, 0, 0);
+	rocket.setTexture(texture5);
+	rocket.displayTexture = true;
+	rocket.local.centered = true;
+	float s = 10.0f;
+	rocket.local.setScale(s, s, s);
+
+	Obj3d			rocket2(rocketBP, obj3d_prog);
+	rocket2.local.setPos(5, 0, 0);
+	rocket2.setTexture(texture5);
+	rocket2.displayTexture = true;
+	rocket2.local.centered = true;
+	s = 5000.0f;
+	rocket2.local.setScale(s, s, s);
+
+	obj3dList.push_back(&rocket);
+	obj3dList.push_back(&rocket2);
+
+
+	Cam		cam(glfw);
+	cam.local.centered = false;
+	cam.local.setPos(0, 15, 35);
+	cam.printProperties();
+	cam.lockedMovement = false;
+	cam.lockedOrientation = false;
+
+	glfw.setMouseAngle(-1);
+	std::cout << "MouseAngle: " << glfw.getMouseAngle() << std::endl;
+	//exit(0);
+
+	//cam.local.setPos(0, 1.5f, 3.5f);
+	AnchorCameraBH	b1;
+	b1.setAnchor(&rocket);
+	b1.addTarget(&cam);
+	b1.copyRotation = true;
+	cam.lockedMovement = true;
+	cam.lockedOrientation = true;
+
+
+	Fps	fps144(144);
+	Fps	fps60(60);
+	Fps* defaultFps = &fps144;
+
+	float	mvt = 30.0f * defaultFps->tick;
+
+	std::cout << "Begin while loop" << endl;
+	int c = 0;
+	while (!glfwWindowShouldClose(glfw._window)) {
+		if (defaultFps->wait_for_next_frame()) {
+
+			if (1) {
+				b1.run();
+			}
+
+			//print data
+			if (false) {
+				c++;
+				if (c == 60) {
+					c = 0;
+					system("cls");
+					if (true) {
+						std::cout << "--- ROCKET" << endl;
+						//rocket.local.getScale().printData();
+						rocket.local.getRot().printData();
+						rocket.getWorldMatrix().printData();
+					}
+					if (true) {
+						std::cout << "--- CAM" << endl;
+						cam.local.getRot().printData();
+						std::cout << "- local" << endl;
+						cam.getLocalProperties().getMatrix().printData();
+						std::cout << "- world" << endl;
+						cam.getWorldMatrix().printData();
+					}
+				}
+			}
+
+			glfwPollEvents();
+			glfw.updateMouse();//to do before cam's events
+			cam.events(glfw, float(defaultFps->tick));
+			if (true) {
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_LEFT))
+					rocket.local.rotate(0,		mvt,	0);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_RIGHT))
+					rocket.local.rotate(0,		-mvt,	0);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_DOWN))
+					rocket.local.rotate(mvt,	0,		0);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_UP))
+					rocket.local.rotate(-mvt,	0,		0);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_1))
+					rocket.local.rotate(0,		0,		mvt);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_2))
+					rocket.local.rotate(0,		0,		-mvt);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_0))
+					rocket.local.setRot(0,		0,		0);
+
+				Math::Vector3	pos = rocket.local.getPos();
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_8))
+					pos.add(0, 0, -mvt);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_5))
+					pos.add(0, 0, mvt);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_4))
+					pos.add(-mvt, 0, 0);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_6))
+					pos.add(mvt, 0, 0);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_7))
+					pos.add(0, -mvt, 0);
+				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_KP_9))
+					pos.add(0, mvt, 0);
+				rocket.local.setPos(pos);
+
+
+//#define 	GLFW_KEY_RIGHT   262
+//#define 	GLFW_KEY_LEFT   263
+//#define 	GLFW_KEY_DOWN   264
+//#define 	GLFW_KEY_UP   265
+			}
+
+			// printFps();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			renderObj3d(obj3dList, cam);
+			renderSkybox(skybox, cam);
+			glfwSwapBuffers(glfw._window);
+
+			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
+				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
+		}
+	}
+	std::cout << "End while loop" << endl;
+
+	std::cout << "deleting textures..." << endl;
+	delete texture3;
+	delete texture5;
 }
 
 int		main(void) {
 	check_paddings();
 	// test_behaviors();
 //	test_mult_mat4(); exit(0);
-	cout << "____START____" << endl;
+	std::cout << "____START____" << endl;
 //	test_obj_loader();
 
-	scene1();
+	//scene1();
+	scene2();
 	// while(1);
 
 	return (EXIT_SUCCESS);

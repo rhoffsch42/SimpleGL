@@ -75,13 +75,17 @@ void	Obj3dPG::getLocations(void) {
 		cons:
 			plus lent a l'utilisation ?
 	*/
-	cout << "Getting slots..." << endl;
-	this->_mat4_mvp = this->getSlot("MVP", glGetUniformLocation);
-	this->_dismod = this->getSlot("dismod", glGetUniformLocation);
-	this->_plain_color = this->getSlot("plain_color", glGetUniformLocation);
-	this->_tex_coef = this->getSlot("tex_coef", glGetUniformLocation);
+	cout << "Getting slots for obj3d program " << this->_program << endl;
+	this->_mat4_mvp = this->getSlot("MVP", true);
+	this->_dismod = this->getSlot("dismod", true);
+	this->_plain_color = this->getSlot("plain_color", true);
+	this->_tex_coef = this->getSlot("tex_coef", true);
 
-	this->_vertex_position_data = this->getSlot("vertex_position_data", glGetAttribLocation);
-	this->_vertex_color_data = this->getSlot("vertex_color_data", glGetAttribLocation);
-	this->_vertex_UV_data = this->getSlot("vertex_UV_data", glGetAttribLocation);
+	this->_vertex_position_data = this->getSlot("vertex_position_data", false);
+	this->_vertex_color_data = this->getSlot("vertex_color_data", false);
+	this->_vertex_UV_data = this->getSlot("vertex_UV_data", false);
 }
+/*
+	true	glGetUniformLocation
+	false	glGetAttribLocation
+*/

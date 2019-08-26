@@ -30,11 +30,17 @@ void	SkyboxPG::render(Skybox& skybox, Math::Matrix4& VPmatrix) {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void	SkyboxPG::getLocations() {
-	this->_mat4_vp = this->getSlot("VP", glGetUniformLocation);
-	this->_cubemap = this->getSlot("cubemap", glGetUniformLocation);
+/*
+	true	glGetUniformLocation
+	false	glGetAttribLocation
+*/
 
-	this->_vertex_position_data = this->getSlot("vertex_position_data", glGetAttribLocation);
+void	SkyboxPG::getLocations() {
+	cout << "Getting slots for skybox program " << this->_program << endl;
+	this->_mat4_vp = this->getSlot("VP", true);
+	this->_cubemap = this->getSlot("cubemap", true);
+
+	this->_vertex_position_data = this->getSlot("vertex_position_data", false);
 }
 
 //accessors

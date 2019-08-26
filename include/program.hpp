@@ -18,7 +18,7 @@ public:
 	GLuint		_program;
 protected:
 	virtual void	render();
-	GLint			getSlot(const GLchar *varname, GLint(getLocFunc)(GLuint, const GLchar*)) const;
+	GLint			getSlot(const GLchar *varname, bool n) const;
 
 //	GLuint			_program;
 private:
@@ -32,6 +32,6 @@ private:
 	GLuint			initShader(std::string filename, int type) const;
 	void			glCompileError(GLuint shader, const char *intro) const;
 	void			printProgramInfoLog(GLuint program) const;
-	void			programLogs(GLuint program, GLenum pname, GLint(getVarLocation)(GLuint, const GLchar *), std::string msg) const;
+	void			programLogs(GLuint program, GLenum pname, bool n, std::string msg) const;
 	const char		*glTypeToString(GLenum type) const;
 };

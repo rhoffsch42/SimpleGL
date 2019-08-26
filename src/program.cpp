@@ -17,6 +17,7 @@ Program::Program(std::string vs_file, std::string fs_file) {
 	glGetProgramiv(this->_program, GL_LINK_STATUS, &p);
 	if (p != GL_TRUE)
 		this->printProgramInfoLog(this->_program);
+	cout << "Successfully created program " << this->_program << endl;
 }
 
 Program::~Program() {
@@ -27,15 +28,25 @@ void	Program::render() {
 	cout << "Program::render()\nThis should not be used..." << endl;
 }
 
-GLint	Program::getSlot(const GLchar *varname, GLint(getLocFunc)(GLuint, const GLchar*)) const {
+/*
+	true	glGetUniformLocation
+	false	glGetAttribLocation
+*/
+GLint	Program::getSlot(const GLchar *varname, bool n) const {
 	GLint	slot;
 
-	slot = getLocFunc(this->_program, varname);
+	if (n)
+		slot = glGetUniformLocation(this->_program, varname);
+	else
+		slot = glGetAttribLocation(this->_program, varname);
 	cout << "slot " << slot << " :\t" << varname << endl;
 	if (slot == -1)
 	{
-		glGetError();
+		int errs[8]= { GL_NO_ERROR, GL_INVALID_ENUM, GL_INVALID_VALUE, GL_INVALID_OPERATION, GL_INVALID_FRAMEBUFFER_OPERATION, GL_OUT_OF_MEMORY, GL_STACK_UNDERFLOW, GL_STACK_OVERFLOW };
+		size_t error = glGetError();
 		cerr << "Failed to get slot" << endl;
+		cerr << "program:\t" << this->_program << endl;
+		cerr << "varname:\t" << varname << endl;
 		exit(GL_ERROR);
 	}
 	return (slot);
@@ -47,6 +58,7 @@ GLuint	Program::initShader(std::string filename, int type) const {
 	const GLchar	*gl_content;
 	std::string		buf;
 
+	std::cout << Misc::getCurrentDirectory() << endl;
 	buf = Misc::getFileContent(filename.c_str());
 	gl_content = buf.c_str();
 	shader = glCreateShader(type);
@@ -84,8 +96,8 @@ void	Program::printProgramInfoLog(GLuint program) const {
 	cerr << "GL_LINK_STATUS = " << params << endl;
 	glGetProgramiv(program, GL_ATTACHED_SHADERS, &params);
 	cerr << "GL_ATTACHED_SHADERS = " << params << endl;
-	this->programLogs(program, GL_ACTIVE_ATTRIBUTES, glGetAttribLocation, "GL_ACTIVE_ATTRIBUTES = ");
-	this->programLogs(program, GL_ACTIVE_UNIFORMS, glGetUniformLocation, "GL_ACTIVE_UNIFORMS = ");
+	this->programLogs(program, GL_ACTIVE_ATTRIBUTES, false, "GL_ACTIVE_ATTRIBUTES = ");
+	this->programLogs(program, GL_ACTIVE_UNIFORMS, true, "GL_ACTIVE_UNIFORMS = ");
 	max_len = 2048;
 	len = 0;
 	glGetProgramInfoLog(program, max_len, &len, logs);
@@ -94,7 +106,12 @@ void	Program::printProgramInfoLog(GLuint program) const {
 	exit(GL_ERROR);
 }
 
-void	Program::programLogs(GLuint program, GLenum pname, GLint(getVarLocation)(GLuint, const GLchar *), std::string msg) const {
+/*
+	true	glGetUniformLocation
+	false	glGetAttribLocation
+*/
+
+void	Program::programLogs(GLuint program, GLenum pname, bool n, std::string msg) const {
 	int		params = -1;
 	char	name[64];
 	char	long_name[64];
@@ -116,12 +133,12 @@ void	Program::programLogs(GLuint program, GLenum pname, GLint(getVarLocation)(GL
 			while (++j < size)
 			{
 				sprintf(long_name, "%s[%i]", name, j);
-				location = getVarLocation(program, long_name);
+				location = n ? glGetUniformLocation(program, long_name) : glGetAttribLocation(program, long_name);
 				fprintf(stderr, " %i) type:%s name:%s location:%i\n", i, this->glTypeToString(type), long_name, location);
 			}
 		else
 		{
-			location = getVarLocation(program, name);
+			location = n ? glGetUniformLocation(program, long_name) : glGetAttribLocation(program, long_name);
 			fprintf(stderr, " %i) type:%s name:%s location:%i\n", i, this->glTypeToString(type), name, location);
 		}
 	}

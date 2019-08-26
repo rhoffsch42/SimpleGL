@@ -5,12 +5,15 @@
 
 float			Obj3dBP::defaultSize = OBJ3DBP_DEFAULT_SIZE;
 
+#define mymax(a, b) (((a) > (b)) ? (a) : (b))
+
 static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 	float	largest = dimensions.x;
-	largest = std::max(largest, dimensions.y);
-	largest = std::max(largest, dimensions.z);
+	largest = mymax(largest, dimensions.y);
+	largest = mymax(largest, dimensions.z);
 	return (size / largest);
 }
+
 
 Obj3dBP::Obj3dBP(string filename, bool rescale) : Blueprint(filename) {
 	cout << "_ Obj3dBP cons by filename" << endl;
