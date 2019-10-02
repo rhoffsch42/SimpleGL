@@ -16,6 +16,13 @@
 #define ROT_DEG	0
 #define ROT_RAD	1
 
+#define VEC3_RIGH		Math::Vector3(1, 0, 0)
+#define VEC3_LEFT		Math::Vector3(-1, 0, 0)
+#define VEC3_UP			Math::Vector3(0, 1, 0)
+#define VEC3_DOWN		Math::Vector3(0, -1, 0)
+#define VEC3_FORWARD	Math::Vector3(0, 0, 1)
+#define VEC3_BACKWARD	Math::Vector3(0, 1, -1)
+
 //Math::Matrix4
 #define ROW_MAJOR		0
 #define COLUMN_MAJOR	1

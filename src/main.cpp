@@ -149,91 +149,6 @@ void	check_paddings() {
 	}
 }
 
-#ifdef OLD_BH
-
-void	growAndShrink(Object& ref, void* ptr) {
-	static float	growCoef = 1;
-
-	Fps * fps_ptr = (Fps*)ptr;
-	Math::Vector3	s = ref.local.getScale();
-	float	addScale = (s.x / 2.0f) * (float)fps_ptr->tick;
-	addScale *= growCoef;
-	s.add(Math::Vector3(addScale, addScale, addScale));
-	ref.local.setScale(s);
-	
-	//alternate grow/shrink each second
-	int	t = int(fps_ptr->last_time) % 2;
-	growCoef = (t == 0) ? -1 : 1;
-}
-
-void	rotAndGoZaxis(Object& ref, void* ptr) {
-	static float	anglePerSec = 50;
-	static float	distPerSec = 200;
-	Fps * fps_ptr = (Fps*)ptr;
-	
-	Math::Rotation	rot = ref.local.getRot();
-	rot.setAsDegree();
-	rot.z += anglePerSec * (float)fps_ptr->tick;
-	ref.local.setRot(rot);
-
-	Math::Vector3	pos = ref.local.getPos();
-	pos.add(Math::Vector3(0, 0, distPerSec * (float)fps_ptr->tick));
-	ref.local.setPos(pos);
-}
-
-void	rotX(Object& ref, void* ptr) {
-	static float	anglePerSec = -20;
-	Fps * fps_ptr = (Fps*)ptr;
-	
-	ref.local.rotate(anglePerSec * (float)fps_ptr->tick, 0, 0);
-}
-
-void	rotY(Object& ref, void* ptr) {
-	static float	anglePerSec = 50;
-	Fps * fps_ptr = (Fps*)ptr;
-
-	ref.local.rotate(0, anglePerSec * (float)fps_ptr->tick, 0);
-}
-
-struct	followObjectArgs
-{
-	Fps*	fps;
-	Object*	o;
-};
-void	followObject(Object& ref, void *ptr) {
-	followObjectArgs * st = (followObjectArgs*)ptr;
-
-	Math::Matrix4	targetWorldMat = st->o->getWorldMatrix();
-	Math::Vector3	targetPos;
-	targetWorldMat.setOrder(COLUMN_MAJOR);
-	float	(&m1)[4][4] = *reinterpret_cast<float(*)[4][4]>(targetWorldMat.getData());
-	targetPos.x = m1[3][0];
-	targetPos.y = m1[3][1];
-	targetPos.z = m1[3][2];
-
-	Math::Matrix4	worldMat = ref.getWorldMatrix();
-	worldMat.setOrder(COLUMN_MAJOR);
-	float	(&m2)[4][4] = *reinterpret_cast<float(*)[4][4]>(worldMat.getData());
-	Math::Vector3	objPos;
-	objPos.x = m2[3][0];
-	objPos.y = m2[3][1];
-	objPos.z = m2[3][2];
-
-	Math::Vector3	diff = targetPos;
-	diff.sub(objPos);
-	float	magnitude = diff.magnitude();
-	float	speed = 120.0f * st->fps->tick;
-	if (magnitude > speed) {
-		diff.div(magnitude);
-		diff.mult(speed);
-		objPos.add(diff);
-		ref.local.setPos(objPos);
-	} else {
-		ref.local.setPos(targetPos);
-	}
-}
-#endif
-
 class AnchorCameraBH : public Behavior
 {
 	/*
@@ -286,12 +201,6 @@ private:
 
 };
 
-#define BLUEPRINTS	1
-#define TEXTURES	1
-#define OBJ3D		1
-#define CAM			1
-#define BEHAVIORS	1
-#define RENDER		1
 void	scene1() {
 	Glfw	glfw(1600, 900);
 	glfw.setTitle("This title is long, long enough to test how glfw manages oversized titles. At this point I dont really know what to write, so let's just bullshiting it ....................................................... is that enough? Well, it depends of the size of the current window. I dont really know how many characters i have to write for a width of 1920. Is it possible to higher the police ? It could save some characters. Ok, im bored, lets check if this title is long enough!");
@@ -299,7 +208,7 @@ void	scene1() {
 	//Program for Obj3d (can render Obj3d) with vertex & fragmetns shaders
 	Obj3dPG			obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);
 
-#ifdef BLUEPRINTS
+#ifndef BLUEPRINTS
 	//Create Obj3dBP from .obj files
 	Obj3dBP			the42BP("obj3d/42.obj", true);
 	Obj3dBP			cubeBP("obj3d/cube.obj", true);
@@ -310,7 +219,7 @@ void	scene1() {
 	Obj3dBP			lamboBP("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_no_collider.obj", true);
 	cout << "======" << endl;
 #endif
-#ifdef TEXTURES
+#ifndef TEXTURES
 		Texture*	texture1 = new Texture("images/lena.bmp");
 		Texture*	texture2 = new Texture("images/skybox2.bmp");
 		Texture*	texture3 = new Texture("images/skyboxfuck.bmp");
@@ -321,7 +230,7 @@ void	scene1() {
 	//	Texture*	texture7 = new Texture("obj3d/lambo/Lamborginhi_Aventador_OBJ/Lamborginhi_Aventador_diffuse.bmp");
 		Texture		texture8 = *texture1;
 #endif
-#ifdef OBJ3D
+#ifndef OBJ3D
 	list<Obj3d*>	obj3dList;
 
 	float s = 1.0f;//scale
@@ -456,7 +365,7 @@ void	scene1() {
 	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
 	Skybox		skybox(*texture3, sky_pg);
 
-#ifdef CAM
+#ifndef CAM
 	Cam		cam(glfw);
 	cam.local.centered = false;
 	cam.local.setPos(0, 0, 10);
@@ -484,7 +393,7 @@ void	scene1() {
 	//followObjectArgs	st = { defaultFps, &cam };
 
 
-#ifdef BEHAVIORS
+#ifndef BEHAVIORS
 	cout << "behavior:" << endl;
 	TransformBH		b1;
 		b1.transform.rot.setUnit(ROT_DEG);
@@ -547,7 +456,7 @@ void	scene1() {
 #endif
 // exit(0);
 
-#ifdef RENDER
+#ifndef RENDER
 	cout << "Begin while loop" << endl;
 	// cam.local.setScale(s,s,s);//bad, undefined behavior
 	while (!glfwWindowShouldClose(glfw._window)) {
@@ -767,6 +676,123 @@ void scene2() {
 	delete texture5;
 }
 
+
+void sceneHumanGL() {
+	Glfw		glfw(1600, 900); // screen size
+	glDisable(GL_CULL_FACE);
+	Obj3dPG		obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);
+	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
+
+	Obj3dBP::defaultSize = 1.0f;
+	Obj3dBP		cubebp("obj3d/cube.obj", true);
+
+	Texture *	lena = new Texture("images/lena.bmp");
+
+#ifndef MEMBERS
+	float		epaisseur_bras = 1.0f;
+	float		epaisseur_tronc = 2.0f;
+	bool		centerCubes = false;
+
+	Object			containerTronc;
+	Obj3d			tronc(cubebp, obj3d_prog);
+	tronc.setTexture(lena);
+	tronc.displayTexture = true;
+	tronc.local.setScale(epaisseur_tronc, epaisseur_tronc * 3, epaisseur_tronc);
+	tronc.setColor(0xff, 0, 0);
+	tronc.local.centered = centerCubes;
+
+	Obj3d			avant_bras_gauche(cubebp, obj3d_prog);
+	avant_bras_gauche.displayTexture = false;
+	avant_bras_gauche.local.setScale(epaisseur_bras, epaisseur_tronc * 2, epaisseur_bras);
+	avant_bras_gauche.setColor(0, 0xff, 0);
+	avant_bras_gauche.local.centered = centerCubes;
+
+	Obj3d			avant_bras_droit(cubebp, obj3d_prog);
+	avant_bras_droit.displayTexture = false;
+	avant_bras_droit.local.setScale(-epaisseur_bras, epaisseur_tronc * 2, epaisseur_bras);
+	avant_bras_droit.setColor(0, 0, 0xff);
+	avant_bras_droit.local.centered = centerCubes;
+
+	Obj3d			apres_bras_gauche(cubebp, obj3d_prog);
+	apres_bras_gauche.displayTexture = false;
+	apres_bras_gauche.setColor(0xf0, 0xf0, 0);
+	apres_bras_gauche.local.centered = centerCubes;
+
+	Obj3d			apres_bras_droit(cubebp, obj3d_prog);
+	apres_bras_droit.displayTexture = false;
+	apres_bras_droit.setColor(0, 0xf0, 0xf0);
+	apres_bras_droit.local.centered = centerCubes;
+
+	//hierarchy
+	tronc.setParent(&containerTronc);
+	avant_bras_gauche.setParent(&containerTronc);
+		apres_bras_gauche.setParent(&avant_bras_gauche);
+	avant_bras_droit.setParent(&containerTronc);
+		apres_bras_droit.setParent(&avant_bras_droit);
+
+	//relative position
+	avant_bras_gauche.local.translate(-epaisseur_bras, 0, 0);
+	avant_bras_droit.local.translate(epaisseur_tronc, 0, 0);
+	apres_bras_gauche.local.translate(VEC3_DOWN);
+	apres_bras_droit.local.translate(VEC3_DOWN);
+
+
+	list<Obj3d*>	obj3dList;
+	// obj3dList.push_back(&containerTronc);
+	obj3dList.push_back(&tronc);
+	obj3dList.push_back(&avant_bras_gauche);
+	obj3dList.push_back(&avant_bras_droit);
+	obj3dList.push_back(&apres_bras_droit);
+	obj3dList.push_back(&apres_bras_gauche);
+#endif // MEMBERS
+
+	Texture*	texture2 = new Texture("images/skybox4.bmp");//skybox3.bmp bug?
+	Skybox		skybox(*texture2, sky_pg);
+	
+	Cam		cam(glfw);
+	cam.local.centered = false;
+	cam.local.setPos(0, 0, 10);
+	cam.setFov(90);
+	cam.lockedMovement = false;
+	cam.lockedOrientation = false;
+	cam.speed /= 4;
+
+	Fps	fps144(144);
+	Fps	fps60(60);
+	Fps* defaultFps = &fps60;
+
+	TransformBH		b_rotZ;
+	b_rotZ.transform.rot.setUnit(ROT_DEG);
+	b_rotZ.transform.rot.z = 100 * defaultFps->tick;
+	b_rotZ.modeRot = ADDITIVE;
+	b_rotZ.addTarget(&avant_bras_droit);
+	b_rotZ.addTarget(&containerTronc);
+
+	TransformBH		b_rotY;
+	b_rotY.transform.rot.setUnit(ROT_DEG);
+	b_rotY.transform.rot.y = 720 * defaultFps->tick;
+	b_rotY.modeRot = ADDITIVE;
+	b_rotY.addTarget(&avant_bras_gauche);
+
+
+	while (!glfwWindowShouldClose(glfw._window)) {
+		if (defaultFps->wait_for_next_frame()) {
+			b_rotZ.run();
+			b_rotY.run();
+
+			glfwPollEvents();
+			glfw.updateMouse(); // to do before cam's events
+			cam.events(glfw, float(defaultFps->tick));
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			renderObj3d(obj3dList, cam);
+			renderSkybox(skybox, cam);
+			glfwSwapBuffers(glfw._window);
+			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
+				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
+		}
+	}
+}
+
 int		main(void) {
 	check_paddings();
 	// test_behaviors();
@@ -775,7 +801,8 @@ int		main(void) {
 //	test_obj_loader();
 
 	//scene1();
-	scene2();
+	// scene2();
+	sceneHumanGL();
 	// while(1);
 
 	return (EXIT_SUCCESS);
