@@ -701,7 +701,7 @@ void sceneHumanGL() {
 
 #ifndef MEMBERS
 	float		epaisseur_tronc = 2.0f;
-	bool		centerCubes = true;
+	bool		centerCubes = false;
 
 	Object			containerTronc;
 	Obj3d			tronc(cubebp, obj3d_prog);
@@ -748,8 +748,6 @@ void sceneHumanGL() {
 	//debug
 	avant_bras_gauche.local.translate(0, 0.1, 0);
 	
-
-		
 	avant_bras_gauche.local.getPos().printData();
 	avant_bras_gauche.local.updateMatrix();
 	avant_bras_gauche.local.getMatrix().printData();

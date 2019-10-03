@@ -12,7 +12,7 @@
 
 NAME			=	HumanGL
 CC				=	g++ -std=c++11
-CFLAGS			=	-Wall -Wextra -Werror -MMD #-Wpadded
+CFLAGS			=	-Wall -Wextra -Werror -MMD -g #-Wpadded
 TEST_FLAGS		=	-DUNIT_TESTS=false
 
 
