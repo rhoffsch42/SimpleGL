@@ -6,7 +6,7 @@
 #    By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/10/03 15:53:40 by jfortin          ###   ########.fr        #
+#    Updated: 2019/10/03 17:26:21 by jfortin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,21 +15,19 @@ CC				=	g++ -std=c++11
 CFLAGS			=	-Wall -Wextra -Werror -MMD #-Wpadded
 TEST_FLAGS		=	-DUNIT_TESTS=false
 
-GLEW_DIR		:=	$(shell brew --prefix glew)
-GLFW_DIR		:=	$(shell brew --prefix glfw)
 
-INCLUDE			=	-I $(GLEW_DIR)/include \
-					-I $(GLFW_DIR)/include \
+INCLUDE			=	-I ${GLEW_DIR}/include \
+					-I ${GLFW_DIR}/include \
 					-I include
 					#-I /System/Library/Frameworks/OpenGL.framework/Versions/A/Headers/
 					# -I /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers
 					# -I /Developer/NVIDIA/CUDA-9.0/extras/CUPTI/include #Mac42
 
-GLEW			=	$(GLEW_DIR)/lib/libGLEW.dylib
-GLFW			=	$(GLFW_DIR)/lib/libglfw.dylib
+GLEW			=	${GLEW_DIR}/lib/libGLEW.dylib
+GLFW			=	${GLFW_DIR}/lib/libglfw.dylib
 
 FRAMEWORKS		=	-framework OpenGL #-framework Cocoa
-CC_NEEDS		=	$(INCLUDE) $(FRAMEWORKS) $(GLFW) $(GLEW)
+CC_NEEDS		=	$(FRAMEWORKS) $(GLFW) $(GLEW)
 
 SRC_FILE		=	main.cpp \
 					blueprint.cpp \
@@ -63,24 +61,23 @@ HDR				=	$(addprefix $(HDR_DIR)/, $(HDR_FILE))
 DEPENDS			=	$(OBJ:.o=.d)
 UT_MAKEFILE		=	Makefile.ut
 
-.PHONY: all compile clean fclean pclean re tests run
+.PHONY: all clean fclean pclean re tests run
 
 release:
 	@make -j all
 
-all: compile
+all: $(NAME)
 	@echo $(NAME) > .gitignore
 
-compile:
-	@mkdir -p $(OBJ_DIR)
-	@$(MAKE) $(NAME)
-
-$(NAME): $(SRC) $(OBJ)
+$(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(CC_NEEDS)
 	@# $(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LIBS) $(FRAMEWORKS) $(GLFW) $(GLEW)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp Makefile | $(OBJ_DIR)
 	$(CC) $(TEST_FLAGS) $(CFLAGS) $(INCLUDE) -c $< -o $@
+
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
 
 clean:
 	rm -rf $(OBJ_DIR)
