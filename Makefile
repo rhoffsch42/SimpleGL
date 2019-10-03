@@ -6,17 +6,17 @@
 #    By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/10/03 14:35:13 by jfortin          ###   ########.fr        #
+#    Updated: 2019/10/03 15:53:40 by jfortin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			=	HumanGL
 CC				=	g++ -std=c++11
-CFLAGS			=	-Wall -Wextra -Werror #-Wpadded
+CFLAGS			=	-Wall -Wextra -Werror -MMD #-Wpadded
 TEST_FLAGS		=	-DUNIT_TESTS=false
 
-GLEW_DIR		=	$(shell brew --prefix glew)
-GLFW_DIR		=	$(shell brew --prefix glfw)
+GLEW_DIR		:=	$(shell brew --prefix glew)
+GLFW_DIR		:=	$(shell brew --prefix glfw)
 
 INCLUDE			=	-I $(GLEW_DIR)/include \
 					-I $(GLFW_DIR)/include \
@@ -57,12 +57,16 @@ OBJ_DIR			=	obj
 HDR_DIR			=	include
 SRC				=	$(addprefix $(SRC_DIR)/, $(SRC_FILE))
 OBJ				=	$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC_FILE))
+DPD				=	$(patsubst %.cpp, $(OBJ_DIR)/%.d, $(SRC_FILE))
 HDR				=	$(addprefix $(HDR_DIR)/, $(HDR_FILE))
 
 DEPENDS			=	$(OBJ:.o=.d)
 UT_MAKEFILE		=	Makefile.ut
 
 .PHONY: all compile clean fclean pclean re tests run
+
+release:
+	@make -j all
 
 all: compile
 	@echo $(NAME) > .gitignore
@@ -75,7 +79,7 @@ $(NAME): $(SRC) $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(CC_NEEDS)
 	@# $(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LIBS) $(FRAMEWORKS) $(GLFW) $(GLEW)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDR) $(HDR_DIR)/%.hpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(TEST_FLAGS) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 clean:
@@ -87,7 +91,9 @@ fclean: clean
 pclean: fclean
 	@$(MAKE) pclean -f $(UT_MAKEFILE)
 
-re: fclean all
+re:
+	@make fclean
+	@make release
 
 tests:
 	make run -f $(UT_MAKEFILE)
@@ -97,3 +103,5 @@ run: all
 	./$(NAME)
 	@echo ""
 	@echo "exitcode: $$?"
+
+-include $(DPD)
