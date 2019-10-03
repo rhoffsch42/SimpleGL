@@ -3,6 +3,8 @@
 #include <math.h>
 #include <iomanip>
 
+#define EMOTE_WARNING		"\xe2\x9a\xa0\xef\xb8\x8f " // ⚠️
+
 //Math::Rotation : Vector3
 //Math::Matrix4
 #define COS_X	val[0]

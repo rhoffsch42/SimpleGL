@@ -1,5 +1,7 @@
-#include "simplegl.h"
+// #include "simplegl.h"
 #include "math.hpp"
+#include <iostream>
+using namespace std;
 
 Math::Math() {}
 Math::~Math() {}
