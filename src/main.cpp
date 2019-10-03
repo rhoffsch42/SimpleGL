@@ -693,72 +693,70 @@ void sceneHumanGL() {
 	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
 
 	Obj3dBP::defaultSize = 1.0f;
-	Obj3dBP		cubebp("obj3d/cube_down.obj", true);
+	Obj3dBP			cubebp("obj3d/cube.obj", true);
+	Math::Vector3	dimensions = cubebp.getDimensions();
+	cubebp.setCenterOffset(dimensions.x / 2, 0, dimensions.z / 2);
 
 	Texture *	lena = new Texture("images/lena.bmp");
 
 #ifndef MEMBERS
-	float		epaisseur_bras = 1.0f;
 	float		epaisseur_tronc = 2.0f;
-	float		longueur_bras = 1.0f;
-	bool		centerCubes = false;
+	bool		centerCubes = true;
 
 	Object			containerTronc;
 	Obj3d			tronc(cubebp, obj3d_prog);
 	tronc.setTexture(lena);
 	tronc.displayTexture = true;
-	tronc.local.setScale(epaisseur_tronc, epaisseur_tronc * 3, epaisseur_tronc);
+	tronc.local.setScale(epaisseur_tronc, epaisseur_tronc * 3, epaisseur_tronc);//bad, use rescale of obj3d vertices
 	tronc.setColor(0xff, 0, 0);
 	tronc.local.centered = centerCubes;
 
 	Obj3d			avant_bras_gauche(cubebp, obj3d_prog);
 	avant_bras_gauche.displayTexture = false;
-	avant_bras_gauche.local.setScale(epaisseur_bras, longueur_bras, epaisseur_bras);
 	avant_bras_gauche.setColor(0, 0xff, 0);
 	avant_bras_gauche.local.centered = centerCubes;
 
 	Obj3d			avant_bras_droit(cubebp, obj3d_prog);
 	avant_bras_droit.displayTexture = false;
-	avant_bras_droit.local.setScale(epaisseur_bras, longueur_bras, epaisseur_bras);
 	avant_bras_droit.setColor(0, 0, 0xff);
 	avant_bras_droit.local.centered = centerCubes;
 
 	Obj3d			apres_bras_gauche(cubebp, obj3d_prog);
 	apres_bras_gauche.displayTexture = false;
-	apres_bras_gauche.setColor(0xf0, 0xf0, 0);
+	apres_bras_gauche.setColor(0xff, 0, 0);
 	apres_bras_gauche.local.centered = centerCubes;
 
 	Obj3d			apres_bras_droit(cubebp, obj3d_prog);
 	apres_bras_droit.displayTexture = false;
-	apres_bras_droit.setColor(0, 0xf0, 0xf0);
+	apres_bras_droit.setColor(0, 0xff, 0xff);
 	apres_bras_droit.local.centered = centerCubes;
 
 	//hierarchy
 	tronc.setParent(&containerTronc);
 	avant_bras_gauche.setParent(&containerTronc);
-		apres_bras_gauche.setParent(&avant_bras_gauche);
+	apres_bras_gauche.setParent(&avant_bras_gauche);
 	avant_bras_droit.setParent(&containerTronc);
-		apres_bras_droit.setParent(&avant_bras_droit);
+	apres_bras_droit.setParent(&avant_bras_droit);
 
-	//explicit absolute position
-	containerTronc.local.setPos(0,0,0);
-	tronc.local.setPos(0,0,0);
-	avant_bras_droit.local.setPos(0,0,0);
-	avant_bras_gauche.local.setPos(0,0,0);
 
 	//relative position
-	avant_bras_gauche.local.translate(-epaisseur_bras, 0, 0);
-	avant_bras_droit.local.translate(epaisseur_tronc, 0, 0);
-	Math::Vector3	offset = VEC3_DOWN;
-	offset.mult(epaisseur_tronc * 2);
-	// apres_bras_gauche.local.translate(offset);
-	// apres_bras_droit.local.translate(offset);
-	apres_bras_gauche.local.translate(VEC3_DOWN);
-	apres_bras_droit.local.translate(VEC3_DOWN);
+	// avant_bras_gauche.local.translate(-1.5, 0, 0);
+	avant_bras_droit.local.translate(4.5, 0, 0);
+	// apres_bras_gauche.local.translate(VEC3_DOWN);
+	// apres_bras_droit.local.translate(VEC3_DOWN);
 
 	//debug
-	// avant_bras_droit.local.translate(VEC3_UP);
-	// avant_bras_gauche.local.translate(VEC3_UP);
+	avant_bras_gauche.local.translate(0, 0.1, 0);
+	
+
+		
+	avant_bras_gauche.local.getPos().printData();
+	avant_bras_gauche.local.updateMatrix();
+	avant_bras_gauche.local.getMatrix().printData();
+	cout << "----------\n";
+	apres_bras_gauche.local.getPos().printData();
+	apres_bras_gauche.local.updateMatrix();
+	apres_bras_gauche.local.getMatrix().printData();
 
 	list<Obj3d*>	obj3dList;
 	// obj3dList.push_back(&containerTronc);

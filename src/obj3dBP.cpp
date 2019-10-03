@@ -255,8 +255,18 @@ Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 }
 
 //mutators
+void			Obj3dBP::setCenterOffset(Math::Vector3 offset) {
+	this->_centerOffset = offset;
+}
+void			Obj3dBP::setCenterOffset(float x, float y, float z) {
+	this->_centerOffset.x = x;
+	this->_centerOffset.y = y;
+	this->_centerOffset.z = z;
+}
+
 //accessors
 int				Obj3dBP::getFaceAmount(void) const { return (this->_faceAmount); }
 Math::Vector3	Obj3dBP::getCenterOffset(void) const { return (this->_centerOffset); }
 Math::Vector3	Obj3dBP::getDimensions(void) const { return (this->_dimensions); }
 bool			Obj3dBP::isRescaled(void) const { return (this->_rescaled); }
+

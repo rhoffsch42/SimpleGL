@@ -23,6 +23,9 @@ public:
 	Math::Vector3	getDimensions(void) const;
 	bool			isRescaled(void) const;
 
+	void			setCenterOffset(Math::Vector3 offset);//you must know what you do
+	void			setCenterOffset(float x, float y, float z);//you must know what you do
+
 protected:
 private:
 	// file data

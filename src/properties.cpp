@@ -66,7 +66,7 @@ void		Properties::center() {
 	offset.z *= this->_scale.z;
 	Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
 	offsetneg.rotate(this->_rot, ROT_WAY);
-	this->_centeredPos.add(offsetneg);
+	this->_centeredPos.add(offsetneg);//todo: offsetneg, inutile, utiliser sub directement
 	this->_matrix.updatePosValue(this->_centeredPos);
 	this->_matrixChanged = true;
 }
