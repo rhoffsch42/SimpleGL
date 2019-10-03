@@ -57,8 +57,13 @@ bool		Object::update() {//update Properties
 		this->_parent->update();
 		// if (this->_parent->local._matrixChanged || this->local._matrixChanged) {
 		if (this->_parent->_worldMatrixChanged || this->_parent->local._matrixChanged || this->local._matrixChanged) {
-			this->_worldMatrix = this->_parent->_worldMatrix;
-			this->_worldMatrix.mult(this->local._matrix);
+			if (1) {
+				this->_worldMatrix = this->_parent->_worldMatrix;
+				this->_worldMatrix.mult(this->local._matrix);
+			} else {
+				this->_worldMatrix = this->local._matrix;
+				this->_worldMatrix.mult(this->_parent->_worldMatrix);
+			}
 			this->_worldMatrixChanged = true;
 			return (false);
 		}

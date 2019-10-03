@@ -285,6 +285,7 @@ void	scene1() {
 	// Properties::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
 		lambo1.local.setPos(-20, 0, 0);
+		lambo1.local.setScale(1, 5, 1);
 		lambo1.local.setPos(0, -5, 7);
 		lambo1.setTexture(texture1);
 		lambo1.displayTexture = true;
@@ -296,6 +297,7 @@ void	scene1() {
 	Obj3d			lambo2(lamboBP, obj3d_prog);
 		// lambo2.local.setPos(0, -1.9f, 0);
 		lambo2.local.setPos(0, -6.0f, 0);
+		lambo2.local.setScale(1, 5, 1);
 		lambo2.local.setRot(0, 180.0f, 0);
 		lambo2.setTexture(texture1);
 		lambo2.displayTexture = true;
@@ -327,7 +329,7 @@ void	scene1() {
 		obj3dList.push_back(&lambo2);
 		obj3dList.push_back(&lambo3);
 
-		if (false) {//spiral
+		if (true) {//spiral
 			// Obj3d*	backObj = &lambo3;
 			for (int i = 0; i < 20; i++) {
 				Obj3d* lamboPlus = new Obj3d(lamboBP, obj3d_prog);
@@ -414,7 +416,7 @@ void	scene1() {
 	TransformBH		b2;// = b1;//bug
 		b2.transform.scale = Math::Vector3(0,0,0);
 		b2.modeScale = ADDITIVE;
-		b2.transform.rot.z = 0.0f;
+		// b2.transform.rot.z = 0.0f;
 		b2.transform.rot.x = -45.0f * defaultFps->tick;
 		// b2.removeTarget(&rocket1);
 		b2.addTarget(&empty1);
@@ -422,6 +424,12 @@ void	scene1() {
 		b2.addTarget(&empty1);
 		b2.removeTarget(&rocket1);
 	
+	TransformBH		b3;// = b1;//bug
+		b3.transform.scale = Math::Vector3(0,0,0);
+		b3.modeScale = ADDITIVE;
+		b3.transform.rot.y = 720.0f * defaultFps->tick;
+		b3.addTarget(&lambo2);
+
 		cout << "b1: " << b1.getTargetList().size() << endl;
 		cout << "b2: " << b2.getTargetList().size() << endl;
 	// exit(0);
@@ -491,6 +499,7 @@ void	scene1() {
 			if (true) {
 				b1.run();
 				b2.run();
+				b3.run();
 				// Math::Matrix4	matEmpty = empty1.getWorldMatrix();
 				// matEmpty.printData();
 			}
@@ -653,10 +662,10 @@ void scene2() {
 				rocket.local.setPos(pos);
 
 
-//#define 	GLFW_KEY_RIGHT   262
-//#define 	GLFW_KEY_LEFT   263
-//#define 	GLFW_KEY_DOWN   264
-//#define 	GLFW_KEY_UP   265
+			//#define 	GLFW_KEY_RIGHT   262
+			//#define 	GLFW_KEY_LEFT   263
+			//#define 	GLFW_KEY_DOWN   264
+			//#define 	GLFW_KEY_UP   265
 			}
 
 			// printFps();
@@ -684,13 +693,14 @@ void sceneHumanGL() {
 	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
 
 	Obj3dBP::defaultSize = 1.0f;
-	Obj3dBP		cubebp("obj3d/cube.obj", true);
+	Obj3dBP		cubebp("obj3d/cube_down.obj", true);
 
 	Texture *	lena = new Texture("images/lena.bmp");
 
 #ifndef MEMBERS
 	float		epaisseur_bras = 1.0f;
 	float		epaisseur_tronc = 2.0f;
+	float		longueur_bras = 1.0f;
 	bool		centerCubes = false;
 
 	Object			containerTronc;
@@ -703,13 +713,13 @@ void sceneHumanGL() {
 
 	Obj3d			avant_bras_gauche(cubebp, obj3d_prog);
 	avant_bras_gauche.displayTexture = false;
-	avant_bras_gauche.local.setScale(epaisseur_bras, epaisseur_tronc * 2, epaisseur_bras);
+	avant_bras_gauche.local.setScale(epaisseur_bras, longueur_bras, epaisseur_bras);
 	avant_bras_gauche.setColor(0, 0xff, 0);
 	avant_bras_gauche.local.centered = centerCubes;
 
 	Obj3d			avant_bras_droit(cubebp, obj3d_prog);
 	avant_bras_droit.displayTexture = false;
-	avant_bras_droit.local.setScale(-epaisseur_bras, epaisseur_tronc * 2, epaisseur_bras);
+	avant_bras_droit.local.setScale(epaisseur_bras, longueur_bras, epaisseur_bras);
 	avant_bras_droit.setColor(0, 0, 0xff);
 	avant_bras_droit.local.centered = centerCubes;
 
@@ -730,12 +740,25 @@ void sceneHumanGL() {
 	avant_bras_droit.setParent(&containerTronc);
 		apres_bras_droit.setParent(&avant_bras_droit);
 
+	//explicit absolute position
+	containerTronc.local.setPos(0,0,0);
+	tronc.local.setPos(0,0,0);
+	avant_bras_droit.local.setPos(0,0,0);
+	avant_bras_gauche.local.setPos(0,0,0);
+
 	//relative position
 	avant_bras_gauche.local.translate(-epaisseur_bras, 0, 0);
 	avant_bras_droit.local.translate(epaisseur_tronc, 0, 0);
+	Math::Vector3	offset = VEC3_DOWN;
+	offset.mult(epaisseur_tronc * 2);
+	// apres_bras_gauche.local.translate(offset);
+	// apres_bras_droit.local.translate(offset);
 	apres_bras_gauche.local.translate(VEC3_DOWN);
 	apres_bras_droit.local.translate(VEC3_DOWN);
 
+	//debug
+	// avant_bras_droit.local.translate(VEC3_UP);
+	// avant_bras_gauche.local.translate(VEC3_UP);
 
 	list<Obj3d*>	obj3dList;
 	// obj3dList.push_back(&containerTronc);
@@ -759,26 +782,43 @@ void sceneHumanGL() {
 
 	Fps	fps144(144);
 	Fps	fps60(60);
+	Fps	fps20(5);
 	Fps* defaultFps = &fps60;
 
-	TransformBH		b_rotZ;
-	b_rotZ.transform.rot.setUnit(ROT_DEG);
-	b_rotZ.transform.rot.z = 100 * defaultFps->tick;
-	b_rotZ.modeRot = ADDITIVE;
-	b_rotZ.addTarget(&avant_bras_droit);
-	b_rotZ.addTarget(&containerTronc);
+#ifndef BEHAVIORS
+	TransformBH		b1_rot;
+	b1_rot.transform.rot.setUnit(ROT_DEG);
+	b1_rot.transform.rot.x = 20 * defaultFps->tick;
+	// b1_rot.transform.rot.y = 20 * defaultFps->tick;
+	// b1_rot.transform.rot.z = 20 * defaultFps->tick;
+	b1_rot.modeRot = ADDITIVE;
+	b1_rot.addTarget(&avant_bras_droit);
+	b1_rot.addTarget(&apres_bras_droit);
+	// b1_rot.addTarget(&containerTronc);
 
-	TransformBH		b_rotY;
-	b_rotY.transform.rot.setUnit(ROT_DEG);
-	b_rotY.transform.rot.y = 720 * defaultFps->tick;
-	b_rotY.modeRot = ADDITIVE;
-	b_rotY.addTarget(&avant_bras_gauche);
+	TransformBH		b2_rot;
+	b2_rot.transform.rot.setUnit(ROT_DEG);
+	// b2_rot.transform.rot.x = 20 * defaultFps->tick;
+	b2_rot.transform.rot.y = 50 * defaultFps->tick;
+	b2_rot.modeRot = ADDITIVE;
+	// b2_rot.addTarget(&avant_bras_gauche);
+	// b2_rot.addTarget(&avant_bras_droit);
+	// b2_rot.addTarget(&apres_bras_droit);
 
+	// avant_bras_gauche.behaviorsActive = false;
+	// Behavior::areActive = false;
+#endif // BEHAVIORS
 
+#ifndef RENDER
+
+	double t = glfwGetTime();
+	glfwSwapInterval(1);
 	while (!glfwWindowShouldClose(glfw._window)) {
+		// std::cout << glfwGetTime() - t << std::endl;
+
 		if (defaultFps->wait_for_next_frame()) {
-			b_rotZ.run();
-			b_rotY.run();
+			b1_rot.run();
+			b2_rot.run();
 
 			glfwPollEvents();
 			glfw.updateMouse(); // to do before cam's events
@@ -791,6 +831,7 @@ void sceneHumanGL() {
 				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
 		}
 	}
+#endif // RENDER
 }
 
 int		main(void) {
@@ -800,7 +841,7 @@ int		main(void) {
 	std::cout << "____START____" << endl;
 //	test_obj_loader();
 
-	//scene1();
+	// scene1();
 	// scene2();
 	sceneHumanGL();
 	// while(1);

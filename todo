@@ -1,3 +1,8 @@
+---- HUMANGL WISHES FOR SimpleGL	-------------------------------------------------------
+rotation:
+	-	use rad for calculation by default, have a variable for degree
+			if user want to use func with degree, he should have to use ROT_DEGREE flag
+	OR-	use only rad, user MUST convert his degree to radian
 ---- other			-------------------------------------------------------
 float	(*Vector3::operation)(float,float);
 	inline?	add/sub/etc
@@ -43,7 +48,6 @@ overload operator << for all classes to get a nice printing. overkill
 	at least replace X.printData (math.hpp)
 
 quaternions: https://www.youtube.com/watch?v=d4EgbgTm0Bg
-
 ---- GUI			-------------------------------------------------------
 	Qt
 ---- BUGS			-------------------------------------------------------

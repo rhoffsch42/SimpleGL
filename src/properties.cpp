@@ -107,6 +107,7 @@ void		Properties::rotate(float x, float y, float z) {// in degree!
 void		Properties::rotate(Math::Rotation rot) {
 	// cout << "* Properties::rotate" << endl;
 	// this->_rot.operation(Math::Vector3);//cf .hpp
+	//todo: restore inital rotation unit ?
 	if (rot.isRadian() != this->_rot.isRadian()) {
 		rot.setAsRad();
 		this->_rot.setAsRad();
