@@ -6,11 +6,11 @@
 #    By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/10/03 17:26:21 by jfortin          ###   ########.fr        #
+#    Updated: 2019/10/15 12:33:41 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME			=	HumanGL
+NAME			=	SimpleGL
 CC				=	g++ -std=c++11
 CFLAGS			=	-Wall -Wextra -Werror -MMD -g #-Wpadded
 TEST_FLAGS		=	-DUNIT_TESTS=false
