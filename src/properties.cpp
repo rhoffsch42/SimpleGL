@@ -36,8 +36,6 @@ bool		Properties::updateMatrix() {
 	// cout << "* Properties::updateMatrix" << endl;
 	if (this->_matrixUpdated == false) {
 		this->_matrix.modelMatrix(this->_pos, this->_rot, this->_scale);
-		if (this->centered)
-			this->center();
 		this->_matrixUpdated = true;
 		this->_matrixChanged = true;
 		return (false);
@@ -45,12 +43,8 @@ bool		Properties::updateMatrix() {
 	return (true);
 }
 
-void		Properties::center() {
-	/*
-		a faire a chaque changement de pos (+rapide)
-		ou mettre this->_matrixUpdated = false; (-rapide)
-	*/
 /*
+	Math::Vector3::RotateAround(...)
 	https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
 	Easy way of building the rotation matrix :
 		1	Start with an identity matrix
@@ -59,17 +53,6 @@ void		Properties::center() {
 		4	Translate the matrix by centre of the object
 		5	Use the resulting matrix to transform the object that you desire to rotate
 */
-	this->_centeredPos = this->_pos;
-	Math::Vector3	offset = this->_centerOffset;
-	offset.x *= this->_scale.x;
-	offset.y *= this->_scale.y;
-	offset.z *= this->_scale.z;
-	Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
-	offsetneg.rotate(this->_rot, ROT_WAY);
-	this->_centeredPos.add(offsetneg);//todo: offsetneg, inutile, utiliser sub directement
-	this->_matrix.updatePosValue(this->_centeredPos);
-	this->_matrixChanged = true;
-}
 
 //relative mutators
 void		Properties::translate(float x, float y, float z) {
@@ -77,19 +60,13 @@ void		Properties::translate(float x, float y, float z) {
 	this->_pos.x += x;
 	this->_pos.y += y;
 	this->_pos.z += z;
-	if (this->centered)
-		this->center();
-	else
-		this->_matrix.updatePosValue(this->_pos);
+	this->_matrix.updatePosValue(this->_pos);
 	this->_matrixChanged = true;
 }
 void		Properties::translate(Math::Vector3 pos) {
 	// this->_pos.operation(Math::Vector3);//cf .hpp
 	this->_pos.add(pos);
-	if (this->centered)
-		this->center();
-	else
-		this->_matrix.updatePosValue(this->_pos);
+	this->_matrix.updatePosValue(this->_pos);
 	this->_matrixChanged = true;
 }
 void		Properties::rotate(float x, float y, float z) {// in degree!
@@ -132,18 +109,12 @@ void		Properties::setPos(float x, float y, float z) {
 	this->_pos.x = x;
 	this->_pos.y = y;
 	this->_pos.z = z;
-	if (this->centered)
-		this->center();
-	else
-		this->_matrix.updatePosValue(this->_pos);
+	this->_matrix.updatePosValue(this->_pos);
 	this->_matrixChanged = true;
 }
 void		Properties::setPos(Math::Vector3 pos) {
 	this->_pos = pos;
-	if (this->centered)
-		this->center();
-	else
-		this->_matrix.updatePosValue(this->_pos);
+	this->_matrix.updatePosValue(this->_pos);
 	this->_matrixChanged = true;
 }
 void		Properties::setRot(float x, float y, float z) {// in degree!

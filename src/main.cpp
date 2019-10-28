@@ -241,14 +241,12 @@ void	scene1() {
 		the42_1.displayTexture = true;
 		the42_1.setPolygonMode(GL_FILL);
 		the42_1.local.setScale(1, 1, 1);
-		the42_1.local.centered = true;
 
 	Obj3d			the42_2(the42_1);
 		//the42_2.local.setPos(0, 3, -5);
 		the42_2.local.setPos(-4, -2, -2);
 		the42_2.setTexture(texture2);
 		the42_2.displayTexture = false;
-		the42_2.local.centered = true;
 		// the42_2.setScale(3.0f, 0.75f, 0.3f);
 		the42_2.setPolygonMode(GL_LINE);
 
@@ -275,7 +273,6 @@ void	scene1() {
 		rocket1.local.rotate(0, 180, 0);
 		rocket1.setTexture(texture5);
 		rocket1.displayTexture = true;
-		rocket1.local.centered = true;
 		// rocket1.setPolygonMode(GL_LINE);
 		s = 10.0f;
 		rocket1.local.setScale(s,s,s);
@@ -285,11 +282,10 @@ void	scene1() {
 	// Properties::defaultSize = 13.0f;
 	Obj3d			lambo1(lamboBP, obj3d_prog);
 		lambo1.local.setPos(-20, 0, 0);
-		lambo1.local.setScale(1, 5, 1);
+		// lambo1.local.setScale(1, 1, 1);
 		lambo1.local.setPos(0, -5, 7);
 		lambo1.setTexture(texture1);
 		lambo1.displayTexture = true;
-		lambo1.local.centered = true;
 		lambo1.setPolygonMode(GL_LINE);
 		s = 0.025f;
 		// lambo1.setScale(s, s, s);
@@ -297,11 +293,10 @@ void	scene1() {
 	Obj3d			lambo2(lamboBP, obj3d_prog);
 		// lambo2.local.setPos(0, -1.9f, 0);
 		lambo2.local.setPos(0, -6.0f, 0);
-		lambo2.local.setScale(1, 5, 1);
+		// lambo2.local.setScale(1, 5, 1);
 		lambo2.local.setRot(0, 180.0f, 0);
 		lambo2.setTexture(texture1);
 		lambo2.displayTexture = true;
-		lambo2.local.centered = true;
 		// lambo2.setPolygonMode(GL_LINE);
 		s = 0.4f;
 		// lambo2.local.setScale(s, s, s);
@@ -313,7 +308,6 @@ void	scene1() {
 		lambo3.local.setRot(0, 0.0f, 180);
 		lambo3.setTexture(&texture8);
 		lambo3.displayTexture = true;
-		lambo3.local.centered = true;
 		// lambo3.setPolygonMode(GL_LINE);
 		s = 30.0f;
 		// lambo3.local.setScale(s, s, s);
@@ -335,8 +329,8 @@ void	scene1() {
 				Obj3d* lamboPlus = new Obj3d(lamboBP, obj3d_prog);
 				lamboPlus->setParent(&lambo3);
 				lamboPlus->displayTexture = (i % 2) ? true : false;
-				lamboPlus->local.centered = true;
 				lamboPlus->setTexture(&texture8);
+				lamboPlus->setColor(i * 45 % 255, i * 10 % 255, i * 73 % 255);
 				float maxScale = 3;
 				float scale = (float)((i % (int)maxScale) - (maxScale / 2));
 				lamboPlus->local.enlarge(scale, scale, scale);
@@ -369,7 +363,6 @@ void	scene1() {
 
 #ifndef CAM
 	Cam		cam(glfw);
-	cam.local.centered = false;
 	cam.local.setPos(0, 0, 10);
 	cam.printProperties();
 	cam.lockedMovement = false;
@@ -427,7 +420,7 @@ void	scene1() {
 	TransformBH		b3;// = b1;//bug
 		b3.transform.scale = Math::Vector3(0,0,0);
 		b3.modeScale = ADDITIVE;
-		b3.transform.rot.y = 720.0f * defaultFps->tick;
+		b3.transform.rot.y = 102.0f * defaultFps->tick;
 		b3.addTarget(&lambo2);
 
 		cout << "b1: " << b1.getTargetList().size() << endl;
@@ -553,7 +546,6 @@ void scene2() {
 	rocket.local.setPos(0, 0, 0);
 	rocket.setTexture(texture5);
 	rocket.displayTexture = true;
-	rocket.local.centered = true;
 	float s = 10.0f;
 	rocket.local.setScale(s, s, s);
 
@@ -561,7 +553,6 @@ void scene2() {
 	rocket2.local.setPos(5, 0, 0);
 	rocket2.setTexture(texture5);
 	rocket2.displayTexture = true;
-	rocket2.local.centered = true;
 	s = 5000.0f;
 	rocket2.local.setScale(s, s, s);
 
@@ -570,7 +561,6 @@ void scene2() {
 
 
 	Cam		cam(glfw);
-	cam.local.centered = false;
 	cam.local.setPos(0, 15, 35);
 	cam.printProperties();
 	cam.lockedMovement = false;
@@ -695,13 +685,11 @@ void sceneHumanGL() {
 	Obj3dBP::defaultSize = 1.0f;
 	Obj3dBP			cubebp("obj3d/cube.obj", true);
 	Math::Vector3	dimensions = cubebp.getDimensions();
-	cubebp.setCenterOffset(dimensions.x / 2, 0, dimensions.z / 2);
 
 	Texture *	lena = new Texture("images/lena.bmp");
 
 #ifndef MEMBERS
 	float		epaisseur_tronc = 2.0f;
-	bool		centerCubes = false;
 
 	Object			containerTronc;
 	Obj3d			tronc(cubebp, obj3d_prog);
@@ -709,27 +697,22 @@ void sceneHumanGL() {
 	tronc.displayTexture = true;
 	tronc.local.setScale(epaisseur_tronc, epaisseur_tronc * 3, epaisseur_tronc);//bad, use rescale of obj3d vertices
 	tronc.setColor(0xff, 0, 0);
-	tronc.local.centered = centerCubes;
 
 	Obj3d			avant_bras_gauche(cubebp, obj3d_prog);
 	avant_bras_gauche.displayTexture = false;
 	avant_bras_gauche.setColor(0, 0xff, 0);
-	avant_bras_gauche.local.centered = centerCubes;
 
 	Obj3d			avant_bras_droit(cubebp, obj3d_prog);
 	avant_bras_droit.displayTexture = false;
 	avant_bras_droit.setColor(0, 0, 0xff);
-	avant_bras_droit.local.centered = centerCubes;
 
 	Obj3d			apres_bras_gauche(cubebp, obj3d_prog);
 	apres_bras_gauche.displayTexture = false;
 	apres_bras_gauche.setColor(0xff, 0, 0);
-	apres_bras_gauche.local.centered = centerCubes;
 
 	Obj3d			apres_bras_droit(cubebp, obj3d_prog);
 	apres_bras_droit.displayTexture = false;
 	apres_bras_droit.setColor(0, 0xff, 0xff);
-	apres_bras_droit.local.centered = centerCubes;
 
 	//hierarchy
 	tronc.setParent(&containerTronc);
@@ -761,15 +744,14 @@ void sceneHumanGL() {
 	obj3dList.push_back(&tronc);
 	obj3dList.push_back(&avant_bras_gauche);
 	obj3dList.push_back(&avant_bras_droit);
-	obj3dList.push_back(&apres_bras_droit);
-	obj3dList.push_back(&apres_bras_gauche);
+	// obj3dList.push_back(&apres_bras_droit);
+	// obj3dList.push_back(&apres_bras_gauche);
 #endif // MEMBERS
 
 	Texture*	texture2 = new Texture("images/skybox4.bmp");//skybox3.bmp bug?
 	Skybox		skybox(*texture2, sky_pg);
 	
 	Cam		cam(glfw);
-	cam.local.centered = false;
 	cam.local.setPos(0, 0, 10);
 	cam.setFov(90);
 	cam.lockedMovement = false;
@@ -837,9 +819,9 @@ int		main(void) {
 	std::cout << "____START____" << endl;
 //	test_obj_loader();
 
-	// scene1();
+	scene1();
 	// scene2();
-	sceneHumanGL();
+	// sceneHumanGL();
 	// while(1);
 
 	return (EXIT_SUCCESS);

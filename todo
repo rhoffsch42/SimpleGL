@@ -1,3 +1,4 @@
+add classDiagram here
 ---- HUMANGL WISHES FOR SimpleGL	-------------------------------------------------------
 rotation:
 	-	use rad for calculation by default, have a variable for degree

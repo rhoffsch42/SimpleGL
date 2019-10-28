@@ -30,8 +30,8 @@ void	Obj3dPG::linkBuffers(GLuint& vboVertex, GLuint& vboColor, GLuint& vboTextur
 }
 
 void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
-	Math::Vector3	color = obj.getColor();
-	Obj3dBP&		bp = obj.getBlueprint();
+	const Math::Vector3 &	color = obj.getColorShader();
+	Obj3dBP &		bp = obj.getBlueprint();
 	// Math::Matrix4&	modelMatrix = obj.getParent() ? obj.getWorldMatrix() : obj.local.getMatrix();
 	Math::Matrix4&	modelMatrix = obj.getWorldMatrix();
 
@@ -59,10 +59,9 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 		glUniform1f(this->_tex_coef, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, obj.getPolygonMode());
 	glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
-	
+
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 }
 
 void	Obj3dPG::getLocations(void) {

@@ -12,7 +12,7 @@ class Obj3dBP : public Blueprint
 public:
 	static float			defaultSize;
 
-	Obj3dBP(string filename, bool rescale);
+	Obj3dBP(string filename, bool rescale = true, bool center = true);
 	Obj3dBP(Obj3dBP const & src);
 	~Obj3dBP();
 	Obj3dBP&	operator=(const Obj3dBP& obj3dbp);//a refaire

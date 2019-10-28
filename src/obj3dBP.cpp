@@ -15,7 +15,7 @@ static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 }
 
 
-Obj3dBP::Obj3dBP(string filename, bool rescale) : Blueprint(filename) {
+Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filename) {
 	cout << "_ Obj3dBP cons by filename" << endl;
 
 	filename = Misc::crossPlatPath(filename);
@@ -145,6 +145,14 @@ Obj3dBP::Obj3dBP(string filename, bool rescale) : Blueprint(filename) {
 	this->_dimensions.x = vmax[0] - vmin[0];
 	this->_dimensions.y = vmax[1] - vmin[1];
 	this->_dimensions.z = vmax[2] - vmin[2];
+
+	if (center) {
+		for (size_t i = 0; i < points.size(); i += 3) {
+			points[i + 0] -= this->_centerOffset.x;
+			points[i + 1] -= this->_centerOffset.y;
+			points[i + 2] -= this->_centerOffset.z;
+		}
+	}
 
 	this->_rescaled = rescale;
 	if (rescale) {

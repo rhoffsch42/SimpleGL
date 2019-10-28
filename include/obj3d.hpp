@@ -25,7 +25,7 @@ public:
 
 	void			render(Math::Matrix4& PVmatrix);
 
-	void			setColor(uint8_t x, uint8_t y, uint8_t z);
+	void			setColor(uint8_t x, uint8_t y, uint8_t z);// 0 -> 255
 	void			setTexture(Texture* texture);
 	void			setPolygonMode(GLenum mode);
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
@@ -34,6 +34,7 @@ public:
 	Obj3dBP&		getBlueprint(void) const;
 	Obj3dPG&		getProgram(void) const;
 	Math::Vector3	getColor(void) const;
+	Math::Vector3	getColorShader(void) const;
 	Texture*		getTexture(void) const;
 	GLenum			getPolygonMode(void) const;
 
@@ -47,6 +48,7 @@ private:
 	Obj3dBP&		_blueprint;
 	Obj3dPG&		_program;
 	Math::Vector3	_color;
+	Math::Vector3	_colorShader;
 	Texture*		_texture;
 	GLenum			_polygonMode;
 };

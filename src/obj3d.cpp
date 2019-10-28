@@ -61,6 +61,10 @@ void		Obj3d::setColor(uint8_t x, uint8_t y, uint8_t z) {
 	this->_color.x = x;
 	this->_color.y = y;
 	this->_color.z = z;
+
+	this->_colorShader.x = x / 255.0f;
+	this->_colorShader.y = y / 255.0f;
+	this->_colorShader.z = z / 255.0f;
 }
 void		Obj3d::setTexture(Texture* texture) {
 	this->_texture = texture;
@@ -79,5 +83,6 @@ void		Obj3d::setPolygonMode(GLenum mode) {
 Obj3dBP&		Obj3d::getBlueprint(void) const { return (this->_blueprint); }
 Obj3dPG&		Obj3d::getProgram(void) const { return (this->_program); }
 Math::Vector3	Obj3d::getColor(void) const { return (this->_color); }
+Math::Vector3	Obj3d::getColorShader(void) const { return (this->_colorShader); }
 Texture*		Obj3d::getTexture(void) const { return (this->_texture); }
 GLenum			Obj3d::getPolygonMode(void) const { return (this->_polygonMode); }

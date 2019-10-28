@@ -81,5 +81,5 @@ private://public ?
 
 	Math::Vector3	_centerOffset;
 	Math::Vector3	_centeredPos;
-	void			center();
+	// void			center();
 };
