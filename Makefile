@@ -46,7 +46,8 @@ SRC_FILE		=	main.cpp \
 					texture.cpp \
 					behavior.cpp \
 					behaviormanaged.cpp \
-					transformBH.cpp
+					transformBH.cpp \
+					fps.cpp
 
 HDR_FILE		=	simplegl.h
 

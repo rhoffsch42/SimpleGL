@@ -24,6 +24,7 @@
 #include "skybox.hpp"
 #include "glfw.hpp"
 #include "transformBH.hpp"
+#include "fps.hpp"
 
 #include <string>
 #include <cstdio>
@@ -34,51 +35,6 @@
 #else
 #include <unistd.h>
 #endif
-
-class Fps
-{
-public:
-	Fps(int fps_val) {
-		this->fps = fps_val;
-		this->old_fps = fps_val;
-		this->tick = 1.0 / this->fps;
-		this->last_time = glfwGetTime();
-		this->ellapsed_time = 0.0;
-	}
-	double				fps;
-	double				old_fps;
-	double				tick;
-	double				ellapsed_time;
-	double				last_time;
-
-	bool		wait_for_next_frame() {
-		this->ellapsed_time = glfwGetTime() - this->last_time;
-		if (this->ellapsed_time >= this->tick)
-		{
-			this->last_time += this->ellapsed_time;
-			this->ellapsed_time = 0.0;
-			return (true);
-		}
-		else
-			return (false);
-	}
-};
-
-void	printFps() {
-	static double last_time = 0;
-	static double ellapsed_time = 0;
-	double	current_time;
-	double	fps;
-	double	cent;
-	current_time = glfwGetTime();
-	ellapsed_time = current_time - last_time;
-	fps = 1.0 / ellapsed_time;
-	cent = fps - double(int(fps));
-	if (cent >= 0.5)
-		fps += 1.0;
-	cout << (float)current_time << "\t" << int(fps) << "fps" << endl;
-	last_time += ellapsed_time;
-}
 
 void	renderObj3d(list<Obj3d*>	obj3dList, Cam& cam) {
 	// cout << "render all Obj3d" << endl;
@@ -392,9 +348,9 @@ void	scene1() {
 	cout << "behavior:" << endl;
 	TransformBH		b1;
 		b1.transform.rot.setUnit(ROT_DEG);
-		b1.transform.rot.z = 10 * defaultFps->tick;
+		b1.transform.rot.z = 10 * defaultFps->getTick();
 		b1.modeRot = ADDITIVE;
-		float ss = 1.0f + 0.1f * defaultFps->tick;
+		float ss = 1.0f + 0.1f * defaultFps->getTick();
 		//b1.transform.scale = Math::Vector3(ss, ss, ss);
 	//	b1.modeScale = MULTIPLICATIVE;
 		cout << "___ adding rocket1: " << &rocket1 << endl;
@@ -410,7 +366,7 @@ void	scene1() {
 		b2.transform.scale = Math::Vector3(0,0,0);
 		b2.modeScale = ADDITIVE;
 		// b2.transform.rot.z = 0.0f;
-		b2.transform.rot.x = 45.0f * defaultFps->tick;
+		b2.transform.rot.x = 45.0f * defaultFps->getTick();
 		// b2.removeTarget(&rocket1);
 		b2.addTarget(&empty1);
 		//bug if i do:
@@ -420,7 +376,7 @@ void	scene1() {
 	TransformBH		b3;// = b1;//bug
 		b3.transform.scale = Math::Vector3(0,0,0);
 		b3.modeScale = ADDITIVE;
-		b3.transform.rot.y = 102.0f * defaultFps->tick;
+		b3.transform.rot.y = 102.0f * defaultFps->getTick();
 		b3.addTarget(&lambo2);
 
 		cout << "b1: " << b1.getTargetList().size() << endl;
@@ -429,7 +385,7 @@ void	scene1() {
 	TransformBH		b4;// = b1;//bug
 		b4.transform.scale = Math::Vector3(0,0,0);
 		b4.modeScale = ADDITIVE;
-		b4.transform.rot.y = 720.0f * defaultFps->tick;
+		b4.transform.rot.y = 720.0f * defaultFps->getTick();
 		b4.addTarget(&teapot1);
 	// exit(0);
 
@@ -502,11 +458,11 @@ void	scene1() {
 				b4.run();
 				if (false) {
 					Math::Vector3 p = teapot1.local.getPos();
-					float r = 180 * defaultFps->tick;
+					float r = 180 * defaultFps->getTick();
 					p.rotateAround(cam.local.getPos(), Math::Rotation(r, 0, 0));
 					teapot1.local.setPos(p);
 				} else if (true) {
-					float r = 180 * defaultFps->tick;
+					float r = 180 * defaultFps->getTick();
 					teapot1.local.rotateAround(cam.local.getPos(), Math::Rotation(r, 0, 0));
 				}
 				// Math::Matrix4	matEmpty = empty1.getWorldMatrix();
@@ -516,7 +472,7 @@ void	scene1() {
 
 			glfwPollEvents();
 			glfw.updateMouse();//to do before cam's events
-			cam.events(glfw, float(defaultFps->tick));
+			cam.events(glfw, float(defaultFps->getTick()));
 			// printFps();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderObj3d(obj3dList, cam);
@@ -599,7 +555,7 @@ void scene2() {
 	Fps	fps60(60);
 	Fps* defaultFps = &fps144;
 
-	float	mvt = 30.0f * defaultFps->tick;
+	float	mvt = 30.0f * defaultFps->getTick();
 
 	std::cout << "Begin while loop" << endl;
 	int c = 0;
@@ -635,7 +591,7 @@ void scene2() {
 
 			glfwPollEvents();
 			glfw.updateMouse();//to do before cam's events
-			cam.events(glfw, float(defaultFps->tick));
+			cam.events(glfw, float(defaultFps->getTick()));
 			if (true) {
 				if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_LEFT))
 					rocket.local.rotate(0,		mvt,	0);
@@ -782,9 +738,9 @@ void sceneHumanGL() {
 #ifndef BEHAVIORS
 	TransformBH		b1_rot;
 	b1_rot.transform.rot.setUnit(ROT_DEG);
-	b1_rot.transform.rot.x = 20 * defaultFps->tick;
-	// b1_rot.transform.rot.y = 20 * defaultFps->tick;
-	// b1_rot.transform.rot.z = 20 * defaultFps->tick;
+	b1_rot.transform.rot.x = 20 * defaultFps->getTick();
+	// b1_rot.transform.rot.y = 20 * defaultFps->getTick();
+	// b1_rot.transform.rot.z = 20 * defaultFps->getTick();
 	b1_rot.modeRot = ADDITIVE;
 	b1_rot.addTarget(&avant_bras_droit);
 	b1_rot.addTarget(&apres_bras_droit);
@@ -792,8 +748,8 @@ void sceneHumanGL() {
 
 	TransformBH		b2_rot;
 	b2_rot.transform.rot.setUnit(ROT_DEG);
-	// b2_rot.transform.rot.x = 20 * defaultFps->tick;
-	b2_rot.transform.rot.y = 50 * defaultFps->tick;
+	// b2_rot.transform.rot.x = 20 * defaultFps->getTick();
+	b2_rot.transform.rot.y = 50 * defaultFps->getTick();
 	b2_rot.modeRot = ADDITIVE;
 	// b2_rot.addTarget(&avant_bras_gauche);
 	// b2_rot.addTarget(&avant_bras_droit);
@@ -816,7 +772,7 @@ void sceneHumanGL() {
 
 			glfwPollEvents();
 			glfw.updateMouse(); // to do before cam's events
-			cam.events(glfw, float(defaultFps->tick));
+			cam.events(glfw, float(defaultFps->getTick()));
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderObj3d(obj3dList, cam);
 			renderSkybox(skybox, cam);
