@@ -1,13 +1,55 @@
 #include "simplegl.h"
 #include "glfw.hpp"
 
-static void		errorCallback(int error, const char *description) {
+static void		defaultErrorCallback(int error, const char *description) {
 	cerr << error << " : " << description << endl;
 }
 
-static void		windowCloseCallback(GLFWwindow* window) {
-//	if (!time_to_close)
+static void		defaultWindowCloseCallback(GLFWwindow* window) {
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	(void)window;(void)button;(void)action;(void)mods;
+	// std::cout << __PRETTY_FUNCTION__ << std::endl;
+	if (action == GLFW_PRESS) {
+		Glfw * glfw = (Glfw*)glfwGetWindowUserPointer(window);//FIX should we use dynamic cast to check the pointer ?
+		if (glfw->cursorFree) {
+			double x, y;
+			glfwGetCursorPos(window, &x, &y);
+			if (button == GLFW_MOUSE_BUTTON_RIGHT)
+				std::cout << "right button: ";
+			else if (button == GLFW_MOUSE_BUTTON_LEFT)
+				std::cout << "left button: ";
+			std::cout << x << " : " << y << std::endl;
+		}
+	}
+}
+
+static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	// std::cout << __PRETTY_FUNCTION__ << std::endl;
+	if (false) {
+		std::cout << "keys: " << key << std::endl;
+		std::cout << "scancode: " << scancode << std::endl;
+		std::cout << "action: " << action << std::endl;
+		std::cout << "mods: " << mods << std::endl;
+	}
+	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
+
+	Glfw * glfw = (Glfw*)glfwGetWindowUserPointer(window);//FIX should we use dynamic cast to check the pointer ?
+	if (glfw->func[key])
+		(glfw->func[key])(window, key, scancode, action, mods);
+}
+
+static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+	if (action == GLFW_PRESS) {
+		std::cout << "tab press" << std::endl;
+		Glfw * glfw = (Glfw*)glfwGetWindowUserPointer(window);//FIX should we use dynamic cast to check the pointer ?
+		glfw->toggleCursor();
+	}
 }
 
 Glfw::Glfw() {
@@ -35,7 +77,7 @@ void	Glfw::init() {
 		cerr << "glfwInit failed" << endl;
 		Misc::breakExit(GL_ERROR);
 	}
-	glfwSetErrorCallback(errorCallback);
+	glfwSetErrorCallback(defaultErrorCallback);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_MAJOR);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_MINOR);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -46,9 +88,12 @@ void	Glfw::init() {
 		cerr << "glfwCreateWindow failed" << endl;
 		Misc::breakExit(GL_ERROR);
 	}
-	glfwSetWindowCloseCallback(this->_window, windowCloseCallback);
-	
+	glfwSetWindowCloseCallback(this->_window, defaultWindowCloseCallback);
+	glfwSetKeyCallback(this->_window, defaultkeyCallback);
+	glfwSetMouseButtonCallback(this->_window, defaultMouseButtonCallback);
+
 	glfwMakeContextCurrent(this->_window);
+	this->cursorFree = false;
 	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(this->_window, GLFW_STICKY_KEYS, 1);
 	glfwSetInputMode(this->_window, GLFW_STICKY_MOUSE_BUTTONS, 1);
@@ -72,22 +117,56 @@ void	Glfw::init() {
 	glfwGetCursorPos(this->_window, &this->_mouseOriginX, &this->_mouseOriginY);
 	this->setMouseAngle(MOUSE_MAX_ANGLE);
 	cout << "GL version: " << glGetString(GL_VERSION) << endl;
+
+	//glfw key map
+	glfwSetWindowUserPointer(this->_window, this);
+	this->func[GLFW_KEY_TAB] = keyCallback_tab;
 }
 
 void	Glfw::updateMouse() {
 	glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
-	this->_mouseDiffX = float(this->_mouseOriginX - this->_mouseX);
-	this->_mouseDiffY = float(this->_mouseOriginY - this->_mouseY);
-	if (this->_mouseWall >= 0) {
-		if (this->_mouseDiffY > this->_mouseWall) {
-			this->_mouseDiffY = this->_mouseWall;
-			glfwSetCursorPos(this->_window, this->_mouseX, this->_mouseOriginY - this->_mouseWall);
-		}
-		if (this->_mouseDiffY < -this->_mouseWall) {
-			this->_mouseDiffY = -this->_mouseWall;
-			glfwSetCursorPos(this->_window, this->_mouseX, this->_mouseOriginY + this->_mouseWall);
+	
+	if (false) {
+	std::cout << this->_mouseX << " : " << this->_mouseY \
+	<< "\t(" << this->_mouseOriginX << " : " << this->_mouseOriginY << ")" << std::endl;
+	} else if (false) {
+		//diff
+		std::cout <<this->_mouseOriginX - this->_mouseX << " : " \
+				<< this->_mouseOriginY - this->_mouseY << std::endl;
+	}
+
+	if (!this->cursorFree) {
+		this->_mouseDiffX = this->_mouseX - this->_mouseOriginX + this->_mouseOffsetX;
+		this->_mouseDiffY = this->_mouseY - this->_mouseOriginY + this->_mouseOffsetY;
+
+		if (this->_mouseWall >= 0) {
+			if (this->_mouseDiffY > this->_mouseWall) {
+				this->_mouseDiffY = this->_mouseWall;
+				glfwSetCursorPos(this->_window, this->_mouseX, this->_mouseOriginY + this->_mouseWall - this->_mouseOffsetY);//hit the wall sooner due to offset
+			} else if (this->_mouseDiffY < -this->_mouseWall) {
+				this->_mouseDiffY = -this->_mouseWall;
+				glfwSetCursorPos(this->_window, this->_mouseX, this->_mouseOriginY - this->_mouseWall - this->_mouseOffsetY);//hit the wall sooner due to offset
+			}
 		}
 	}
+}
+
+void		Glfw::toggleCursor() {
+	int	modes[2] = {GLFW_CURSOR_NORMAL, GLFW_CURSOR_DISABLED};
+	glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
+	if (this->cursorFree) {// if cursor is about to be locked
+
+		this->_mouseOriginX = this->_mouseX;
+		this->_mouseOriginY = this->_mouseY;
+		/*
+			As the origin is changed, we have to set the virtual cursor at the same diff as before (when we left locked state),
+			we just save the diff in an offset that will be added on the later diff calculations
+		*/
+		this->_mouseOffsetX = this->_mouseDiffX;
+		this->_mouseOffsetY = this->_mouseDiffY;
+	}
+	this->cursorFree = !this->cursorFree;//toggle
+	glfwSetInputMode(this->_window, GLFW_CURSOR, modes[(this->cursorFree ? 0 : 1)]);
 }
 
 void	Glfw::setMouseAngle(double angle) {// set to negative to deactivate

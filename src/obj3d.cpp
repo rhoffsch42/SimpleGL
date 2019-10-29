@@ -11,7 +11,7 @@ Math::Vector3	Obj3d::defaultColor = OBJ3D_DEFAULT_COLOR;
 Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	cout << "_ Obj3d cons" << endl;
 	this->_color = Obj3d::defaultColor;
-	this->_texture = NULL;
+	this->_texture = nullptr;
 	this->_polygonMode = Obj3d::defaultPolygonMode;
 	this->displayTexture = Obj3d::defaultDisplayTexture;
 	this->local._centerOffset = bp.getCenterOffset();

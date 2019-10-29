@@ -9,7 +9,7 @@ unsigned int	Object::_instanceId = 0;
 Object::Object() : BehaviorManaged() {
 	cout << "_ Object cons" << endl;
 	this->_id = Object::_instanceId;
-	this->_parent = NULL;
+	this->_parent = nullptr;
 	this->_worldMatrixChanged = true;
 
 	Object::_instanceAmount++;
@@ -19,7 +19,7 @@ Object::Object() : BehaviorManaged() {
 Object::Object(Properties object_pp) : BehaviorManaged(), local(object_pp) {
 	cout << "_ Object cons with custom Properties" << endl;
 	this->_id = Object::_instanceId;
-	this->_parent = NULL;
+	this->_parent = nullptr;
 	this->_worldMatrixChanged = true;
 
 	Object::_instanceAmount++;

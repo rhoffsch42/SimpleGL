@@ -24,6 +24,7 @@
 #undef max
 #endif
 #include <algorithm>
+#include <map>
 
 #define DEFAULT_WIDTH	800
 #define DEFAULT_HEIGHT	800
@@ -45,6 +46,8 @@
 	fenetre comprise dans la classe pour le moment (1 fenetre max)
 */
 
+typedef	void	(*t_glfwKeyCallback)(GLFWwindow*, int, int, int, int);
+
 class Glfw
 {
 #if UNIT_TESTS == true
@@ -55,6 +58,10 @@ public:
 	Glfw(unsigned int width, unsigned int height);
 	~Glfw();
 	void			updateMouse();
+
+	//use it to toggle the cursor. Care when using glfwSetInputMode, this can lead to conflicts
+	void			toggleCursor();
+
 	//mutator
 	void			setMouseAngle(double angle);//degree, set to negative to deactivate
 	void			setTitle(std::string newTitle);
@@ -62,20 +69,31 @@ public:
 	double			getMouseAngle() const;
 	std::string		getTitle() const;
 
+
+	// virtual void		onKey(int key, int scancode, int action, int mods);
+
 	GLFWwindow *	_window;//private?
+	bool			cursorFree;
+	std::map<int, t_glfwKeyCallback>	func;
 
 private://changer double en uint ? cf glfwGetCursorPos
 	unsigned int	_width;
 	unsigned int	_height;
 	std::string		_title;
-	double			_mouseOriginX;
-	double			_mouseOriginY;
-	double			_mouseAngle;
-	double			_mouseWall;
+
 	double			_mouseX;
 	double			_mouseY;
+	double			_mouseOriginX;
+	double			_mouseOriginY;
 	double			_mouseDiffX;
 	double			_mouseDiffY;
+	double			_mouseOffsetX;
+	double			_mouseOffsetY;
+	double			_mouseAngle;
+	double			_mouseWall;
+
+
+
 
 	void	init();
 

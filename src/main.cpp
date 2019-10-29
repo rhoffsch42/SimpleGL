@@ -368,7 +368,7 @@ void	scene1() {
 	cam.lockedMovement = false;
 	cam.lockedOrientation = false;
 
-	glfw.setMouseAngle(-1);
+	glfw.setMouseAngle(45);
 	std::cout << "MouseAngle: " <<  glfw.getMouseAngle() << std::endl;
 	//exit(0);
 
@@ -410,7 +410,7 @@ void	scene1() {
 		b2.transform.scale = Math::Vector3(0,0,0);
 		b2.modeScale = ADDITIVE;
 		// b2.transform.rot.z = 0.0f;
-		b2.transform.rot.x = -45.0f * defaultFps->tick;
+		b2.transform.rot.x = 45.0f * defaultFps->tick;
 		// b2.removeTarget(&rocket1);
 		b2.addTarget(&empty1);
 		//bug if i do:
@@ -425,6 +425,12 @@ void	scene1() {
 
 		cout << "b1: " << b1.getTargetList().size() << endl;
 		cout << "b2: " << b2.getTargetList().size() << endl;
+
+	TransformBH		b4;// = b1;//bug
+		b4.transform.scale = Math::Vector3(0,0,0);
+		b4.modeScale = ADDITIVE;
+		b4.transform.rot.y = 720.0f * defaultFps->tick;
+		b4.addTarget(&teapot1);
 	// exit(0);
 
 	if (false) {// check behavior target, add remove
@@ -493,6 +499,16 @@ void	scene1() {
 				b1.run();
 				b2.run();
 				b3.run();
+				b4.run();
+				if (false) {
+					Math::Vector3 p = teapot1.local.getPos();
+					float r = 180 * defaultFps->tick;
+					p.rotateAround(cam.local.getPos(), Math::Rotation(r, 0, 0));
+					teapot1.local.setPos(p);
+				} else if (true) {
+					float r = 180 * defaultFps->tick;
+					teapot1.local.rotateAround(cam.local.getPos(), Math::Rotation(r, 0, 0));
+				}
 				// Math::Matrix4	matEmpty = empty1.getWorldMatrix();
 				// matEmpty.printData();
 			}

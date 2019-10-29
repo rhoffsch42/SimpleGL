@@ -50,7 +50,7 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
 	glBindVertexArray(bp.getVao());
-	if (obj.displayTexture && obj.getTexture() != NULL) {
+	if (obj.displayTexture && obj.getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, obj.getTexture()->getId());
 		glBindBuffer(GL_ARRAY_BUFFER, bp.getVboTexture());

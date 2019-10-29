@@ -107,11 +107,13 @@ void	Cam::events(Glfw& glfw, float fpsTick) {
 		void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 			/!\ need global Glfw to access mouse variables
 	*/
+	if (glfw.cursorFree)
+		return ;
 	if (!this->lockedOrientation) {
 		this->local._rot.setUnit(ROT_DEG);
 		this->local._rot.z = 0;
-		this->local._rot.y = -(float(glfw._mouseDiffX) * 360.0f / MOUSE_SENSIBILITY);//mouse's X pos for cam's Y rot axis
-		this->local._rot.x = -(float(glfw._mouseDiffY) * 360.0f / MOUSE_SENSIBILITY);//mouse's Y pos for cam's X rot axis
+		this->local._rot.y = (float(glfw._mouseDiffX) * 360.0f / MOUSE_SENSIBILITY);//mouse's X pos for cam's Y rot axis
+		this->local._rot.x = (float(glfw._mouseDiffY) * 360.0f / MOUSE_SENSIBILITY);//mouse's Y pos for cam's X rot axis
 		this->local._matrixUpdated = false;
 		this->updateCamVectors();
 	}

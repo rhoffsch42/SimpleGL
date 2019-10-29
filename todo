@@ -1,4 +1,3 @@
-add classDiagram here
 ---- HUMANGL WISHES FOR SimpleGL	-------------------------------------------------------
 rotation:
 	-	use rad for calculation by default, have a variable for degree
@@ -35,10 +34,28 @@ if (condition)//bad but tolerated, braces should englobe code
 public variables without underscore: _varname;
 regroup class and inherited class in the same file ? not everything would need that
 ---- Main features	-------------------------------------------------------
+glfw keys:
+	{
+		glfw.setKeyFunction(int key, void (func)(void*) )
+	}
+	void defaultkeyCallback(...)
+	{
+		g_glfwPtr->func[key](window, key, scancode, action, mods);
+	}
+Object::_parent : setter/getter useless? make it public. Check other members on ALL classes too.
+confusing: same function names that do different things:
+	Properties::rotate() :			add a rot to the current rot of the object
+	Vector3::rotate() :				apply a rotation on the 3 coordinates
+	Properties::rotateAround() :	rotate the object around a point, modifying its pos and rotation
+	Vector3::rotateAround() :		rotate the vector around a point, modifying the 3 coordinates
+use default value to avoir multiple overloads of member funcs (especially in Math::)
 make a CounterManaged to destroy easely all instances, or do whatever ( Texture : public CounterManaged  ->  Texture::DestroyAll)
 change all exit() by throw exception that could be catched by user
 Nath::Matrix4::scaleMatrix probablement fausse, check les ut aussi
 Math::Vector3	make a "linear" mult? Vec3(2,2,2) * Vec3(2,3,4) = Vec3(4,6,8) //or change operator, see properties.hpp
+Math::Vector3	operator surcharges:
+					+- Vector3
+					+-*/ float, %?
 cam.setParent() *finish Behavior and other fix before continuing this
 	working but movement are from worldSpace and not localSpace (need unlock mvt/orientation)
 class Object (cf obj3d.hpp, skybox.hpp, program.hpp and derived)

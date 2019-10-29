@@ -12,8 +12,7 @@ std::string			Misc::getCurrentDirectory(void) {
 	char	path[FILENAME_MAX];
 
 	memset(path, 0, sizeof(path));
-	if (getcwd(path, sizeof(path)) == NULL)
-	{
+	if (getcwd(path, sizeof(path)) == nullptr) {
 		cerr << "getcwd error" << endl;
 		exit(UNKNOW_ERROR);
 	}
@@ -32,19 +31,18 @@ std::string			Misc::getFileContent(const char *filename) {
 	std::string	contents;
 	std::FILE	*fp = fopen(filename, "rb");
 
-	if (fp)
-	{
+	if (fp) {
 		std::fseek(fp, 0, SEEK_END);
 		contents.resize(std::ftell(fp));
 		std::rewind(fp);
 		std::fread(&contents[0], 1, contents.size(), fp);
 		std::fclose(fp);
-		return(contents);
+	} else {
+		cerr << "fopen failed to open : " << filename << endl;
+		exit(102);
 	}
-	cerr << "fopen failed to open : " << filename << endl;
 
-	exit(102);
-	return (NULL);
+	return (contents);
 }
 
 void				Misc::logfile(std::string basename, std::string logs) {

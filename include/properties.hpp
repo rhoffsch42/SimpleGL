@@ -52,6 +52,10 @@ public:
 	void			translate(Math::Vector3 pos);
 	void			rotate(float x, float y, float z);// in degree!
 	void			rotate(Math::Rotation rot);
+	
+	// rotate as if rotatePoint was the origin of the object
+	void			rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay = ROT_WAY);
+
 	void			enlarge(float x, float y, float z);
 	void			enlarge(Math::Vector3 scale);
 	//mutators

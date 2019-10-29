@@ -92,6 +92,12 @@ void		Properties::rotate(Math::Rotation rot) {
 	this->_rot.add(rot);
 	this->_matrixUpdated = false;
 }
+void		Properties::rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay) {
+	this->_pos.rotateAround(rotatePoint, rot, rotWay);
+	this->_rot.add(rot);
+	this->_matrixUpdated = false;
+}
+
 void		Properties::enlarge(float x, float y, float z) {
 	// this->_scale.operation(x, y, z);//cf .hpp
 	this->_scale.x += x;
