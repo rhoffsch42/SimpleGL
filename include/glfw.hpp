@@ -69,9 +69,6 @@ public:
 	double			getMouseAngle() const;
 	std::string		getTitle() const;
 
-
-	// virtual void		onKey(int key, int scancode, int action, int mods);
-
 	GLFWwindow *	_window;//private?
 	bool			cursorFree;
 	std::map<int, t_glfwKeyCallback>	func;

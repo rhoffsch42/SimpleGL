@@ -161,19 +161,9 @@ void			Math::Vector3::ZYXrotate(Math::Rotation rot, float rotWay) {
 	this->z = tmp.z;
 }
 void			Math::Vector3::rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay) {
-	// this->_centeredPos = this->_pos;
-	// Math::Vector3	offset = this->_centerOffset;
-	// offset.x *= this->_scale.x;
-	// offset.y *= this->_scale.y;
-	// offset.z *= this->_scale.z;
-	// Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
-	// offsetneg.rotate(this->_rot, ROT_WAY);
-	// this->_centeredPos.add(offsetneg);//todo: offsetneg, inutile, utiliser sub directement
-
 	this->sub(rotatePoint);
 	this->rotate(rot, rotWay);
 	this->add(rotatePoint);
-
 }
 void			Math::Vector3::translate(Math::Vector3 v) {
 	this->add(v);

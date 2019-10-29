@@ -75,7 +75,7 @@ public:
 		// rotate as if rotatePoint was the origin of the world
 		void	rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay = ROT_WAY);
 		/*
-			? Is it possible to avoir doing that : 
+			? Is it possible to avoid doing that : 
 				void	rotateAround(Math::Vector3 rotatePoint, float rotX, float rotY, float rotZ, float rotWay = ROT_WAY);
 				void	rotateAround(float posX, float posY, float posZ, Math::Rotation rot, float rotWay = ROT_WAY);
 				void	rotateAround(float posX, float posY, float posZ, float rotX, float rotY, float rotZ, float rotWay = ROT_WAY);

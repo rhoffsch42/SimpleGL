@@ -34,14 +34,6 @@ if (condition)//bad but tolerated, braces should englobe code
 public variables without underscore: _varname;
 regroup class and inherited class in the same file ? not everything would need that
 ---- Main features	-------------------------------------------------------
-glfw keys:
-	{
-		glfw.setKeyFunction(int key, void (func)(void*) )
-	}
-	void defaultkeyCallback(...)
-	{
-		g_glfwPtr->func[key](window, key, scancode, action, mods);
-	}
 Object::_parent : setter/getter useless? make it public. Check other members on ALL classes too.
 confusing: same function names that do different things:
 	Properties::rotate() :			add a rot to the current rot of the object
