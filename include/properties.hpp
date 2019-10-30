@@ -9,8 +9,6 @@ class Properties {
 	friend class Obj3d;
 	friend class Cam;
 public:
-	static bool				defaultCentered;
-
 	Properties();
 	Properties(const Properties& src);
 	~Properties();
@@ -70,10 +68,7 @@ public:
 	Math::Vector3	getPos(void) const;
 	Math::Rotation	getRot(void) const;
 	Math::Vector3	getScale(void) const;
-	Math::Vector3	getCenterOffset(void) const;
-	Math::Vector3	getCenteredPos(void) const;
 
-	bool			centered;
 	bool			_matrixChanged;
 private://public ?
 	Math::Matrix4	_matrix;
@@ -82,8 +77,4 @@ private://public ?
 	Math::Vector3	_pos;
 	Math::Rotation	_rot;
 	Math::Vector3	_scale;
-
-	Math::Vector3	_centerOffset;
-	Math::Vector3	_centeredPos;
-	// void			center();
 };

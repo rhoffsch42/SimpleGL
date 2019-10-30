@@ -1,9 +1,11 @@
+update ClassDiagram.png
 ---- HUMANGL WISHES FOR SimpleGL	-------------------------------------------------------
 rotation:
 	-	use rad for calculation by default, have a variable for degree
 			if user want to use func with degree, he should have to use ROT_DEGREE flag
 	OR-	use only rad, user MUST convert his degree to radian
 ---- other			-------------------------------------------------------
+documented function, ex: Math::Vector3::rotateAround
 float	(*Vector3::operation)(float,float);
 	inline?	add/sub/etc
 	compare execution speed, binary size
@@ -17,7 +19,9 @@ delete data opengl:
 	Skybox
 	Blueprint and derived
 	Program and derived
+	Texture
 ---- text/file formating	-------------------------------------------------------
+end of line: CRLF or LF
 #include "simplegl.h" in class.cpp is bad? the class.hpp have to be self-sufficient
 *.cpp: #include "SimpleGL.h" necessary? only need <iostream> ?
 pointer/ref declaration: Class* ptr || Class *ptr

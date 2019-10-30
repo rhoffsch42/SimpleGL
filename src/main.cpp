@@ -366,7 +366,7 @@ void	scene1() {
 		b2.transform.scale = Math::Vector3(0,0,0);
 		b2.modeScale = ADDITIVE;
 		// b2.transform.rot.z = 0.0f;
-		b2.transform.rot.x = 45.0f * defaultFps->getTick();
+		b2.transform.rot.x = -45.0f * defaultFps->getTick();
 		// b2.removeTarget(&rocket1);
 		b2.addTarget(&empty1);
 		//bug if i do:

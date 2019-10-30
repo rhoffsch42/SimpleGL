@@ -160,6 +160,17 @@ void			Math::Vector3::ZYXrotate(Math::Rotation rot, float rotWay) {
 	this->y = tmp.y;
 	this->z = tmp.z;
 }
+
+/*
+	Math::Vector3::rotateAround is based from this implementation:
+	https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
+	Easy way of building the rotation matrix :
+		1	Start with an identity matrix
+		2	Translate the matrix by - centre of the object
+		3	Rotate the matrix by the desired amount
+		4	Translate the matrix by centre of the object
+		5	Use the resulting matrix to transform the object that you desire to rotate
+*/
 void			Math::Vector3::rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay) {
 	this->sub(rotatePoint);
 	this->rotate(rot, rotWay);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fps.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/21 17:18:39 by jfortin           #+#    #+#             */
-/*   Updated: 2019/10/25 18:04:31 by jfortin          ###   ########.fr       */
+/*   Updated: 2019/10/30 09:27:12 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ Fps::~Fps() {
 // }
 
 void	Fps::setFps(unsigned int fps_val) {
+	assert(fps_val > 0); // TODO replace by macro
 	this->fps = fps_val;
 	this->tick = 1.0 / double(this->fps);
 }

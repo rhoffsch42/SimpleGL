@@ -1,8 +1,6 @@
 #include "simplegl.h"
 #include "properties.hpp"
 
-bool			Properties::defaultCentered = false;
-
 Properties::Properties() {
 	// cout << "_ Properties cons" << endl;
 	this->_scale = Math::Vector3(1, 1, 1);
@@ -16,15 +14,12 @@ Properties::Properties(const Properties& src) {
 }
 
 Properties&		Properties::operator=(const Properties& src) {
-	this->centered = src.centered;
 	this->_matrix = Math::Matrix4(src.getMatrix());
 	this->_matrixUpdated = false;
 	this->_matrixChanged = true;
 	this->_pos = src.getPos();
 	this->_rot = src.getRot();
 	this->_scale = src.getScale();
-	this->_centerOffset = src.getCenterOffset();
-	this->_centeredPos = src.getCenteredPos();
 	return (*this);
 }
 
@@ -42,17 +37,6 @@ bool		Properties::updateMatrix() {
 	}
 	return (true);
 }
-
-/*
-	Math::Vector3::RotateAround(...)
-	https://gamedev.stackexchange.com/questions/59843/rotating-an-object-when-the-center-in-not-the-origin-opengl
-	Easy way of building the rotation matrix :
-		1	Start with an identity matrix
-		2	Translate the matrix by - centre of the object
-		3	Rotate the matrix by the desired amount
-		4	Translate the matrix by centre of the object
-		5	Use the resulting matrix to transform the object that you desire to rotate
-*/
 
 //relative mutators
 void		Properties::translate(float x, float y, float z) {
@@ -92,6 +76,7 @@ void		Properties::rotate(Math::Rotation rot) {
 	this->_rot.add(rot);
 	this->_matrixUpdated = false;
 }
+
 void		Properties::rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay) {
 	this->_pos.rotateAround(rotatePoint, rot, rotWay);
 	this->_rot.add(rot);
@@ -150,5 +135,3 @@ Math::Matrix4&	Properties::getMatrix(void) const { return ((Math::Matrix4&)this-
 Math::Vector3	Properties::getPos(void) const { return (this->_pos); }
 Math::Rotation	Properties::getRot(void) const { return (this->_rot); }
 Math::Vector3	Properties::getScale(void) const { return (this->_scale); }
-Math::Vector3	Properties::getCenterOffset(void) const { return (this->_centerOffset); }
-Math::Vector3	Properties::getCenteredPos(void) const { return (this->_centeredPos); }

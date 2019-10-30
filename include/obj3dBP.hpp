@@ -19,19 +19,16 @@ public:
 
 	//accessors
 	int				getFaceAmount(void) const;
-	Math::Vector3	getCenterOffset(void) const;
 	Math::Vector3	getDimensions(void) const;
+	bool			isCentered(void) const;
 	bool			isRescaled(void) const;
-
-	void			setCenterOffset(Math::Vector3 offset);//you must know what you do
-	void			setCenterOffset(float x, float y, float z);//you must know what you do
 
 protected:
 private:
 	// file data
 	int				_faceAmount;
-	Math::Vector3	_centerOffset;
 	Math::Vector3	_dimensions;
+	bool			_centered;
 	bool			_rescaled;
 };
 

@@ -139,26 +139,29 @@ Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filenam
 		}
 	}
 	this->_faceAmount = (int)points.size() / 9;
-	this->_centerOffset.x = (vmin[0] + vmax[0]) / 2;
-	this->_centerOffset.y = (vmin[1] + vmax[1]) / 2;
-	this->_centerOffset.z = (vmin[2] + vmax[2]) / 2;
 	this->_dimensions.x = vmax[0] - vmin[0];
 	this->_dimensions.y = vmax[1] - vmin[1];
 	this->_dimensions.z = vmax[2] - vmin[2];
 
+	Math::Vector3	centerOffset;
+	centerOffset.x = (vmin[0] + vmax[0]) / 2;
+	centerOffset.y = (vmin[1] + vmax[1]) / 2;
+	centerOffset.z = (vmin[2] + vmax[2]) / 2;
+	this->_centered = center;
 	if (center) {
+
 		for (size_t i = 0; i < points.size(); i += 3) {
-			points[i + 0] -= this->_centerOffset.x;
-			points[i + 1] -= this->_centerOffset.y;
-			points[i + 2] -= this->_centerOffset.z;
+			points[i + 0] -= centerOffset.x;
+			points[i + 1] -= centerOffset.y;
+			points[i + 2] -= centerOffset.z;
 		}
 	}
 
+	float	scaleCoef = 1.0f;
 	this->_rescaled = rescale;
 	if (rescale) {
-		float	scaleCoef = calcScaleCoef(this->_dimensions, Obj3dBP::defaultSize);
+		scaleCoef = calcScaleCoef(this->_dimensions, Obj3dBP::defaultSize);
 		this->_dimensions.mult(scaleCoef);
-		this->_centerOffset.mult(scaleCoef);
 		for (size_t i = 0; i < points.size(); i++) {
 			points[i] *= scaleCoef;
 		}
@@ -166,15 +169,18 @@ Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filenam
 
 	std::cout << "faces { " << this->_faceAmount << " }" << endl;
 	std::cout << "color { " << (int)colors.size() / 9 << " }" << endl;
-	std::cout << "centerOffset:\t" << this->_centerOffset.x << " " << this->_centerOffset.y << " " << this->_centerOffset.z << endl;
+	std::cout << "center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
+	std::cout << "scale coef:\t" << scaleCoef << endl;
 
 	if (LOGFILES) {
 		logs << endl;
 		logs << "total polygons:\t" << c1 << endl;
 		logs << "faces { " << this->_faceAmount << " }" << endl;
 		logs << "color { " << (int)colors.size() / 9 << " }" << endl;
-		logs << "centerOffset:\t" << this->_centerOffset.x << " " << this->_centerOffset.y << " " << this->_centerOffset.z << endl;
 		logs << "rescaled: " << (this->_rescaled ? "yes" : "no") << endl;
+		logs << "scale coef:\t" << scaleCoef << endl;
+		logs << "centered: " << (this->_centered ? "yes" : "no") << endl;
+		logs << "center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
 		
 		//data
 		logs << "vertices:\t";
@@ -256,25 +262,16 @@ Obj3dBP::~Obj3dBP() {
 Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 	cout << "_ Obj3dBP operator =" << endl;
 	this->_faceAmount = src.getFaceAmount();
-	this->_centerOffset = src.getCenterOffset();
 	this->_dimensions = src.getDimensions();
+	this->_centered = src.isCentered();
 	this->_rescaled = src.isRescaled();
 	return (*this);
 }
 
 //mutators
-void			Obj3dBP::setCenterOffset(Math::Vector3 offset) {
-	this->_centerOffset = offset;
-}
-void			Obj3dBP::setCenterOffset(float x, float y, float z) {
-	this->_centerOffset.x = x;
-	this->_centerOffset.y = y;
-	this->_centerOffset.z = z;
-}
-
 //accessors
 int				Obj3dBP::getFaceAmount(void) const { return (this->_faceAmount); }
-Math::Vector3	Obj3dBP::getCenterOffset(void) const { return (this->_centerOffset); }
 Math::Vector3	Obj3dBP::getDimensions(void) const { return (this->_dimensions); }
+bool			Obj3dBP::isCentered(void) const { return (this->_centered); }
 bool			Obj3dBP::isRescaled(void) const { return (this->_rescaled); }
 
