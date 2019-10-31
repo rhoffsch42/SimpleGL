@@ -172,9 +172,9 @@ void			Math::Vector3::ZYXrotate(Math::Rotation rot, float rotWay) {
 		5	Use the resulting matrix to transform the object that you desire to rotate
 */
 void			Math::Vector3::rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay) {
-	this->sub(rotatePoint);
-	this->rotate(rot, rotWay);
-	this->add(rotatePoint);
+		this->sub(rotatePoint);
+		this->rotate(rot, rotWay);
+		this->add(rotatePoint);
 }
 void			Math::Vector3::translate(Math::Vector3 v) {
 	this->add(v);

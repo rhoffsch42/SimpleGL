@@ -77,9 +77,23 @@ void		Properties::rotate(Math::Rotation rot) {
 	this->_matrixUpdated = false;
 }
 
+/*
+	this->_centeredPos = this->_pos;
+	Math::Vector3	offset = this->_centerOffset;
+	offset.x *= this->_scale.x;
+	offset.y *= this->_scale.y;
+	offset.z *= this->_scale.z;
+	Math::Vector3	offsetneg(-offset.x, -offset.y, -offset.z);
+	offsetneg.rotate(this->_rot, ROT_WAY);
+	this->_centeredPos.add(offsetneg);//todo: offsetneg, inutile, utiliser sub directement
+*/
 void		Properties::rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot, float rotWay) {
+	/*FIX function not working
+		apparently the rotation is incorrect
+		the new pos seems correct as its distance from rotationPoint stays the same
+	*/
+	this->rotate(rot);//FIX add rotway arg
 	this->_pos.rotateAround(rotatePoint, rot, rotWay);
-	this->_rot.add(rot);
 	this->_matrixUpdated = false;
 }
 

@@ -5,6 +5,22 @@ rotation:
 			if user want to use func with degree, he should have to use ROT_DEGREE flag
 	OR-	use only rad, user MUST convert his degree to radian
 ---- other			-------------------------------------------------------
+/!\ function args: use const ref when necesary, to avoid copy cons
+	example with Vector3:
+	{
+		Math::Vector3	v1(1,2,3);
+		Math::Vector3	v2(2,2,2);
+		v1.sub(v2);
+		/*
+			functions called:
+				Math::Vector3::Vector3(float x, float y, float z)
+				Math::Vector3::Vector3(float x, float y, float z)
+		BAD		Math::Vector3::Vector3(const Math::Vector3 &)
+		BAD		Math::Vector3 &Math::Vector3::operator=(const Math::Vector3 &)
+				void Math::Vector3::sub(Math::Vector3)
+		*/
+	}
+	-> check all other classes too...
 documented function, ex: Math::Vector3::rotateAround
 float	(*Vector3::operation)(float,float);
 	inline?	add/sub/etc
@@ -38,6 +54,7 @@ if (condition)//bad but tolerated, braces should englobe code
 public variables without underscore: _varname;
 regroup class and inherited class in the same file ? not everything would need that
 ---- Main features	-------------------------------------------------------
+Obj3dBP::dimensions : are they rescaled ?
 Object::_parent : setter/getter useless? make it public. Check other members on ALL classes too.
 confusing: same function names that do different things:
 	Properties::rotate() :			add a rot to the current rot of the object
