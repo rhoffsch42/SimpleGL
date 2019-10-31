@@ -6,7 +6,7 @@
 /*   By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/21 17:18:39 by jfortin           #+#    #+#             */
-/*   Updated: 2019/10/30 09:27:12 by rhoffsch         ###   ########.fr       */
+/*   Updated: 2019/10/31 18:57:52 by rhoffsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void	Fps::printFps() const {
 	cout << (float)this->current_time << "\t" << int(fps) << "fps" << endl;
 }
 
-void	printGlobalFps(void) {
+void	Fps::printGlobalFps(void) {
 	static double last_time = 0;
 	static double ellapsed_time = 0;
 	double	current_time;

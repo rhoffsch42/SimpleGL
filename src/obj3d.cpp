@@ -51,8 +51,14 @@ Obj3d::~Obj3d() {
 void		Obj3d::render(Math::Matrix4& PVmatrix) {
 	this->update();
 	this->_program.render((Obj3d&)(*this), PVmatrix);
+/*
+	/!\ Do not do that here, we have to do that once all objects are rendered.
+	//FIX If we want to do that here, the solution is:
+		 in Object::update(), update childs too if we modified our matrix
+
 	this->local._matrixChanged = false;
 	this->_worldMatrixChanged = false;
+*/
 }
 
 //mutators
