@@ -5,6 +5,7 @@ rotation:
 			if user want to use func with degree, he should have to use ROT_DEGREE flag
 	OR-	use only rad, user MUST convert his degree to radian
 ---- other			-------------------------------------------------------
+texture: create empty Texture? for framebuffer (= Texture::genTexture()
 /!\ function args: use const ref when necesary, to avoid copy cons
 	example with Vector3:
 	{

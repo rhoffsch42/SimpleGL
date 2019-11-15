@@ -4,6 +4,7 @@
 #include "obj3d.hpp"
 class Obj3d;
 #include "math.hpp"
+#include "misc.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"
@@ -17,7 +18,9 @@ public:
 	Obj3dPG(std::string vs_file, std::string fs_file);
 	~Obj3dPG();
 	void	linkBuffers(GLuint& vboVertex, GLuint& vboColor, GLuint& vboTexture) const;
-	void	render(Obj3d& obj, Math::Matrix4 VPmatrix);//HAS to be cpy constructor! (1 PV*M per obj3d)
+	void	render(Obj3d& obj, Math::Matrix4 VPmatrix) const; //HAS to be cpy constructor! (1 PV*M per obj3d)
+	void	renderUniqueId(Obj3d & obj, Math::Matrix4 PVmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
+
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles
 		render could overwrite :

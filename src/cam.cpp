@@ -101,14 +101,14 @@ void	Cam::updateViewMatrix() {
 void	Cam::events(Glfw& glfw, float fpsTick) {
 	/*
 		as long as this is done at every frame, the viewmatrix has to be updated.
-		Need to know if there are changes with mouse events, to avoid useless calculations
+		Need to know if there are changes with camera events (mouse + wasd), to avoid useless calculations
+			-> set a bool cameraMoved; // pos + rot, + parent world changed
 		glfwWaitEvents
 			http://www.glfw.org/docs/latest/group__window.html#ga554e37d781f0a997656c26b2c56c835e
 		void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 			/!\ need global Glfw to access mouse variables
 	*/
-	if (glfw.cursorFree)
-		return ;
+
 	if (!this->lockedOrientation) {
 		this->local._rot.setUnit(ROT_DEG);
 		this->local._rot.z = 0;

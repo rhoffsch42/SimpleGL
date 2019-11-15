@@ -13,8 +13,8 @@ static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int acti
 	(void)window;(void)button;(void)action;(void)mods;
 	// std::cout << __PRETTY_FUNCTION__ << std::endl;
 	if (action == GLFW_PRESS) {
-		Glfw * glfw = (Glfw*)glfwGetWindowUserPointer(window);//FIX should we use dynamic cast to check the pointer ?
-		if (glfw->cursorFree) {
+		GameManager * manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
+		if (manager->glfw && manager->glfw->cursorFree) {
 			double x, y;
 			glfwGetCursorPos(window, &x, &y);
 			if (button == GLFW_MOUSE_BUTTON_RIGHT)
@@ -27,6 +27,7 @@ static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int acti
 }
 
 static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
 	// std::cout << __PRETTY_FUNCTION__ << std::endl;
 	if (false) {
 		std::cout << "keys: " << key << std::endl;
@@ -34,11 +35,9 @@ static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int a
 		std::cout << "action: " << action << std::endl;
 		std::cout << "mods: " << mods << std::endl;
 	}
-	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
-
-	Glfw * glfw = (Glfw*)glfwGetWindowUserPointer(window);//FIX should we use dynamic cast to check the pointer ?
-	if (glfw->func[key])
-		(glfw->func[key])(window, key, scancode, action, mods);
+	GameManager * manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
+	if (manager->glfw && manager->glfw->func[key])
+		(manager->glfw->func[key])(window, key, scancode, action, mods);
 }
 
 static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -47,8 +46,10 @@ static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int acti
 
 	if (action == GLFW_PRESS) {
 		std::cout << "tab press" << std::endl;
-		Glfw * glfw = (Glfw*)glfwGetWindowUserPointer(window);//FIX should we use dynamic cast to check the pointer ?
-		glfw->toggleCursor();
+		GameManager * manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
+		if (manager->glfw) {
+			manager->glfw->toggleCursor();
+		}
 	}
 }
 
@@ -88,9 +89,6 @@ void	Glfw::init() {
 		cerr << "glfwCreateWindow failed" << endl;
 		Misc::breakExit(GL_ERROR);
 	}
-	glfwSetWindowCloseCallback(this->_window, defaultWindowCloseCallback);
-	glfwSetKeyCallback(this->_window, defaultkeyCallback);
-	glfwSetMouseButtonCallback(this->_window, defaultMouseButtonCallback);
 
 	glfwMakeContextCurrent(this->_window);
 	this->cursorFree = false;
@@ -117,10 +115,6 @@ void	Glfw::init() {
 	glfwGetCursorPos(this->_window, &this->_mouseOriginX, &this->_mouseOriginY);
 	this->setMouseAngle(MOUSE_MAX_ANGLE);
 	cout << "GL version: " << glGetString(GL_VERSION) << endl;
-
-	//glfw key map
-	glfwSetWindowUserPointer(this->_window, this);
-	this->func[GLFW_KEY_TAB] = keyCallback_tab;
 }
 
 void	Glfw::updateMouse() {
@@ -169,12 +163,22 @@ void		Glfw::toggleCursor() {
 	glfwSetInputMode(this->_window, GLFW_CURSOR, modes[(this->cursorFree ? 0 : 1)]);
 }
 
-void	Glfw::setMouseAngle(double angle) {// set to negative to deactivate
+void		Glfw::activateDefaultCallbacks(GameManager * manager) {
+	glfwSetWindowUserPointer(this->_window, manager);
+	glfwSetWindowCloseCallback(this->_window, defaultWindowCloseCallback);
+	glfwSetKeyCallback(this->_window, defaultkeyCallback);
+	glfwSetMouseButtonCallback(this->_window, defaultMouseButtonCallback);
+	
+	// key map
+	this->func[GLFW_KEY_TAB] = keyCallback_tab;
+}
+
+void		Glfw::setMouseAngle(double angle) {// set to negative to deactivate
 	this->_mouseAngle = std::min(angle, (double)MOUSE_MAX_ANGLE);
 	this->_mouseWall = this->_mouseAngle / (360.0 / MOUSE_SENSIBILITY);
 }
 
-void	Glfw::setTitle(std::string newTitle) {
+void		Glfw::setTitle(std::string newTitle) {
 	//verifier selon la taille de la fenetre? trunc ? a check
 	this->_title = newTitle;
 	glfwSetWindowTitle(this->_window, this->_title.c_str());
@@ -182,3 +186,5 @@ void	Glfw::setTitle(std::string newTitle) {
 
 double		Glfw::getMouseAngle() const { return (this->_mouseAngle); }
 std::string	Glfw::getTitle() const { return (this->_title); }
+int			Glfw::getWidth() const { return (this->_width); }
+int			Glfw::getHeight() const { return (this->_height); }

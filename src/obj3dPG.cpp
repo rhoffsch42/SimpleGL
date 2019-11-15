@@ -29,7 +29,7 @@ void	Obj3dPG::linkBuffers(GLuint& vboVertex, GLuint& vboColor, GLuint& vboTextur
 	glEnableVertexAttribArray(this->_vertex_UV_data);
 }
 
-void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
+void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	const Math::Vector3 &	color = obj.getColorShader();
 	Obj3dBP &		bp = obj.getBlueprint();
 	// Math::Matrix4&	modelMatrix = obj.getParent() ? obj.getWorldMatrix() : obj.local.getMatrix();
@@ -63,6 +63,36 @@ void	Obj3dPG::render(Obj3d& obj, Math::Matrix4 PVmatrix) {
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
+	const Math::Vector3 &	color = obj.getColorShader();
+	Obj3dBP &		bp = obj.getBlueprint();
+	Math::Matrix4&	modelMatrix = obj.getWorldMatrix();
+
+	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
+	// cout << "*\tpolygons: " << bp.getFaceAmount() << endl;
+	
+	PVmatrix.mult(modelMatrix);
+	PVmatrix.setOrder(COLUMN_MAJOR);
+	
+	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
+	glUniform1i(this->_dismod, 1);// 1 = display plain_color, 0 = vertex_color
+	//plain_color should not be used, check shader
+	unsigned int id = obj.getId();
+	uint8_t	rgb[3];
+	Misc::intToRGB(id, &(*rgb));
+	glUniform3f(this->_plain_color, float(rgb[0])/255.0f, float(rgb[1])/255.0f, float(rgb[2])/255.0f);
+	//should store adress of object directly, if we can store RGBA with the shader
+
+	glBindVertexArray(bp.getVao());
+	glUniform1f(this->_tex_coef, 0.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
+
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 
 void	Obj3dPG::getLocations(void) {
 	/* refacto: envoyer la fonction dans la classe Program:

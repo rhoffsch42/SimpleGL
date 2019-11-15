@@ -72,3 +72,17 @@ void				Misc::breakExit(int err) {
 
 	exit(err);
 }
+
+void				Misc::intToRGB(unsigned int value, uint8_t * dst) {
+	unsigned char * p = reinterpret_cast<unsigned char *>(&value);
+	dst[0] = p[0];
+	dst[1] = p[1];
+	dst[2] = p[2];
+}
+void				Misc::RGBToInt(uint8_t * rgb, unsigned int * dst) {
+	*dst = 0;
+	unsigned char * p = reinterpret_cast<unsigned char *>(dst);
+	p[0] = rgb[0];
+	p[1] = rgb[1];
+	p[2] = rgb[2];
+}

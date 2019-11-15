@@ -419,6 +419,15 @@ void	scene1() {
 #endif
 // exit(0);
 
+#ifndef GAMEMANAGER
+	GameManager	manager;
+	manager.glfw = &glfw;
+	manager.cam = &cam;
+
+	glfw.activateDefaultCallbacks(&manager);
+
+#endif
+
 #ifndef RENDER
 	cout << "Begin while loop" << endl;
 	// cam.local.setScale(s,s,s);//bad, undefined behavior

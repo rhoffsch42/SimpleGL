@@ -18,6 +18,7 @@
 
 #include "simplegl.h"
 #include "cam.hpp"
+#include "gamemanager.hpp"
 
 #ifdef _WIN32
 #undef min
@@ -46,6 +47,8 @@
 	fenetre comprise dans la classe pour le moment (1 fenetre max)
 */
 
+class GameManager;
+
 typedef	void	(*t_glfwKeyCallback)(GLFWwindow*, int, int, int, int);
 
 class Glfw
@@ -61,6 +64,7 @@ public:
 
 	//use it to toggle the cursor. Care when using glfwSetInputMode, this can lead to conflicts
 	void			toggleCursor();
+	void			activateDefaultCallbacks(GameManager * manager);
 
 	//mutator
 	void			setMouseAngle(double angle);//degree, set to negative to deactivate
@@ -68,6 +72,8 @@ public:
 	//accesor
 	double			getMouseAngle() const;
 	std::string		getTitle() const;
+	int				getWidth() const;
+	int				getHeight() const;
 
 	GLFWwindow *	_window;//private?
 	bool			cursorFree;
@@ -88,9 +94,6 @@ private://changer double en uint ? cf glfwGetCursorPos
 	double			_mouseOffsetY;
 	double			_mouseAngle;
 	double			_mouseWall;
-
-
-
 
 	void	init();
 
