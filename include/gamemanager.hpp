@@ -10,7 +10,7 @@ class Cam;
 class GameManager {
 public:
 	GameManager();
-	~GameManager();
+	virtual ~GameManager();
 
 	Glfw *			glfw;
 	Cam *			cam;
