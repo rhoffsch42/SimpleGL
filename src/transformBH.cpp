@@ -51,7 +51,7 @@ TransformBH::~TransformBH() {
 
 void	TransformBH::behaveOnTarget(BehaviorManaged *target) {
 	// cout << "_ TransformBH::run" << endl;
-	Object*	speTarget = dynamic_cast<Object*>(target);//specialisation part //todo check if success
+	Object*	speTarget = dynamic_cast<Object*>(target);//specialisation part //todo check if success (should always be? as it was checked on isCompatible())
 	if (this->modePos == ADDITIVE) {
 		speTarget->local.translate(this->transform.pos);
 	} else {

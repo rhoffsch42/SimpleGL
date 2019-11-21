@@ -26,10 +26,7 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		exit(2);
 	}
 
-	// Go to where image data starts, then read in image data
-	uint8_t*	pixels = new uint8_t[bmpInfo->biSizeImage];
-	file.seekg(bmpHeader->bfOffBits);
-	file.read((char*)pixels, bmpInfo->biSizeImage);
+
 
 	/*
 		copy BGR data, omitting padding
@@ -40,18 +37,36 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		BGRBGRBGR...000
 	*/
 	unsigned int size = this->_width * this->_height * 3;
-	this->_data = new uint8_t[size];
+std::cout << "size:" << size << std::endl;
 	int row_size_used = this->_width * 3;
-	int padding = (4 - (row_size_used % 4)) % 4;
+	int padding = (4 - (row_size_used % 4)) % 4;//wtf?!
 	int row_size_full = row_size_used + padding;
+std::cout << "padding:" << padding << std::endl;
+std::cout << "row_size_full:" << row_size_full << std::endl;
+std::cout << "bmpInfo->biSize:" << bmpInfo->biSize << std::endl;
+std::cout << "bmpInfo->biWidth:" << bmpInfo->biWidth << std::endl;
+std::cout << "bmpInfo->biHeight:" << bmpInfo->biHeight << std::endl;
+std::cout << "bmpInfo->biCompression:" << bmpInfo->biCompression << std::endl;
+std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << std::endl;
+	// if (!bmpInfo->biSizeImage)//Specifies the size, in bytes, of the image. This can be set to 0 for uncompressed RGB bitmaps.
+		bmpInfo->biSizeImage = row_size_full * bmpInfo->biHeight;
+std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << std::endl;
 
+	uint8_t*	pixels = new uint8_t[bmpInfo->biSizeImage];
+	this->_data = new uint8_t[bmpInfo->biSizeImage];//oversized (contains padding)
+	// Go to where image data starts, then read in image data
+	file.seekg(bmpHeader->bfOffBits);
+	file.read((char*)pixels, bmpInfo->biSizeImage);
+
+	//copy without padding bytes
 	int j = 0;
 	for (int i = 0; i < bmpInfo->biSizeImage; i++) {
 		this->_data[j] = pixels[i];
 		j++;
 		if ((i % row_size_full) == (row_size_used - 1))
 			i += padding;
-	}
+		// std::cout << (int)pixels[i] << " ";
+	} std::cout << std::endl;
 
 	/*
 		.bmp files store image data in the BGR format, and we have to convert it to RGB.
@@ -65,7 +80,6 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		this->_data[i + 0] = this->_data[i + 2];
 		this->_data[i + 2] = tmp;
 	}
-
 	//construct GL Texture
 	this->genTexture();
 
