@@ -6,6 +6,7 @@ rotation:
 	OR-	use only rad, user MUST convert his degree to radian
 ---- other			-------------------------------------------------------
 texture: create empty Texture? for framebuffer (= Texture::genTexture()
+texture: handle 32bits bmp too
 /!\ function args: use const ref when necesary, to avoid copy cons
 	example with Vector3:
 	{

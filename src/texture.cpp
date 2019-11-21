@@ -20,14 +20,52 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	this->_width = bmpInfo->biWidth;
 	this->_height = bmpInfo->biHeight;
 
-	// Check if the file is an actual BMP file
-	if (bmpHeader->bfType != 0x4D42) {
+	// Checks
+	if (bmpHeader->bfType != 0x4D42 ) {
 		std::cout << "File \"" << filename.c_str() << "\" isn't a bitmap file\n";
+		exit(2);
+	} else if (bmpInfo->biWidth < 0 || bmpInfo->biHeight < 0) {
+		std::cout << "File \"" << filename.c_str() << "\" has a negative width or height. Not supported (yet).\n";
+		exit(2);
+	}
+	GLenum bitMode;
+	int pixelSize = bmpInfo->biBitCount / 8;
+	if (bmpInfo->biBitCount == 24) {
+		bitMode = GL_RGB;
+	} else if (bmpInfo->biBitCount == 32) {
+		bitMode = GL_RGBA;
+	} else {
+		std::cout << "File \"" << filename.c_str() << "\" isn't a 24/32 bits bitmap file\n";
 		exit(2);
 	}
 
+	int row_size_used = this->_width * pixelSize;
+	int padding = (4 - (row_size_used % 4)) % 4;
+	int row_size_full = row_size_used + padding;
+	std::cout << "row_size_used:" << row_size_used << std::endl;
+	std::cout << "padding:" << padding << std::endl;
+	std::cout << "row_size_full:" << row_size_full << std::endl;
+	std::cout << "bmpInfo->biSize:" << bmpInfo->biSize << std::endl;
+	std::cout << "bmpInfo->biWidth:" << bmpInfo->biWidth << std::endl;
+	std::cout << "bmpInfo->biHeight:" << bmpInfo->biHeight << std::endl;
+	std::cout << "bmpInfo->biCompression:" << bmpInfo->biCompression << std::endl;
+	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << std::endl;
+	// if (!bmpInfo->biSizeImage)//Specifies the size, in bytes, of the image. This can be set to 0 for uncompressed RGB bitmaps.
+		bmpInfo->biSizeImage = row_size_full * bmpInfo->biHeight;
+	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << " (computed)"<< std::endl;
+	std::cout << "bmpInfo->biBitCount:" << bmpInfo->biBitCount << std::endl;
 
+	unsigned int RGBsize = (this->_width * 3) * bmpInfo->biHeight;// 3 cauz RGB
+	std::cout << "RGBsize:" << RGBsize << std::endl;
+	uint8_t*	pixels = new uint8_t[bmpInfo->biSizeImage];
+	// this->_data = new uint8_t[bmpInfo->biSizeImage];//oversized, but well padded for opengl (contains padding and potential 32bit size)
+	this->_data = new uint8_t[RGBsize];//size can be not well padded for openGL, see Texture::genTexture();
 
+	// Go to where image data starts, then read in image data
+	file.seekg(bmpHeader->bfOffBits);
+	file.read((char*)pixels, bmpInfo->biSizeImage);
+
+	std::cout << "transfering...";
 	/*
 		copy BGR data, omitting padding
 		ex:
@@ -36,37 +74,18 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		BGRBGRBGR...000
 		BGRBGRBGR...000
 	*/
-	unsigned int size = this->_width * this->_height * 3;
-std::cout << "size:" << size << std::endl;
-	int row_size_used = this->_width * 3;
-	int padding = (4 - (row_size_used % 4)) % 4;//wtf?!
-	int row_size_full = row_size_used + padding;
-std::cout << "padding:" << padding << std::endl;
-std::cout << "row_size_full:" << row_size_full << std::endl;
-std::cout << "bmpInfo->biSize:" << bmpInfo->biSize << std::endl;
-std::cout << "bmpInfo->biWidth:" << bmpInfo->biWidth << std::endl;
-std::cout << "bmpInfo->biHeight:" << bmpInfo->biHeight << std::endl;
-std::cout << "bmpInfo->biCompression:" << bmpInfo->biCompression << std::endl;
-std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << std::endl;
-	// if (!bmpInfo->biSizeImage)//Specifies the size, in bytes, of the image. This can be set to 0 for uncompressed RGB bitmaps.
-		bmpInfo->biSizeImage = row_size_full * bmpInfo->biHeight;
-std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << std::endl;
-
-	uint8_t*	pixels = new uint8_t[bmpInfo->biSizeImage];
-	this->_data = new uint8_t[bmpInfo->biSizeImage];//oversized (contains padding)
-	// Go to where image data starts, then read in image data
-	file.seekg(bmpHeader->bfOffBits);
-	file.read((char*)pixels, bmpInfo->biSizeImage);
-
-	//copy without padding bytes
 	int j = 0;
 	for (int i = 0; i < bmpInfo->biSizeImage; i++) {
-		this->_data[j] = pixels[i];
-		j++;
-		if ((i % row_size_full) == (row_size_used - 1))
-			i += padding;
-		// std::cout << (int)pixels[i] << " ";
-	} std::cout << std::endl;
+		if (bitMode == GL_RGBA && i % 4 == 3) {
+			// std::cout << "fuck A:" << (int)pixels[i] << std::endl;
+		} else if (padding && (i % row_size_full) > row_size_used - 1) {
+			// std::cout << "fuck padding" << std::endl;
+		} else {
+			this->_data[j] = pixels[i];
+			j++;
+		}
+	}
+	std::cout << " Done" << std::endl;
 
 	/*
 		.bmp files store image data in the BGR format, and we have to convert it to RGB.
@@ -74,18 +93,21 @@ std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << std::endl;
 		This can be avoided by using GL_BGR instead of GL_RGB with glTexImage2D() func
 		note: the data is stocked as lines, from last line to 1st line
 	*/
+	std::cout << "converting BGR to RGB...";
 	uint8_t tmp = 0;
-	for (unsigned long i = 0; i < size; i += 3) {
+	for (unsigned long i = 0; i < RGBsize; i += 3) {
 		tmp = this->_data[i + 0];
 		this->_data[i + 0] = this->_data[i + 2];
 		this->_data[i + 2] = tmp;
 	}
+	std::cout << " Done" << std::endl;
 	//construct GL Texture
 	this->genTexture();
 
 	delete bmpHeader;
 	delete bmpInfo;
 	delete[] pixels;
+	std::cout << __PRETTY_FUNCTION__ << " END\n" << std::endl;
 }
 
 Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _width(width), _height(height) {
@@ -130,9 +152,18 @@ void	Texture::printData() const {
 }
 
 void			Texture::genTexture() {
-	glGenTextures(1, &this->_id);
 	// cout << this->_id << endl;
+	glGenTextures(1, &this->_id);
 	glBindTexture(GL_TEXTURE_2D, this->_id);
+
+	//https://stackoverflow.com/questions/7380773/glteximage2d-segfault-related-to-width-height
+	//to avoid doing that, use bmp with width and height being even numbers
+	// can slow down performence ?
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+	glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->_width, this->_height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->_data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
