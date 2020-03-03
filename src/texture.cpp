@@ -153,8 +153,10 @@ void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height)
 		//exit(4);
 	} else {
 		memcpy(this->_data, data, width * height);
-		glBindTexture(GL_TEXTURE_2D, this->_id);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+		if (this->_isLoaded) {
+			glBindTexture(GL_TEXTURE_2D, this->_id);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+		}
 	}
 }
 
