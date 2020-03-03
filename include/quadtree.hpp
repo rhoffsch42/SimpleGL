@@ -46,7 +46,7 @@ public:
 
 	QuadNode **		children;
 	Pixel			pixel;
-	unsigned int	detail;//todo
+	double			detail;
 	unsigned int	x;
 	unsigned int	y;
 	unsigned int	width;

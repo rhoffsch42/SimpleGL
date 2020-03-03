@@ -40,8 +40,8 @@
 #include <unistd.h>
 #endif
 
-#define WINX 1600
-#define WINY 900
+#define WINX 1900
+#define WINY 1050
 #define WIN32_VS_FOLDER string("")
 
 void	renderObj3d(list<Obj3d*>	obj3dList, Cam& cam) {
@@ -882,7 +882,7 @@ void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int width, bool dra
 	if (!node)
 		return;
 	//if (node->isLeaf()) {
-	if (node->detail < threshold) {
+	if (node->detail <= threshold) {
 		//(*leafAmount)++;
 		//std::cout << "leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << std::endl;
 		if (node->width == 0 || node->height == 0) {
@@ -920,7 +920,7 @@ void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int width, bool dra
 		fillData(dst, node->children[3], leafAmount, width, draw_borders, threshold);
 	}
 }
-#define THRESHOLD 1
+#define THRESHOLD 0
 QuadNode* textureToQuadTree(Texture* tex) {
 	uint8_t* data = tex->getData();
 	unsigned int	w = tex->getWidth();
@@ -990,17 +990,25 @@ void scene_4Tree() {
 	Texture* rgbtest = new Texture(WIN32_VS_FOLDER + "images/test_rgb.bmp");
 	Texture* red = new Texture(WIN32_VS_FOLDER + "images/red.bmp");
 	Texture* monkey = new Texture(WIN32_VS_FOLDER + "images/monkey.bmp");
+	Texture* flower = new Texture(WIN32_VS_FOLDER + "images/flower.bmp");
 
-	Texture* baseImage = monkey;
+	Texture* baseImage = flower;
 	QuadNode* root = textureToQuadTree(baseImage);
 	int w = baseImage->getWidth();
 	int h = baseImage->getHeight();
 	uint8_t* dataOctree = new uint8_t[w * h * 3];
 
-	int size_coef = int(WINX) / int(baseImage->getWidth()) / 2.0f;
+	float size_coef = float(WINX) / float(baseImage->getWidth()) / 2.0f;
 	UIImage	uiBaseImage(baseImage);
 	uiBaseImage.setPos(0, 0);
 	uiBaseImage.setSize(uiBaseImage.getTexture()->getWidth() * size_coef, uiBaseImage.getTexture()->getHeight() * size_coef);
+
+	Texture* image4Tree = new Texture(dataOctree, w, h);
+
+	UIImage	ui4Tree(image4Tree);
+	ui4Tree.setPos(baseImage->getWidth() * size_coef, 0);
+	ui4Tree.setSize(ui4Tree.getTexture()->getWidth() * size_coef, ui4Tree.getTexture()->getHeight() * size_coef);
+
 
 	Fps	fps144(144);
 	Fps	fps60(60);
@@ -1019,12 +1027,7 @@ void scene_4Tree() {
 			leafAmount = -1;
 			//std::cout << "leafs: " << leafAmount << std::endl;
 			//std::cout << "w * h * 3 = " << w << " * " << h << " * 3 = " << w * h * 3 << std::endl;
-
-			Texture* image4Tree = new Texture(dataOctree, w, h);
-
-			UIImage	ui4Tree(image4Tree);
-			ui4Tree.setPos(baseImage->getWidth() * size_coef, 0);
-			ui4Tree.setSize(ui4Tree.getTexture()->getWidth() * size_coef, ui4Tree.getTexture()->getHeight() * size_coef);
+			image4Tree->updateData(dataOctree, root->width, root->height);
 
 			// printFps();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1034,8 +1037,6 @@ void scene_4Tree() {
 
 			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(manager.glfw->_window, GLFW_TRUE);
-
-			delete image4Tree;
 		}
 	}
 

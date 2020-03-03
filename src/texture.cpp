@@ -17,6 +17,7 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	file.read((char*)bmpHeader, sizeof(BMPFILEHEADER));
 	file.read((char*)bmpInfo, sizeof(BMPINFOHEADER));
 
+	this->_isLoaded = false;
 	this->_width = bmpInfo->biWidth;
 	this->_height = bmpInfo->biHeight;
 
@@ -59,7 +60,7 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	std::cout << "RGBsize:" << RGBsize << std::endl;
 	uint8_t*	pixels = new uint8_t[bmpInfo->biSizeImage];
 	// this->_data = new uint8_t[bmpInfo->biSizeImage];//oversized, but well padded for opengl (contains padding and potential 32bit size)
-	this->_data = new uint8_t[RGBsize];//size can be not well padded for openGL, see Texture::genTexture();
+	this->_data = new uint8_t[RGBsize];//size can be not well padded for openGL, see Texture::loadTexture();
 
 	// Go to where image data starts, then read in image data
 	file.seekg(bmpHeader->bfOffBits);
@@ -102,7 +103,7 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	}
 	std::cout << " Done" << std::endl;
 	//construct GL Texture
-	this->genTexture();
+	this->loadTexture();
 
 	delete bmpHeader;
 	delete bmpInfo;
@@ -116,7 +117,7 @@ Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _widt
 	this->_data = new uint8_t[size];
 	for (int i = 0; i < size; i++)
 		this->_data[i] = data[i];
-	this->genTexture();
+	this->loadTexture();
 }
 
 Texture::Texture(const Texture& src) {
@@ -131,14 +132,32 @@ Texture&	Texture::operator=(const Texture& src) {
 	unsigned int	size = this->_width * this->_height * 3;
 	this->_data = new uint8_t[size];
 	memcpy(this->_data, src.getData(), size);
-	this->genTexture();
+	this->_isLoaded = src.isLoaded();
+	if (this->_isLoaded)
+		this->loadTexture();
 	return (*this);
 }
 
 Texture::~Texture() {
 	// cout << "_ Texture des" << endl;
 	delete[] this->_data;
+	this->unloadTexture();
 }
+
+void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height) {
+	//force the user to send widht and height, adds a layer of security in case of unadapted data
+	if (this->_width != width || this->_height != height) {
+		std::cout << "Texture::updateData(...) failed: wrong width and/or height\n";
+		std::cout << this->_width << "x" << this->_height << " != " << width << "x" << height << "\n";
+		std::cout << this->_id << ": " << this->_filename << std::endl;
+		//exit(4);
+	} else {
+		memcpy(this->_data, data, width * height);
+		glBindTexture(GL_TEXTURE_2D, this->_id);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+	}
+}
+
 
 void	Texture::printData() const {
 	unsigned int size = this->_width * this->_height * 3;
@@ -151,7 +170,8 @@ void	Texture::printData() const {
 	}
 }
 
-void			Texture::genTexture() {
+void			Texture::loadTexture() {
+	this->_isLoaded = true;
 	// cout << this->_id << endl;
 	glGenTextures(1, &this->_id);
 	glBindTexture(GL_TEXTURE_2D, this->_id);
@@ -170,9 +190,17 @@ void			Texture::genTexture() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void	Texture::unloadTexture() {
+	this->_isLoaded = false;
+	this->_id = -1;
+	glDeleteTextures(1, &this->_id);
+}
+
+
 //accessors
 GLuint			Texture::getId() const { return (this->_id); }
 std::string		Texture::getFilename() const { return (this->_filename); }
 unsigned int	Texture::getWidth() const { return (this->_width); }
 unsigned int	Texture::getHeight() const { return (this->_height); }
 uint8_t*		Texture::getData() const { return (this->_data); }
+bool			Texture::isLoaded() const { return (this->_isLoaded); }

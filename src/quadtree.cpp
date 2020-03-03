@@ -30,8 +30,8 @@ Pixel   getAverage(Pixel** arr, int x, int y, int width, int height) {
 	return Pixel(r,g,b);
 }
 
-int	measureDetail(Pixel** arr, int x, int y, int width, int height, Pixel average) {
-	unsigned int	colorSum = 0;
+double	measureDetail(Pixel** arr, int x, int y, int width, int height, Pixel average) {
+	double	colorSum = 0;
 
 	// Calculates the distance between every pixel in the region
 	// and the average color. The Manhattan distance is used, and
@@ -46,23 +46,31 @@ int	measureDetail(Pixel** arr, int x, int y, int width, int height, Pixel averag
 
 	// Calculates the average distance, and returns the result.
 	// We divide by three, because we are averaging over 3 channels.
-	return (colorSum / (3 * width * height));
+	return (colorSum / double(3 * width * height));
 }
 
 QuadNode::QuadNode(Pixel** arr, int x, int y, int w, int h, unsigned int threshold) {
 	//std::cout << "__ QuadNode::QuadNode(...)" << std::endl;
 	this->children = nullptr;
-	this->pixel.r = -1;
-	this->pixel.g = -1;
-	this->pixel.b = -1;
+	this->pixel.r = 0;
+	this->pixel.g = 0;
+	this->pixel.b = 0;
 	this->x = x;
 	this->y = y;
 	this->width = w;
 	this->height = h;
+	if (this->width == 1 && this->height == 1) {// or w*h==1
+		this->pixel = arr[y][x];
+		this->detail = measureDetail(arr, x, y, w, h, this->pixel);//should be 0
+		if (this->detail != 0) {
+			std::cout << "1x1 area, detail: " << this->detail << std::endl;
+			exit(10);
+		}
+		return;
+	}
 	this->pixel = getAverage(arr, x, y, w, h);
-//	std::cout << "average : " << (int)this->pixel.r << " " << (int)this->pixel.g << " " << (int)this->pixel.b << std::endl;
 	this->detail = measureDetail(arr, x, y, w, h, this->pixel);
-	if (this->detail < threshold) {//too little detail
+	if (this->detail < double(threshold)) {//not that much details in the area
 		//this->pixel = getAverage(arr, x, y, w, h);
 		if (w * h >= DEBUG_LEAF_AREA && DEBUG_LEAF) {
 			std::cout << "new leaf: " << w << "x" << h << " at " << x << ":" << y << "\t";
@@ -70,8 +78,10 @@ QuadNode::QuadNode(Pixel** arr, int x, int y, int w, int h, unsigned int thresho
 		}
 		//std::cout << this->pixel.r << " " << this->pixel.g << " " << this->pixel.b << std::endl;
 	} else {
+
 		//enough detail to split
-		this->children = (QuadNode**)malloc(sizeof(QuadNode*) * 4);
+		this->children = new QuadNode * [4];
+		//this->children = (QuadNode**)malloc(sizeof(QuadNode*) * 4);
 		if (!this->children) {
 			std::cout << "malloc failed\n"; exit(5);
 		}
@@ -88,12 +98,7 @@ QuadNode::QuadNode(Pixel** arr, int x, int y, int w, int h, unsigned int thresho
 				-> 1122
 				-> 112
 		*/
-		if (this->width == 1 && this->height == 1) {
-			//should never be the case as measureDetail should detect it
-			std::cout << "how is that possible?!\n";
-			this->pixel = arr[y][x];
-			return;
-		}
+
 		/*
 		_________
 		| 0 | 1 |

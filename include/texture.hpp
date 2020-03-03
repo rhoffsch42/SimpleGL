@@ -14,6 +14,11 @@
 	https://msdn.microsoft.com/en-us/library/windows/desktop/dd183376(v=vs.85).aspx
 */
 
+/*
+	managing memory (replace + delete)
+	https://stackoverflow.com/questions/11217121/how-to-manage-memory-with-texture-in-opengl
+*/
+
 #if defined(__APPLE__) || defined(__linux__) 
 #define WORD	unsigned short	//2
 #define DWORD	int				//4
@@ -57,6 +62,10 @@ public:
 	Texture&	operator=(const Texture& src);
 	~Texture();
 
+	// width and height have to be the same, undefined behavior of data sent is not large enough
+	void	updateData(uint8_t* data, unsigned int width, unsigned int height);
+	void	loadTexture();//GC memory
+	void	unloadTexture();//GC memory
 	void	printData() const;
 
 	//accessors
@@ -65,14 +74,15 @@ public:
 	unsigned int	getWidth() const;
 	unsigned int	getHeight() const;
 	uint8_t*		getData() const;//dangerous
+	bool			isLoaded() const;
 
 private:
+	bool			_isLoaded;//GC memory
 	GLuint			_id;
 	std::string		_filename;
 	unsigned int	_width;
 	unsigned int	_height;
 	uint8_t*		_data;
 
-	void			genTexture();
 };
 
