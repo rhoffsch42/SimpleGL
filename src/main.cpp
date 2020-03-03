@@ -25,6 +25,10 @@
 #include "glfw.hpp"
 #include "transformBH.hpp"
 #include "fps.hpp"
+#include "gamemanager.hpp"
+#include "framebuffer.hpp"
+#include "uipanel.hpp"
+#include "quadtree.hpp"
 
 #include <string>
 #include <cstdio>
@@ -35,6 +39,10 @@
 #else
 #include <unistd.h>
 #endif
+
+#define WINX 1600
+#define WINY 900
+#define WIN32_VS_FOLDER string("")
 
 void	renderObj3d(list<Obj3d*>	obj3dList, Cam& cam) {
 	// cout << "render all Obj3d" << endl;
@@ -156,6 +164,46 @@ private:
 	Math::Vector3	_offset;
 
 };
+
+void blitToWindow(FrameBuffer* readFramebuffer, GLenum attachmentPoint, UIPanel* panel) {
+	GLuint fbo;
+	if (readFramebuffer) {
+		fbo = readFramebuffer->fbo;
+	}
+	else {
+		fbo = panel->getFbo();
+	}
+	// glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	//glViewport(0, 0, manager->glfw->getWidth(), manager->glfw->getHeight());//size of the window/image or panel width ?
+	glReadBuffer(attachmentPoint);
+	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+
+	int w;
+	int h;
+	if (readFramebuffer) {
+		w = readFramebuffer->getWidth();
+		h = readFramebuffer->getHeight();
+	} else if (panel->getTexture()) {
+		w = panel->getTexture()->getWidth();
+		h = panel->getTexture()->getHeight();
+	} else {
+		std::cout << "FUCK " << __PRETTY_FUNCTION__ << std::endl;
+		exit(2);
+	}
+	if (0) {
+		std::cout << "copy " << w << "x" << h << "\tresized\t" << panel->_width << "x" << panel->_height \
+			<< "\tat pos\t" << panel->_posX << ":" << panel->_posY << std::endl;
+		// << " -> " << (panel->posX + panel->width) << "x" << (panel->posY + panel->height) << std::endl;
+	}
+	glBlitFramebuffer(0, 0, w, h, \
+		panel->_posX, panel->_posY, panel->_posX2, panel->_posY2, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+}
 
 void	scene1() {
 	Glfw	glfw(1600, 900);
@@ -656,7 +704,6 @@ void scene2() {
 	delete texture5;
 }
 
-
 void sceneHumanGL() {
 	Glfw		glfw(1600, 900); // screen size
 	glDisable(GL_CULL_FACE);
@@ -793,16 +840,222 @@ void sceneHumanGL() {
 #endif // RENDER
 }
 
+void	fillScreen(char*** screen, int len, QuadNode* node, int* leafAmount) {
+	if (!node)
+		return;
+	if (node->isLeaf()) {
+		(*leafAmount)++;
+		std::cout << "leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << std::endl;
+		char color;
+		if (node->pixel.r == 255) { color = 0; }
+		else if (node->pixel.g == 255) { color = 1; }
+		else if (node->pixel.b == 255) { color = 2; }
+		else {
+			std::cout << "error with the pixel\n";
+			std::cout << node->pixel.r << " " << node->pixel.g << " " << node->pixel.b << std::endl;
+			exit(1);
+		}
+		if (node->width == 0 || node->height == 0 || node->width > len || node->height > len) {
+			std::cout << "error with tree data\n"; exit(2);
+		}
+
+		if (0) {
+			char** t = *screen;
+			for (int j = 0; j < node->height; j++) {
+				for (int i = 0; i < node->width; i++) {
+					t[node->y + j][node->x + i] = color;
+				}
+			}
+		}
+	}
+	else {
+		fillScreen(screen, len, node->children[0], leafAmount);
+		fillScreen(screen, len, node->children[1], leafAmount);
+		fillScreen(screen, len, node->children[2], leafAmount);
+		fillScreen(screen, len, node->children[3], leafAmount);
+	}
+}
+
+#define BORDERS_ON	true
+#define BORDERS_OFF	false
+void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int width, bool draw_borders, int threshold) {
+	if (!node)
+		return;
+	//if (node->isLeaf()) {
+	if (node->detail < threshold) {
+		//(*leafAmount)++;
+		//std::cout << "leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << std::endl;
+		if (node->width == 0 || node->height == 0) {
+			std::cout << "error with tree data\n"; exit(2);
+		}
+		if (node->width * node->height >= DEBUG_LEAF_AREA && DEBUG_LEAF && *leafAmount == 0) {
+			std::cout << "Fill new leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << "\t";
+			std::cout << (int)node->pixel.r << "  \t" << (int)node->pixel.g << "  \t" << (int)node->pixel.b << std::endl;
+		}
+		for (int j = 0; j < node->height; j++) {
+			for (int i = 0; i < node->width; i++) {
+				unsigned int posx = node->x + i;
+				unsigned int posy = node->y + j;
+				unsigned int index = (posy * width + posx) * 3;
+				//std::cout << ((posy * width + posx) * 3 + 0) << std::endl;
+				//std::cout << ((posy * width + posx) * 3 + 1) << std::endl;
+				//std::cout << ((posy * width + posx) * 3 + 2) << std::endl;
+				if (draw_borders && (i == 0 || j == 0)) {
+					dst[index + 0] = 0;
+					dst[index + 1] = 0;
+					dst[index + 2] = 0;
+				}
+				else {
+					dst[index + 0] = node->pixel.r;
+					dst[index + 1] = node->pixel.g;
+					dst[index + 2] = node->pixel.b;
+				}
+			}
+		}
+	}
+	else if (node->children) {
+		fillData(dst, node->children[0], leafAmount, width, draw_borders, threshold);
+		fillData(dst, node->children[1], leafAmount, width, draw_borders, threshold);
+		fillData(dst, node->children[2], leafAmount, width, draw_borders, threshold);
+		fillData(dst, node->children[3], leafAmount, width, draw_borders, threshold);
+	}
+}
+#define THRESHOLD 1
+QuadNode* textureToQuadTree(Texture* tex) {
+	uint8_t* data = tex->getData();
+	unsigned int	w = tex->getWidth();
+	unsigned int	h = tex->getHeight();
+	Pixel** pix = new Pixel * [h];
+	for (size_t j = 0; j < h; j++) {
+		pix[j] = new Pixel[w];
+		for (size_t i = 0; i < w; i++) {
+			pix[j][i].r = data[(j * w + i) * 3 + 0];
+			pix[j][i].g = data[(j * w + i) * 3 + 1];
+			pix[j][i].b = data[(j * w + i) * 3 + 2];
+		}
+	}
+	std::cout << "pixel: " << sizeof(Pixel) << std::endl;
+
+	QuadNode* root = new QuadNode(pix, 0, 0, w, h, THRESHOLD);
+	std::cout << "root is leaf: " << (root->isLeaf() ? "true" : "false") << std::endl;
+
+	return root;
+}
+
+class QuadTreeManager : public GameManager {
+public:
+	QuadTreeManager() : GameManager() {
+		this->threshold = 0;
+		this->draw_borders = BORDERS_OFF;
+	}
+	virtual ~QuadTreeManager() {}
+	unsigned int	threshold;
+	bool			draw_borders;
+};
+
+static void		keyCallback_quadTree(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	(void)window; (void)key; (void)scancode; (void)action; (void)mods;
+	//std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+	if (action == GLFW_PRESS) {
+		//std::cout << "GLFW_PRESS" << std::endl;
+		QuadTreeManager* manager = static_cast<QuadTreeManager*>(glfwGetWindowUserPointer(window));
+		if (!manager) {
+			std::cout << "static_cast failed" << std::endl;
+		} else if (manager->glfw) {
+			if (key == GLFW_KEY_EQUAL) {
+				manager->threshold++;
+				manager->glfw->setTitle(std::to_string(manager->threshold).c_str());
+			}
+			else if (key == GLFW_KEY_MINUS && manager->threshold > 0) {
+				manager->threshold--;
+				manager->glfw->setTitle(std::to_string(manager->threshold).c_str());
+			}
+			else if (key == GLFW_KEY_ENTER)
+				manager->draw_borders = !manager->draw_borders;
+		}
+	}
+}
+
+void scene_4Tree() {
+	QuadTreeManager	manager;
+	manager.glfw = new Glfw(WINX, WINY);
+	manager.glfw->setTitle("Tests texture quadtree");
+	manager.glfw->activateDefaultCallbacks(&manager);
+	manager.glfw->func[GLFW_KEY_EQUAL] = keyCallback_quadTree;
+	manager.glfw->func[GLFW_KEY_MINUS] = keyCallback_quadTree;
+	manager.glfw->func[GLFW_KEY_ENTER] = keyCallback_quadTree;
+
+	Texture* lena = new Texture(WIN32_VS_FOLDER + "images/lena.bmp");
+	Texture* rgbtest = new Texture(WIN32_VS_FOLDER + "images/test_rgb.bmp");
+	Texture* red = new Texture(WIN32_VS_FOLDER + "images/red.bmp");
+	Texture* monkey = new Texture(WIN32_VS_FOLDER + "images/monkey.bmp");
+
+	Texture* baseImage = monkey;
+	QuadNode* root = textureToQuadTree(baseImage);
+	int w = baseImage->getWidth();
+	int h = baseImage->getHeight();
+	uint8_t* dataOctree = new uint8_t[w * h * 3];
+
+	int size_coef = int(WINX) / int(baseImage->getWidth()) / 2.0f;
+	UIImage	uiBaseImage(baseImage);
+	uiBaseImage.setPos(0, 0);
+	uiBaseImage.setSize(uiBaseImage.getTexture()->getWidth() * size_coef, uiBaseImage.getTexture()->getHeight() * size_coef);
+
+	Fps	fps144(144);
+	Fps	fps60(60);
+	Fps* defaultFps = &fps144;
+
+	std::cout << "Begin while loop" << endl;
+	int	leafAmount = 0;
+	while (!glfwWindowShouldClose(manager.glfw->_window)) {
+		if (defaultFps->wait_for_next_frame()) {
+
+			glfwPollEvents();
+			//glfw.updateMouse();//to do before cam's events
+			//cam.events(glfw, float(defaultFps->tick));
+
+			fillData(dataOctree, root, &leafAmount, w, manager.draw_borders, manager.threshold);
+			leafAmount = -1;
+			//std::cout << "leafs: " << leafAmount << std::endl;
+			//std::cout << "w * h * 3 = " << w << " * " << h << " * 3 = " << w * h * 3 << std::endl;
+
+			Texture* image4Tree = new Texture(dataOctree, w, h);
+
+			UIImage	ui4Tree(image4Tree);
+			ui4Tree.setPos(baseImage->getWidth() * size_coef, 0);
+			ui4Tree.setSize(ui4Tree.getTexture()->getWidth() * size_coef, ui4Tree.getTexture()->getHeight() * size_coef);
+
+			// printFps();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &uiBaseImage);
+			blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &ui4Tree);
+			glfwSwapBuffers(manager.glfw->_window);
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_ESCAPE))
+				glfwSetWindowShouldClose(manager.glfw->_window, GLFW_TRUE);
+
+			delete image4Tree;
+		}
+	}
+
+	std::cout << "End while loop" << endl;
+	std::cout << "deleting textures..." << endl;
+	delete lena;
+	delete red;
+	delete rgbtest;
+}
+
 int		main(void) {
 	check_paddings();
 	// test_behaviors();
-//	test_mult_mat4(); exit(0);
-	std::cout << "____START____" << endl;
-//	test_obj_loader();
+	//test_mult_mat4(); exit(0);
+	std::cout << "____START____ : " << Misc::getCurrentDirectory() << std::endl;
+	//	test_obj_loader();
 
-	scene1();
-	// scene2();
-	// sceneHumanGL();
+	//scene1();
+	//scene2();
+	scene_4Tree();
 	// while(1);
 
 	return (EXIT_SUCCESS);
