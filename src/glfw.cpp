@@ -11,7 +11,7 @@ static void		defaultWindowCloseCallback(GLFWwindow* window) {
 
 static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 	(void)window;(void)button;(void)action;(void)mods;
-	// std::cout << __PRETTY_FUNCTION__ << std::endl;
+	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	if (action == GLFW_PRESS) {
 		GameManager * manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
 		if (manager->glfw && manager->glfw->cursorFree) {
@@ -28,7 +28,7 @@ static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int acti
 
 static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
-	// std::cout << __PRETTY_FUNCTION__ << std::endl;
+	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	if (false) {
 		std::cout << "keys: " << key << std::endl;
 		std::cout << "scancode: " << scancode << std::endl;
@@ -42,7 +42,7 @@ static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int a
 
 static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 
 	if (action == GLFW_PRESS) {
 		std::cout << "tab press" << std::endl;
@@ -54,6 +54,7 @@ static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int acti
 }
 
 Glfw::Glfw() {
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->_width = DEFAULT_WIDTH;
 	this->_height = DEFAULT_HEIGHT;
 	this->_title = DEFAULT_TITLE;
@@ -61,6 +62,7 @@ Glfw::Glfw() {
 }
 
 Glfw::Glfw(unsigned int width, unsigned int height) {
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->_width = std::min(width, (unsigned int)MAX_WIDTH);
 	this->_width = std::max(width, (unsigned int)MIN_WIDTH);
 	this->_height = std::min(height, (unsigned int)MAX_HEIGHT);
@@ -70,10 +72,23 @@ Glfw::Glfw(unsigned int width, unsigned int height) {
 }
 
 Glfw::~Glfw() {
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 }
 
 void	Glfw::init() {
-	//glfw
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+
+	this->_mouseX = 0;
+	this->_mouseY = 0;
+	this->_mouseOriginX = 0;
+	this->_mouseOriginY = 0;
+	this->_mouseDiffX = 0;
+	this->_mouseDiffY = 0;
+	this->_mouseOffsetX = 0;
+	this->_mouseOffsetY = 0;
+	this->_mouseAngle = 0;
+	this->_mouseWall = 0;
+
 	if (!glfwInit()) {
 		cerr << "glfwInit failed" << endl;
 		Misc::breakExit(GL_ERROR);
@@ -188,3 +203,12 @@ double		Glfw::getMouseAngle() const { return (this->_mouseAngle); }
 std::string	Glfw::getTitle() const { return (this->_title); }
 int			Glfw::getWidth() const { return (this->_width); }
 int			Glfw::getHeight() const { return (this->_height); }
+
+//shoudl never be called
+Glfw&		Glfw::operator=(const Glfw& src) {
+	std::cout << "_ "<< __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "WTF\n";
+	exit(0);
+	(void)src;
+	return *this;
+}

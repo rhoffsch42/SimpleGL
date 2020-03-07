@@ -5,7 +5,8 @@
 #include <stdlib.h>
 
 #define DEBUG_LEAF		false
-#define DEBUG_LEAF_AREA	12
+#define DEBUG_LEAF_AREA	1
+#define DEBUG_FILL_TOO	false
 
 class Pixel
 {
@@ -42,6 +43,7 @@ class QuadNode
 {
 public:
 	QuadNode(Pixel** arr, int x, int y, int width, int height, unsigned int threshold);
+	QuadNode(uint8_t* data, int baseWidth, int x, int y, int w, int h, unsigned int threshold);
 	bool		isLeaf() const;
 
 	QuadNode **		children;

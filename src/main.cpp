@@ -30,23 +30,32 @@
 #include "uipanel.hpp"
 #include "quadtree.hpp"
 
+#include "perlin.hpp"
+
+#include <thread>
+#include <cmath>
 #include <string>
 #include <cstdio>
 #include <vector>
 #include <list>
+#include <algorithm>
+#include <cassert>
+
 #ifdef _WIN32
 #include <direct.h>
 #else
 #include <unistd.h>
 #endif
 
-#define WINX 1900
-#define WINY 1050
+#define WINX 1600
+#define WINY 900
 #define WIN32_VS_FOLDER string("")
 
 void	renderObj3d(list<Obj3d*>	obj3dList, Cam& cam) {
 	// cout << "render all Obj3d" << endl;
 	//assuming all Obj3d have the same program
+	if (obj3dList.empty())
+		return;
 	Obj3d*		obj = *(obj3dList.begin());
 	Obj3dPG&	pg = obj->getProgram();
 	glUseProgram(pg._program);//used once for all obj3d
@@ -76,39 +85,39 @@ void	renderSkybox(Skybox& skybox, Cam& cam) {
 void	check_paddings() {
 	//	cout << sizeof(BITMAPINFOHEADER) << " = " << sizeof(BMPINFOHEADER) << endl;
 #ifdef _WIN322
-	cout << sizeof(BITMAPFILEHEADER) << " = " << sizeof(BMPFILEHEADER) << endl;
-	cout << "bfType\t" << offsetof(BMPINFOHEADERBITMAPFILEHEADER, bfType) << endl;
-	cout << "bfSize\t" << offsetof(BITMAPFILEHEADER, bfSize) << endl;
-	cout << "bfReserved1\t" << offsetof(BITMAPFILEHEADER, bfReserved1) << endl;
-	cout << "bfReserved2\t" << offsetof(BITMAPFILEHEADER, bfReserved2) << endl;
-	cout << "bfOffBits\t" << offsetof(BITMAPFILEHEADER, bfOffBits) << endl;
+	std::cout << sizeof(BITMAPFILEHEADER) << " = " << sizeof(BMPFILEHEADER) << endl;
+	std::cout << "bfType\t" << offsetof(BMPINFOHEADERBITMAPFILEHEADER, bfType) << endl;
+	std::cout << "bfSize\t" << offsetof(BITMAPFILEHEADER, bfSize) << endl;
+	std::cout << "bfReserved1\t" << offsetof(BITMAPFILEHEADER, bfReserved1) << endl;
+	std::cout << "bfReserved2\t" << offsetof(BITMAPFILEHEADER, bfReserved2) << endl;
+	std::cout << "bfOffBits\t" << offsetof(BITMAPFILEHEADER, bfOffBits) << endl;
 #endif//_WIN32
-	cout << "unsigned short\t" << sizeof(unsigned short) << endl;
-	cout << "unsigned long \t" << sizeof(unsigned long) << endl;
-	cout << "long          \t" << sizeof(long) << endl;
-	cout << "long long     \t" << sizeof(long long) << endl;
-	cout << "int           \t" << sizeof(int) << endl;
+	std::cout << "unsigned short\t" << sizeof(unsigned short) << endl;
+	std::cout << "unsigned long \t" << sizeof(unsigned long) << endl;
+	std::cout << "long          \t" << sizeof(long) << endl;
+	std::cout << "long long     \t" << sizeof(long long) << endl;
+	std::cout << "int           \t" << sizeof(int) << endl;
 	if (sizeof(BMPFILEHEADER) != 14 || sizeof(BMPINFOHEADER) != 40) {
 		cerr << "Padding in structure, exiting..." << endl << endl;
-		cout << "BMPFILEHEADER\t" << sizeof(BMPFILEHEADER) << endl;
-		cout << "bfType     \t" << offsetof(BMPFILEHEADER, bfType) << endl;
-		cout << "bfSize     \t" << offsetof(BMPFILEHEADER, bfSize) << endl;
-		cout << "bfReserved1\t" << offsetof(BMPFILEHEADER, bfReserved1) << endl;
-		cout << "bfReserved2\t" << offsetof(BMPFILEHEADER, bfReserved2) << endl;
-		cout << "bfOffBits\t" << offsetof(BMPFILEHEADER, bfOffBits) << endl;
-		cout << "-----" << endl;
-		cout << "BMPINFOHEADER\t" << sizeof(BMPINFOHEADER) << endl;
-		cout << "biSize     \t" << offsetof(BMPINFOHEADER, biSize) << endl;
-		cout << "biWidth    \t" << offsetof(BMPINFOHEADER, biWidth) << endl;
-		cout << "biHeight\t" << offsetof(BMPINFOHEADER, biHeight) << endl;
-		cout << "biPlanes\t" << offsetof(BMPINFOHEADER, biPlanes) << endl;
-		cout << "biBitCount\t" << offsetof(BMPINFOHEADER, biBitCount) << endl;
-		cout << "biCompression\t" << offsetof(BMPINFOHEADER, biCompression) << endl;
-		cout << "biSizeImage\t" << offsetof(BMPINFOHEADER, biSizeImage) << endl;
-		cout << "biXPelsPerMeter\t" << offsetof(BMPINFOHEADER, biXPelsPerMeter) << endl;
-		cout << "biYPelsPerMeter\t" << offsetof(BMPINFOHEADER, biYPelsPerMeter) << endl;
-		cout << "biClrUsed\t" << offsetof(BMPINFOHEADER, biClrUsed) << endl;
-		cout << "biClrImportant\t" << offsetof(BMPINFOHEADER, biClrImportant) << endl;
+		std::cout << "BMPFILEHEADER\t" << sizeof(BMPFILEHEADER) << endl;
+		std::cout << "bfType     \t" << offsetof(BMPFILEHEADER, bfType) << endl;
+		std::cout << "bfSize     \t" << offsetof(BMPFILEHEADER, bfSize) << endl;
+		std::cout << "bfReserved1\t" << offsetof(BMPFILEHEADER, bfReserved1) << endl;
+		std::cout << "bfReserved2\t" << offsetof(BMPFILEHEADER, bfReserved2) << endl;
+		std::cout << "bfOffBits\t" << offsetof(BMPFILEHEADER, bfOffBits) << endl;
+		std::cout << "-----" << endl;
+		std::cout << "BMPINFOHEADER\t" << sizeof(BMPINFOHEADER) << endl;
+		std::cout << "biSize     \t" << offsetof(BMPINFOHEADER, biSize) << endl;
+		std::cout << "biWidth    \t" << offsetof(BMPINFOHEADER, biWidth) << endl;
+		std::cout << "biHeight\t" << offsetof(BMPINFOHEADER, biHeight) << endl;
+		std::cout << "biPlanes\t" << offsetof(BMPINFOHEADER, biPlanes) << endl;
+		std::cout << "biBitCount\t" << offsetof(BMPINFOHEADER, biBitCount) << endl;
+		std::cout << "biCompression\t" << offsetof(BMPINFOHEADER, biCompression) << endl;
+		std::cout << "biSizeImage\t" << offsetof(BMPINFOHEADER, biSizeImage) << endl;
+		std::cout << "biXPelsPerMeter\t" << offsetof(BMPINFOHEADER, biXPelsPerMeter) << endl;
+		std::cout << "biYPelsPerMeter\t" << offsetof(BMPINFOHEADER, biYPelsPerMeter) << endl;
+		std::cout << "biClrUsed\t" << offsetof(BMPINFOHEADER, biClrUsed) << endl;
+		std::cout << "biClrImportant\t" << offsetof(BMPINFOHEADER, biClrImportant) << endl;
 		exit(ERROR_PADDING);
 	}
 }
@@ -704,178 +713,6 @@ void scene2() {
 	delete texture5;
 }
 
-void sceneHumanGL() {
-	Glfw		glfw(1600, 900); // screen size
-	glDisable(GL_CULL_FACE);
-	Obj3dPG		obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);
-	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
-
-	Obj3dBP::defaultSize = 1.0f;
-	Obj3dBP			cubebp("obj3d/cube.obj", true);
-	Math::Vector3	dimensions = cubebp.getDimensions();
-
-	Texture *	lena = new Texture("images/lena.bmp");
-
-#ifndef MEMBERS
-	float		epaisseur_tronc = 2.0f;
-
-	Object			containerTronc;
-	Obj3d			tronc(cubebp, obj3d_prog);
-	tronc.setTexture(lena);
-	tronc.displayTexture = true;
-	tronc.local.setScale(epaisseur_tronc, epaisseur_tronc * 3, epaisseur_tronc);//bad, use rescale of obj3d vertices
-	tronc.setColor(0xff, 0, 0);
-
-	Obj3d			avant_bras_gauche(cubebp, obj3d_prog);
-	avant_bras_gauche.displayTexture = false;
-	avant_bras_gauche.setColor(0, 0xff, 0);
-
-	Obj3d			avant_bras_droit(cubebp, obj3d_prog);
-	avant_bras_droit.displayTexture = false;
-	avant_bras_droit.setColor(0, 0, 0xff);
-
-	Obj3d			apres_bras_gauche(cubebp, obj3d_prog);
-	apres_bras_gauche.displayTexture = false;
-	apres_bras_gauche.setColor(0xff, 0, 0);
-
-	Obj3d			apres_bras_droit(cubebp, obj3d_prog);
-	apres_bras_droit.displayTexture = false;
-	apres_bras_droit.setColor(0, 0xff, 0xff);
-
-	//hierarchy
-	tronc.setParent(&containerTronc);
-	avant_bras_gauche.setParent(&containerTronc);
-	apres_bras_gauche.setParent(&avant_bras_gauche);
-	avant_bras_droit.setParent(&containerTronc);
-	apres_bras_droit.setParent(&avant_bras_droit);
-
-
-	//relative position
-	// avant_bras_gauche.local.translate(-1.5, 0, 0);
-	avant_bras_droit.local.translate(4.5, 0, 0);
-	// apres_bras_gauche.local.translate(VEC3_DOWN);
-	// apres_bras_droit.local.translate(VEC3_DOWN);
-
-	//debug
-	avant_bras_gauche.local.translate(0, 0.1, 0);
-	
-	avant_bras_gauche.local.getPos().printData();
-	avant_bras_gauche.local.updateMatrix();
-	avant_bras_gauche.local.getMatrix().printData();
-	cout << "----------\n";
-	apres_bras_gauche.local.getPos().printData();
-	apres_bras_gauche.local.updateMatrix();
-	apres_bras_gauche.local.getMatrix().printData();
-
-	list<Obj3d*>	obj3dList;
-	// obj3dList.push_back(&containerTronc);
-	obj3dList.push_back(&tronc);
-	obj3dList.push_back(&avant_bras_gauche);
-	obj3dList.push_back(&avant_bras_droit);
-	// obj3dList.push_back(&apres_bras_droit);
-	// obj3dList.push_back(&apres_bras_gauche);
-#endif // MEMBERS
-
-	Texture*	texture2 = new Texture("images/skybox4.bmp");//skybox3.bmp bug?
-	Skybox		skybox(*texture2, sky_pg);
-	
-	Cam		cam(glfw);
-	cam.local.setPos(0, 0, 10);
-	cam.setFov(90);
-	cam.lockedMovement = false;
-	cam.lockedOrientation = false;
-	cam.speed /= 4;
-
-	Fps	fps144(144);
-	Fps	fps60(60);
-	Fps	fps20(5);
-	Fps* defaultFps = &fps60;
-
-#ifndef BEHAVIORS
-	TransformBH		b1_rot;
-	b1_rot.transform.rot.setUnit(ROT_DEG);
-	b1_rot.transform.rot.x = 20 * defaultFps->getTick();
-	// b1_rot.transform.rot.y = 20 * defaultFps->getTick();
-	// b1_rot.transform.rot.z = 20 * defaultFps->getTick();
-	b1_rot.modeRot = ADDITIVE;
-	b1_rot.addTarget(&avant_bras_droit);
-	b1_rot.addTarget(&apres_bras_droit);
-	// b1_rot.addTarget(&containerTronc);
-
-	TransformBH		b2_rot;
-	b2_rot.transform.rot.setUnit(ROT_DEG);
-	// b2_rot.transform.rot.x = 20 * defaultFps->getTick();
-	b2_rot.transform.rot.y = 50 * defaultFps->getTick();
-	b2_rot.modeRot = ADDITIVE;
-	// b2_rot.addTarget(&avant_bras_gauche);
-	// b2_rot.addTarget(&avant_bras_droit);
-	// b2_rot.addTarget(&apres_bras_droit);
-
-	// avant_bras_gauche.behaviorsActive = false;
-	// Behavior::areActive = false;
-#endif // BEHAVIORS
-
-#ifndef RENDER
-
-	double t = glfwGetTime();
-	glfwSwapInterval(1);
-	while (!glfwWindowShouldClose(glfw._window)) {
-		// std::cout << glfwGetTime() - t << std::endl;
-
-		if (defaultFps->wait_for_next_frame()) {
-			b1_rot.run();
-			b2_rot.run();
-
-			glfwPollEvents();
-			glfw.updateMouse(); // to do before cam's events
-			cam.events(glfw, float(defaultFps->getTick()));
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderObj3d(obj3dList, cam);
-			renderSkybox(skybox, cam);
-			glfwSwapBuffers(glfw._window);
-			if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_ESCAPE))
-				glfwSetWindowShouldClose(glfw._window, GLFW_TRUE);
-		}
-	}
-#endif // RENDER
-}
-
-void	fillScreen(char*** screen, int len, QuadNode* node, int* leafAmount) {
-	if (!node)
-		return;
-	if (node->isLeaf()) {
-		(*leafAmount)++;
-		std::cout << "leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << std::endl;
-		char color;
-		if (node->pixel.r == 255) { color = 0; }
-		else if (node->pixel.g == 255) { color = 1; }
-		else if (node->pixel.b == 255) { color = 2; }
-		else {
-			std::cout << "error with the pixel\n";
-			std::cout << node->pixel.r << " " << node->pixel.g << " " << node->pixel.b << std::endl;
-			exit(1);
-		}
-		if (node->width == 0 || node->height == 0 || node->width > len || node->height > len) {
-			std::cout << "error with tree data\n"; exit(2);
-		}
-
-		if (0) {
-			char** t = *screen;
-			for (int j = 0; j < node->height; j++) {
-				for (int i = 0; i < node->width; i++) {
-					t[node->y + j][node->x + i] = color;
-				}
-			}
-		}
-	}
-	else {
-		fillScreen(screen, len, node->children[0], leafAmount);
-		fillScreen(screen, len, node->children[1], leafAmount);
-		fillScreen(screen, len, node->children[2], leafAmount);
-		fillScreen(screen, len, node->children[3], leafAmount);
-	}
-}
-
 #define BORDERS_ON	true
 #define BORDERS_OFF	false
 void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int width, bool draw_borders, int threshold) {
@@ -888,7 +725,7 @@ void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int width, bool dra
 		if (node->width == 0 || node->height == 0) {
 			std::cout << "error with tree data\n"; exit(2);
 		}
-		if (node->width * node->height >= DEBUG_LEAF_AREA && DEBUG_LEAF && *leafAmount == 0) {
+		if (node->width * node->height >= DEBUG_LEAF_AREA && DEBUG_LEAF && *leafAmount == 0 && DEBUG_FILL_TOO) {
 			std::cout << "Fill new leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << "\t";
 			std::cout << (int)node->pixel.r << "  \t" << (int)node->pixel.g << "  \t" << (int)node->pixel.b << std::endl;
 		}
@@ -977,7 +814,7 @@ static void		keyCallback_quadTree(GLFWwindow* window, int key, int scancode, int
 	}
 }
 
-void scene_4Tree() {
+void	scene_4Tree() {
 	QuadTreeManager	manager;
 	manager.glfw = new Glfw(WINX, WINY);
 	manager.glfw->setTitle("Tests texture quadtree");
@@ -988,14 +825,15 @@ void scene_4Tree() {
 
 	Texture* lena = new Texture(WIN32_VS_FOLDER + "images/lena.bmp");
 	Texture* rgbtest = new Texture(WIN32_VS_FOLDER + "images/test_rgb.bmp");
+	Texture* minirgb = new Texture(WIN32_VS_FOLDER + "images/minirgb.bmp");
 	Texture* red = new Texture(WIN32_VS_FOLDER + "images/red.bmp");
 	Texture* monkey = new Texture(WIN32_VS_FOLDER + "images/monkey.bmp");
 	Texture* flower = new Texture(WIN32_VS_FOLDER + "images/flower.bmp");
 
-	Texture* baseImage = flower;
-	QuadNode* root = textureToQuadTree(baseImage);
+	Texture* baseImage = monkey;
 	int w = baseImage->getWidth();
 	int h = baseImage->getHeight();
+	QuadNode* root = new QuadNode(baseImage->getData(), w, 0, 0, w, h, THRESHOLD);
 	uint8_t* dataOctree = new uint8_t[w * h * 3];
 
 	float size_coef = float(WINX) / float(baseImage->getWidth()) / 2.0f;
@@ -1008,7 +846,6 @@ void scene_4Tree() {
 	UIImage	ui4Tree(image4Tree);
 	ui4Tree.setPos(baseImage->getWidth() * size_coef, 0);
 	ui4Tree.setSize(ui4Tree.getTexture()->getWidth() * size_coef, ui4Tree.getTexture()->getHeight() * size_coef);
-
 
 	Fps	fps144(144);
 	Fps	fps60(60);
@@ -1047,6 +884,410 @@ void scene_4Tree() {
 	delete rgbtest;
 }
 
+class ProceduralManager : public GameManager {
+public:
+	ProceduralManager() : GameManager() {
+		this->core_amount = std::thread::hardware_concurrency();
+		std::cout << " number of cores: " << this->core_amount << endl;
+		this->seed = 888;
+		std::srand(this->seed);
+		this->frequency = 4;
+		this->frequency = std::clamp(this->frequency, 0.1, 64.0);
+		this->octaves = 12;
+		this->octaves = std::clamp(this->octaves, 1, 16);
+		this->flattering = 1;
+		this->flattering = std::clamp(this->flattering, 0.01, 10.0);
+		this->posOffsetX = 0;
+		this->posOffsetY = 0;
+		//tmp
+		this->mouseX = 0;
+		this->mouseY = 0;
+		this->areaWidth = 0;
+		this->areaHeight = 0;
+		this->island = 0;
+		this->island = std::clamp(this->island, -2.0, 2.0);
+		//vox
+		this->range_tile_display = 3;
+		this->range_tile_memory = 7;
+		this->range_voxel_tile = 30;
+		this->voxel_size = 1;
+	}
+	/*
+		sans opti:
+		30*30*256 = 775 680 octets / chunk
+		775 680 * 9 = 6 981 120 octets (block de jeu) affichés
+		6 981 120 * 6 * 2 = 83 773 440 polygones
+		775 680 * 49 = 38 008 320 octets en memoire
+	*/
+
+	virtual ~ProceduralManager() {}
+	unsigned int	core_amount;
+	unsigned int	seed;
+	double			frequency;
+	int				octaves;
+	double			flattering;
+	int				posOffsetX;
+	int				posOffsetY;
+	//tmp
+	double			mouseX;
+	double			mouseY;
+	int				areaWidth;
+	int				areaHeight;
+	double			island;
+	//vox
+	int				range_tile_display;
+	int				range_tile_memory;
+	int				range_voxel_tile;
+	int				voxel_size;
+};
+
+void TestPerlin()
+{
+	siv::PerlinNoise perlinA(std::random_device{});
+	siv::PerlinNoise perlinB;
+
+	std::array<std::uint8_t, 256> state;
+	perlinA.serialize(state);
+	perlinB.deserialize(state);
+
+	assert(perlinA.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4)
+		== perlinB.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4));
+
+	perlinA.reseed(1234);
+	perlinB.reseed(1234);
+
+	assert(perlinA.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4)
+		== perlinB.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4));
+
+	perlinA.reseed(std::mt19937{ 1234 });
+	perlinB.reseed(std::mt19937{ 1234 });
+
+	assert(perlinA.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4)
+		== perlinB.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4));
+}
+
+void	th_buildData(uint8_t* data, ProceduralManager & manager, int yStart, int yEnd) {
+	const siv::PerlinNoise perlin(manager.seed);
+	double playerPosX, playerPosY;
+	playerPosX = manager.mouseX - (WINX / 2);//center of screen is 0:0
+	playerPosY = WINY - manager.mouseY - (WINY / 2);//center of screen is 0:0   //invert glfw Y to match opengl image
+	playerPosX += manager.posOffsetX;
+	playerPosY += manager.posOffsetY;
+	//std::cout << playerPosX << " : " << playerPosY << std::endl;
+	int screenCornerX, screenCornerY;
+	screenCornerX = playerPosX - (manager.areaWidth / 2);
+	screenCornerY = playerPosY - (manager.areaHeight / 2);
+
+
+	for (int y = yStart; y < yEnd; ++y) {
+		for (int x = 0; x < manager.areaWidth; ++x) {
+			double value;
+			double posX = screenCornerX + x;//pos of the generated pixel/elevation/data
+			double posY = screenCornerY + y;
+			double nx = double(posX) / double(manager.areaWidth);//normalised 0..1
+			double ny = double(posY) / double(manager.areaHeight);
+
+			value = perlin.accumulatedOctaveNoise2D_0_1(nx * manager.frequency,
+				ny * manager.frequency,
+				manager.octaves);
+			value = std::pow(value, manager.flattering);
+			Math::Vector3	vec(posX, posY, 0);
+			double dist = (double(vec.magnitude()) / double(WINY / 2));//normalized 0..1
+			value = std::clamp(value + manager.island * (0.5 - dist), 0.0, 1.0);
+
+
+			uint8_t color = (uint8_t)(value * 255.0);
+			if (color < 50) { // water
+				data[(y * manager.areaWidth + x) * 3 + 0] = 0;
+				data[(y * manager.areaWidth + x) * 3 + 1] = uint8_t(150.0 * std::clamp((double(color)/50.0), 0.25, 1.0) );
+				data[(y * manager.areaWidth + x) * 3 + 2] = uint8_t(255.0 * std::clamp((double(color)/50.0), 0.25, 1.0) );
+			}
+			else if (color < 75) { // sand
+				data[(y * manager.areaWidth + x) * 3 + 0] = 255.0 * ((double(color)) / 75.0);
+				data[(y * manager.areaWidth + x) * 3 + 1] = 200.0 * ((double(color)) / 75.0);
+				data[(y * manager.areaWidth + x) * 3 + 2] = 100.0 * ((double(color)) / 75.0);
+			}
+			else if (color > 200) { // snow
+				data[(y * manager.areaWidth + x) * 3 + 0] = color;
+				data[(y * manager.areaWidth + x) * 3 + 1] = color;
+				data[(y * manager.areaWidth + x) * 3 + 2] = color;
+			}
+			else if (color > 175) { // rocks
+				data[(y * manager.areaWidth + x) * 3 + 0] = 150.0 * value;
+				data[(y * manager.areaWidth + x) * 3 + 1] = 150.0 * value;
+				data[(y * manager.areaWidth + x) * 3 + 2] = 150.0 * value;
+			}
+			else {//grass
+				data[(y * manager.areaWidth + x) * 3 + 0] = 0;
+				data[(y * manager.areaWidth + x) * 3 + 1] = 200.0 * value;
+				data[(y * manager.areaWidth + x) * 3 + 2] = 100.0 * value;
+
+			}
+		}
+	}
+}
+
+void	scene_procedural() {
+	TestPerlin();
+	ProceduralManager	manager;
+	manager.glfw = new Glfw(WINX, WINY);
+	manager.glfw->toggleCursor();
+	manager.glfw->setTitle("Tests procedural");
+	manager.glfw->activateDefaultCallbacks(&manager);
+
+	const siv::PerlinNoise perlin(manager.seed);
+
+	int screenSize = 250;
+	manager.areaWidth = screenSize;
+	manager.areaHeight = screenSize;
+	manager.frequency = double(screenSize) / 75;
+	uint8_t*	data = new uint8_t[manager.areaWidth * manager.areaHeight * 3];
+	Texture* image = new Texture(data, manager.areaWidth, manager.areaHeight);
+
+	int repeatX = WINX / manager.areaWidth;
+	int repeatY = WINY / manager.areaHeight;
+	std::cout << "repeatX: " << repeatX << std::endl;
+	std::cout << "repeatZ: " << repeatY << std::endl;
+	float size_coef = float(WINX) / float(image->getWidth()) / float(repeatX < repeatY ? repeatX : repeatY);
+	size_coef = 1;
+	UIImage	uiImage(image);
+	uiImage.setPos(0, 0);
+	uiImage.setSize(uiImage.getTexture()->getWidth() * size_coef, uiImage.getTexture()->getHeight() * size_coef);
+
+
+	Fps	fps144(144);
+	Fps	fps60(60);
+	Fps* defaultFps = &fps144;
+
+	int thread_amount = manager.core_amount - 1;
+	std::thread* threads_list = new std::thread[thread_amount];
+
+	std::cout << "Begin while loop" << endl;
+	while (!glfwWindowShouldClose(manager.glfw->_window)) {
+		if (defaultFps->wait_for_next_frame()) {
+
+			glfwPollEvents();
+			//glfw.updateMouse();//to do before cam's events
+			//cam.events(glfw, float(defaultFps->tick));
+
+			// printFps();
+
+			glfwGetCursorPos(manager.glfw->_window, &manager.mouseX, &manager.mouseY);
+			int playerPosX = manager.mouseX - (WINX / 2);//center of screen is 0:0
+			int playerPosY = WINY - manager.mouseY - (WINY / 2);//center of screen is 0:0   //invert glfw Y to match opengl image
+			Math::Vector3	vec(playerPosX, playerPosY, 0);
+			double dist = (double(vec.magnitude()) / double(WINY*2));
+			std::cout << playerPosX << ":" << playerPosY << "  \t" << dist << std::endl;
+
+			for (size_t i = 0; i < thread_amount; i++) {//compute data with threads
+				int start = ((manager.areaHeight * (i + 0)) / thread_amount);
+				int end = ((manager.areaHeight * (i + 1)) / thread_amount);
+				//std::cout << start << "\t->\t" << end << "\t" << end - start << std::endl;
+				threads_list[i] = std::thread(th_buildData, std::ref(data), std::ref(manager), start, end);
+			}
+			for (size_t i = 0; i < thread_amount; i++) {
+				threads_list[i].join();
+			}
+
+			image->updateData(data, manager.areaWidth, manager.areaHeight);
+			uiImage.setPos(manager.mouseX - (manager.areaWidth / 2), WINY - manager.mouseY - (manager.areaHeight / 2));
+			uiImage.setSize(uiImage.getTexture()->getWidth() * size_coef, uiImage.getTexture()->getHeight() * size_coef);
+
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &uiImage);
+			glfwSwapBuffers(manager.glfw->_window);
+
+
+			int mvtSpeed = 5;
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_UP)) {
+				manager.posOffsetY += mvtSpeed;
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_DOWN)) {
+				manager.posOffsetY -= mvtSpeed;
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_RIGHT)) {
+				manager.posOffsetX += mvtSpeed;
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_LEFT)) {
+				manager.posOffsetX -= mvtSpeed;
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_7)) {
+				manager.frequency += 0.1;
+				manager.frequency = std::clamp(manager.frequency, 0.1, 64.0);
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_4)) {
+				manager.frequency -= 0.1;
+				manager.frequency = std::clamp(manager.frequency, 0.1, 64.0);
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_8)) {
+				manager.flattering += 0.1;
+				manager.flattering = std::clamp(manager.flattering, 0.01, 10.0);
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_5)) {
+				manager.flattering -= 0.1;
+				manager.flattering = std::clamp(manager.flattering, 0.01, 10.0);
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_9)) {
+				manager.island += 0.05;
+				manager.island = std::clamp(manager.island, 0.01, 2.0);
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_6)) {
+				manager.island -= 0.05;
+				manager.island = std::clamp(manager.island, -2.0, 2.0);
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_ESCAPE))
+				glfwSetWindowShouldClose(manager.glfw->_window, GLFW_TRUE);
+		}
+	}
+	delete[] threads_list;
+
+	std::cout << "End while loop" << endl;
+	std::cout << "deleting textures..." << endl;
+}
+
+void	scene_vox() {
+#ifndef INIT_GLFW
+	ProceduralManager	manager;
+	manager.glfw = new Glfw(WINX, WINY);
+	glDisable(GL_CULL_FACE);
+	manager.glfw->setTitle("Tests vox");
+	//manager.glfw->activateDefaultCallbacks(&manager);
+
+	Obj3dPG		obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);
+	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
+
+	Obj3dBP		cubebp("obj3d/cube.obj", true);
+
+	Texture*	tex_skybox = new Texture("images/skybox4.bmp");
+	Skybox		skybox(*tex_skybox, sky_pg);
+
+	Cam		cam(*(manager.glfw));
+	cam.local.setPos(0, 0, 0);
+	cam.printProperties();
+	cam.lockedMovement = false;
+	cam.lockedOrientation = false;
+	//manager.glfw->setMouseAngle(-1);//?
+	std::cout << "MouseAngle: " << manager.glfw->getMouseAngle() << std::endl;
+
+	Fps	fps144(144);
+	Fps	fps60(60);
+	Fps* defaultFps = &fps60;
+
+	//QuadNode* root = new QuadNode(baseImage->getData(), w, 0, 0, w, h, THRESHOLD);
+
+#endif// INIT_GLFW
+
+	list<Obj3d*>	renderlist;
+
+	Obj3d		cubeo(cubebp, obj3d_prog);
+	cubeo.setColor(255, 0, 0);
+	cubeo.displayTexture = false;
+	cubeo.setPolygonMode(GL_LINE);
+
+	renderlist.push_back(&cubeo);
+
+	//int thread_amount = manager.core_amount - 1;
+	//std::thread* threads_list = new std::thread[thread_amount];
+
+	std::cout << "Begin while loop" << endl;
+	while (!glfwWindowShouldClose(manager.glfw->_window)) {
+		if (defaultFps->wait_for_next_frame()) {
+
+			glfwPollEvents();
+			manager.glfw->updateMouse();//to do before cam's events
+			cam.events(*(manager.glfw), float(defaultFps->getTick()));
+
+			//defaultFps->printFps();
+
+		#ifndef PERLIN
+			//glfwGetCursorPos(manager.glfw->_window, &manager.mouseX, &manager.mouseY);
+			//int playerPosX = manager.mouseX - (WINX / 2);//center of screen is 0:0
+			//int playerPosY = WINY - manager.mouseY - (WINY / 2);//center of screen is 0:0   //invert glfw Y to match opengl image
+			//Math::Vector3	vec(playerPosX, playerPosY, 0);
+			//double dist = (double(vec.magnitude()) / double(WINY * 2));
+			//std::cout << playerPosX << ":" << playerPosY << "  \t" << dist << std::endl;
+
+			//for (size_t i = 0; i < thread_amount; i++) {//compute data with threads
+			//	int start = ((manager.areaHeight * (i + 0)) / thread_amount);
+			//	int end = ((manager.areaHeight * (i + 1)) / thread_amount);
+			//	//std::cout << start << "\t->\t" << end << "\t" << end - start << std::endl;
+			//	threads_list[i] = std::thread(th_buildData, std::ref(data), std::ref(manager), start, end);
+			//}
+			//for (size_t i = 0; i < thread_amount; i++) {
+			//	threads_list[i].join();
+			//}
+
+			//image->updateData(data, manager.areaWidth, manager.areaHeight);
+			//uiImage.setPos(manager.mouseX - (manager.areaWidth / 2), WINY - manager.mouseY - (manager.areaHeight / 2));
+			//uiImage.setSize(uiImage.getTexture()->getWidth() * size_coef, uiImage.getTexture()->getHeight() * size_coef);
+		#endif
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			renderObj3d(renderlist, cam);
+			renderSkybox(skybox, cam);
+			//blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &uiImage);
+			glfwSwapBuffers(manager.glfw->_window);
+
+
+		#ifndef KEY_EVENTS
+			int mvtSpeed = 5;
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_UP)) {
+				manager.posOffsetY += mvtSpeed;
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_DOWN)) {
+				manager.posOffsetY -= mvtSpeed;
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_RIGHT)) {
+				manager.posOffsetX += mvtSpeed;
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_LEFT)) {
+				manager.posOffsetX -= mvtSpeed;
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_7)) {
+				manager.frequency += 0.1;
+				manager.frequency = std::clamp(manager.frequency, 0.1, 64.0);
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_4)) {
+				manager.frequency -= 0.1;
+				manager.frequency = std::clamp(manager.frequency, 0.1, 64.0);
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_8)) {
+				manager.flattering += 0.1;
+				manager.flattering = std::clamp(manager.flattering, 0.01, 10.0);
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_5)) {
+				manager.flattering -= 0.1;
+				manager.flattering = std::clamp(manager.flattering, 0.01, 10.0);
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_9)) {
+				manager.island += 0.05;
+				manager.island = std::clamp(manager.island, 0.01, 2.0);
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_6)) {
+				manager.island -= 0.05;
+				manager.island = std::clamp(manager.island, -2.0, 2.0);
+			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_ESCAPE))
+				glfwSetWindowShouldClose(manager.glfw->_window, GLFW_TRUE);
+		#endif
+		}
+	}
+	//delete[] threads_list;
+
+	std::cout << "End while loop" << endl;
+	std::cout << "deleting textures..." << endl;
+	delete tex_skybox;
+}
+
 int		main(void) {
 	check_paddings();
 	// test_behaviors();
@@ -1056,7 +1297,9 @@ int		main(void) {
 
 	//scene1();
 	//scene2();
-	scene_4Tree();
+	//scene_4Tree();
+	//scene_procedural();
+	scene_vox();
 	// while(1);
 
 	return (EXIT_SUCCESS);

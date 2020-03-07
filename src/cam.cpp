@@ -2,7 +2,7 @@
 #include "cam.hpp"
 
 Cam::Cam(Glfw& glfw) : Object() {
-	cout << "_ Cam Cons default" << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->_fov = CAM_FOV;
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
@@ -14,7 +14,7 @@ Cam::Cam(Glfw& glfw) : Object() {
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
 }
 Cam::Cam(Glfw& glfw, Math::Vector3 pos, Math::Rotation rot) : Object() {
-	cout << "_ Cam Cons (pos, rot)" << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->_fov = CAM_FOV;
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
@@ -28,7 +28,7 @@ Cam::Cam(Glfw& glfw, Math::Vector3 pos, Math::Rotation rot) : Object() {
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
 }
 Cam::Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY, float rotZ) {//degree
-	cout << "_ Cam Cons (xyz pos, xyz rot)" << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->local._pos.x = posX;
 	this->local._pos.y = posY;
 	this->local._pos.z = posZ;
@@ -45,12 +45,13 @@ Cam::Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY,
 	this->updateCamVectors();
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
+
 }
 
 Cam::~Cam() {}
 
 void	Cam::printProperties() const {
-	cout << "Camera settings:" << endl;
+	cout << "Camera settings: " << this << "\t&ViewMatrix: " << &(this->_viewMatrix) << endl;
 	cout << "pos:\t" << this->local._pos.x << " " << this->local._pos.y << " " << this->local._pos.z << endl;
 	cout << "rot:\t" << this->local._rot.x << " " << this->local._rot.y << " " << this->local._rot.z << endl;
 	cout << "Far:\t" << this->_far << endl;
@@ -108,6 +109,7 @@ void	Cam::events(Glfw& glfw, float fpsTick) {
 		void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 			/!\ need global Glfw to access mouse variables
 	*/
+
 
 	if (!this->lockedOrientation) {
 		this->local._rot.setUnit(ROT_DEG);

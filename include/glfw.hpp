@@ -59,6 +59,7 @@ class Glfw
 public:
 	Glfw();
 	Glfw(unsigned int width, unsigned int height);
+	Glfw&	operator=(const Glfw& src);
 	~Glfw();
 	void			updateMouse();
 

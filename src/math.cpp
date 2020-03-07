@@ -322,6 +322,7 @@ void			Math::Matrix4::projectionMatrix(float fovRad, float farv, float nearv, in
 	this->setOrder(COLUMN_MAJOR);
 }
 void			Math::Matrix4::viewMatrix(Math::Vector3 camPos, Math::Rotation camRot) {
+	//std::cout << "_ " << __PRETTY_FUNCTION__ << "\taddr: " << this << std::endl;
 	float		val[8];
 	
 	this->identity();
@@ -436,7 +437,7 @@ void			Math::Matrix4::printData() const {
 	}
 	cout << endl << endl;
 
-	std::cout << "Matrix representation ( " << EMOTE_WARNING << " not the data as a tab[][] )" << std::endl;
+	std::cout << "Matrix representation ( " << EMOTE_WARNING << " not the data as a tab[][] )\taddr: " << this << std::endl;
 	if (this->_order == ROW_MAJOR)
 		cout << "row major" << endl;
 	else
