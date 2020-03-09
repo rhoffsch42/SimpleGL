@@ -27,6 +27,7 @@ public:
 
 	void			setColor(uint8_t x, uint8_t y, uint8_t z);// 0 -> 255
 	void			setTexture(Texture* texture);
+	//GL_POINT, GL_LINE, and GL_FILL
 	void			setPolygonMode(GLenum mode);
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
 

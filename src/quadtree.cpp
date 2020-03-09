@@ -261,6 +261,16 @@ QuadNode::QuadNode(Pixel** arr, int x, int y, int w, int h, unsigned int thresho
 	}
 }
 
+QuadNode::~QuadNode() {
+	if (this->children) {
+		for (size_t i = 0; i < 4; i++) {
+			if (this->children[i])
+				delete this->children[i];
+		}
+		delete[] this->children;
+	}
+}
+
 bool		QuadNode::isLeaf() const {
 	return (this->children == nullptr);
 }

@@ -51,7 +51,7 @@
 #define WINY 900
 #define WIN32_VS_FOLDER string("")
 
-void	renderObj3d(list<Obj3d*>	obj3dList, Cam& cam) {
+void	renderObj3d(list<Obj3d*>	obj3dList, Cam& cam) {//make a renderObj3d for only 1 obj
 	// cout << "render all Obj3d" << endl;
 	//assuming all Obj3d have the same program
 	if (obj3dList.empty())
@@ -715,7 +715,7 @@ void scene2() {
 
 #define BORDERS_ON	true
 #define BORDERS_OFF	false
-void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int width, bool draw_borders, int threshold) {
+void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int baseWidth, bool draw_borders, int threshold, Math::Vector3 color) {
 	if (!node)
 		return;
 	//if (node->isLeaf()) {
@@ -733,28 +733,33 @@ void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int width, bool dra
 			for (int i = 0; i < node->width; i++) {
 				unsigned int posx = node->x + i;
 				unsigned int posy = node->y + j;
-				unsigned int index = (posy * width + posx) * 3;
-				//std::cout << ((posy * width + posx) * 3 + 0) << std::endl;
-				//std::cout << ((posy * width + posx) * 3 + 1) << std::endl;
-				//std::cout << ((posy * width + posx) * 3 + 2) << std::endl;
+				unsigned int index = (posy * baseWidth + posx) * 3;
+				//std::cout << ((posy * baseWidth + posx) * 3 + 0) << std::endl;
+				//std::cout << ((posy * baseWidth + posx) * 3 + 1) << std::endl;
+				//std::cout << ((posy * baseWidth + posx) * 3 + 2) << std::endl;
 				if (draw_borders && (i == 0 || j == 0)) {
 					dst[index + 0] = 0;
 					dst[index + 1] = 0;
 					dst[index + 2] = 0;
-				}
-				else {
-					dst[index + 0] = node->pixel.r;
-					dst[index + 1] = node->pixel.g;
-					dst[index + 2] = node->pixel.b;
+				} else {
+					if (1 && (posx == 0 || posy == 0)) {
+						dst[index + 0] = color.x;
+						dst[index + 1] = color.y;
+						dst[index + 2] = color.z;
+					} else {
+						dst[index + 0] = node->pixel.r;
+						dst[index + 1] = node->pixel.g;
+						dst[index + 2] = node->pixel.b;
+					}
 				}
 			}
 		}
 	}
 	else if (node->children) {
-		fillData(dst, node->children[0], leafAmount, width, draw_borders, threshold);
-		fillData(dst, node->children[1], leafAmount, width, draw_borders, threshold);
-		fillData(dst, node->children[2], leafAmount, width, draw_borders, threshold);
-		fillData(dst, node->children[3], leafAmount, width, draw_borders, threshold);
+		fillData(dst, node->children[0], leafAmount, baseWidth, draw_borders, threshold, color);
+		fillData(dst, node->children[1], leafAmount, baseWidth, draw_borders, threshold, color);
+		fillData(dst, node->children[2], leafAmount, baseWidth, draw_borders, threshold, color);
+		fillData(dst, node->children[3], leafAmount, baseWidth, draw_borders, threshold, color);
 	}
 }
 #define THRESHOLD 0
@@ -860,7 +865,7 @@ void	scene_4Tree() {
 			//glfw.updateMouse();//to do before cam's events
 			//cam.events(glfw, float(defaultFps->tick));
 
-			fillData(dataOctree, root, &leafAmount, w, manager.draw_borders, manager.threshold);
+			fillData(dataOctree, root, &leafAmount, w, manager.draw_borders, manager.threshold, Math::Vector3(0,0,0));
 			leafAmount = -1;
 			//std::cout << "leafs: " << leafAmount << std::endl;
 			//std::cout << "w * h * 3 = " << w << " * " << h << " * 3 = " << w * h * 3 << std::endl;
@@ -887,6 +892,7 @@ void	scene_4Tree() {
 class ProceduralManager : public GameManager {
 public:
 	ProceduralManager() : GameManager() {
+		this->perlin = nullptr;
 		this->core_amount = std::thread::hardware_concurrency();
 		std::cout << " number of cores: " << this->core_amount << endl;
 		this->seed = 888;
@@ -907,10 +913,17 @@ public:
 		this->island = 0;
 		this->island = std::clamp(this->island, -2.0, 2.0);
 		//vox
-		this->range_tile_display = 3;
-		this->range_tile_memory = 7;
-		this->range_voxel_tile = 30;
+		this->player = nullptr;
+		this->playerChunkX = 0;
+		this->playerChunkY = 0;
+		this->range_chunk_display = 3;
+		this->range_chunk_memory = 7;
+		this->chunk_size = 30;
 		this->voxel_size = 1;
+		this->polygon_mode = GL_POINT;
+		this->polygon_mode = GL_LINE;
+		this->polygon_mode = GL_FILL;
+		this->threshold = 5;
 	}
 	/*
 		sans opti:
@@ -921,6 +934,7 @@ public:
 	*/
 
 	virtual ~ProceduralManager() {}
+	siv::PerlinNoise* perlin;
 	unsigned int	core_amount;
 	unsigned int	seed;
 	double			frequency;
@@ -935,10 +949,17 @@ public:
 	int				areaHeight;
 	double			island;
 	//vox
-	int				range_tile_display;
-	int				range_tile_memory;
-	int				range_voxel_tile;
+	Obj3d*			player;
+	int	playerChunkX;
+	int	playerChunkY;
+	std::list<Obj3d*>	renderlist;
+	Cam*			cam;
+	int				range_chunk_display;
+	int				range_chunk_memory;
+	int				chunk_size;
 	int				voxel_size;
+	GLuint			polygon_mode;
+	int				threshold;
 };
 
 void TestPerlin()
@@ -964,6 +985,39 @@ void TestPerlin()
 
 	assert(perlinA.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4)
 		== perlinB.accumulatedOctaveNoise3D(0.1, 0.2, 0.3, 4));
+}
+
+Math::Vector3	genColor(uint8_t elevation) {
+	double value = double(elevation) / 255.0;
+	Math::Vector3	color;
+
+	if (elevation < 50) { // water
+		color.x = 0;
+		color.y = uint8_t(150.0 * std::clamp((double(elevation) / 50.0), 0.25, 1.0));
+		color.z = uint8_t(255.0 * std::clamp((double(elevation) / 50.0), 0.25, 1.0));
+	}
+	else if (elevation < 75) { // sand
+		color.x = 255.0 * ((double(elevation)) / 75.0);
+		color.y = 200.0 * ((double(elevation)) / 75.0);
+		color.z = 100.0 * ((double(elevation)) / 75.0);
+	}
+	else if (elevation > 200) { // snow
+		color.x = elevation;
+		color.y = elevation;
+		color.z = elevation;
+	}
+	else if (elevation > 175) { // rocks
+		color.x = 150.0 * value;
+		color.y = 150.0 * value;
+		color.z = 150.0 * value;
+	}
+	else {//grass
+		color.x = 0;
+		color.y = 200.0 * value;
+		color.z = 100.0 * value;
+
+	}
+	return color;
 }
 
 void	th_buildData(uint8_t* data, ProceduralManager & manager, int yStart, int yEnd) {
@@ -995,32 +1049,32 @@ void	th_buildData(uint8_t* data, ProceduralManager & manager, int yStart, int yE
 			double dist = (double(vec.magnitude()) / double(WINY / 2));//normalized 0..1
 			value = std::clamp(value + manager.island * (0.5 - dist), 0.0, 1.0);
 
-
+			int index = (y * manager.areaWidth + x) * 3;
 			uint8_t color = (uint8_t)(value * 255.0);
 			if (color < 50) { // water
-				data[(y * manager.areaWidth + x) * 3 + 0] = 0;
-				data[(y * manager.areaWidth + x) * 3 + 1] = uint8_t(150.0 * std::clamp((double(color)/50.0), 0.25, 1.0) );
-				data[(y * manager.areaWidth + x) * 3 + 2] = uint8_t(255.0 * std::clamp((double(color)/50.0), 0.25, 1.0) );
+				data[index + 0] = 0;
+				data[index + 1] = uint8_t(150.0 * std::clamp((double(color) / 50.0), 0.25, 1.0));
+				data[index + 2] = uint8_t(255.0 * std::clamp((double(color) / 50.0), 0.25, 1.0));
 			}
 			else if (color < 75) { // sand
-				data[(y * manager.areaWidth + x) * 3 + 0] = 255.0 * ((double(color)) / 75.0);
-				data[(y * manager.areaWidth + x) * 3 + 1] = 200.0 * ((double(color)) / 75.0);
-				data[(y * manager.areaWidth + x) * 3 + 2] = 100.0 * ((double(color)) / 75.0);
+				data[index + 0] = 255.0 * ((double(color)) / 75.0);
+				data[index + 1] = 200.0 * ((double(color)) / 75.0);
+				data[index + 2] = 100.0 * ((double(color)) / 75.0);
 			}
 			else if (color > 200) { // snow
-				data[(y * manager.areaWidth + x) * 3 + 0] = color;
-				data[(y * manager.areaWidth + x) * 3 + 1] = color;
-				data[(y * manager.areaWidth + x) * 3 + 2] = color;
+				data[index + 0] = color;
+				data[index + 1] = color;
+				data[index + 2] = color;
 			}
 			else if (color > 175) { // rocks
-				data[(y * manager.areaWidth + x) * 3 + 0] = 150.0 * value;
-				data[(y * manager.areaWidth + x) * 3 + 1] = 150.0 * value;
-				data[(y * manager.areaWidth + x) * 3 + 2] = 150.0 * value;
+				data[index + 0] = 150.0 * value;
+				data[index + 1] = 150.0 * value;
+				data[index + 2] = 150.0 * value;
 			}
 			else {//grass
-				data[(y * manager.areaWidth + x) * 3 + 0] = 0;
-				data[(y * manager.areaWidth + x) * 3 + 1] = 200.0 * value;
-				data[(y * manager.areaWidth + x) * 3 + 2] = 100.0 * value;
+				data[index + 0] = 0;
+				data[index + 1] = 200.0 * value;
+				data[index + 2] = 100.0 * value;
 
 			}
 		}
@@ -1150,46 +1204,362 @@ void	scene_procedural() {
 	std::cout << "deleting textures..." << endl;
 }
 
+void		buildChunk(ProceduralManager& manager, QuadNode* node, int chunkI, int chunkJ) {//can be used for every tree node
+	if (!node)
+		return;
+	//if (node->isLeaf()) {
+	if (node->detail <= manager.threshold) {
+		//std::cout << "leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << std::endl;
+		if (node->width == 0 || node->height == 0) {
+			std::cout << "error with tree data\n"; exit(2);
+		}
+		if (node->width * node->height >= DEBUG_LEAF_AREA && DEBUG_LEAF && DEBUG_BUILD_TOO) {
+			std::cout << "Display new leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << "\t";
+			std::cout << (int)node->pixel.r << "  \t" << (int)node->pixel.g << "  \t" << (int)node->pixel.b << std::endl;
+		}
+	#ifndef RENDER_WORLD // make a special render func for that (or change buildChunk)
+		Obj3d* cube = manager.renderlist.front();
+		int polmode = cube->getPolygonMode();
+		uint8_t	elevation = node->pixel.r;
+		Math::Vector3	color = genColor(elevation);
+		if (node->x == 0 || node->y == 0)
+			cube->setColor(0,0,0);
+		else
+			cube->setColor(color.x, color.y, color.z);
+
+		int worldPosX = manager.playerChunkX * manager.chunk_size + node->x + chunkI * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size);
+		int worldPosY = manager.playerChunkY * manager.chunk_size + node->y + chunkJ * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size);
+
+		cube->local.setPos(worldPosX, 0, worldPosY);
+		//cube->local.setScale(node->width, node->pixel.r, node->height);// height is opengl z
+		cube->local.setScale(node->width, 1, node->height);// height is opengl z
+
+		cube->setPolygonMode(manager.polygon_mode);
+		renderObj3d(manager.renderlist, *manager.cam);
+		cube->setPolygonMode(polmode);
+	#endif
+	}
+	else if (node->children) {
+		buildChunk(manager, node->children[0], chunkI, chunkJ);
+		buildChunk(manager, node->children[1], chunkI, chunkJ);
+		buildChunk(manager, node->children[2], chunkI, chunkJ);
+		buildChunk(manager, node->children[3], chunkI, chunkJ);
+	}
+}
+
+void		buildWorld(ProceduralManager & manager, QuadNode*** memory4Tree) {
+	//std::cout << "building world...\n";
+
+	int start = (manager.range_chunk_memory - manager.range_chunk_display) / 2;
+	int end = start + manager.range_chunk_display;
+	for (size_t j = start; j < end; j++) {
+		for (size_t i = start; i < end; i++) {
+			//std::cout << j << ":" << i << std::endl;
+			buildChunk(manager, memory4Tree[j][i], i, j);
+		}
+	}
+}
+
+uint8_t*	generatePerlinNoise(ProceduralManager& manager, int posX, int posY, int width, int height) {
+	uint8_t* data = new uint8_t[width * height * 3];
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			double value;
+			double nx = double(posX + x) / double(500);//normalised 0..1
+			double ny = double(posY + y) / double(500);
+
+			value = manager.perlin->accumulatedOctaveNoise2D_0_1(nx * manager.frequency,
+																ny * manager.frequency,
+																manager.octaves);
+
+			value = std::pow(value, manager.flattering);
+			Math::Vector3	vec(x, y, 0);
+			double dist = (double(vec.magnitude()) / double(WINY / 2));//normalized 0..1
+			value = std::clamp(value + manager.island * (0.5 - dist), 0.0, 1.0);
+
+			uint8_t color = (uint8_t)(value * 255.0);
+			int index = (y * width + x) * 3;
+			data[index + 0] = color;
+			data[index + 1] = color;
+			data[index + 2] = color;
+		}
+	}
+	return data;
+}
+
+void	updateChunksX(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uint8_t*** chunkMemory, int change) {
+	if (abs(change) > 1) {
+		std::cout << "player went too fast on X, or teleported" << std::endl;
+		exit(1);
+	}
+
+	manager.playerChunkX += change;
+	int startX = manager.playerChunkX * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
+	int startY = manager.playerChunkY * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
+
+	if (change > 0) {//if we went on right, we shift everything on left, and rebuild last column
+		for (int i = 0; i < manager.range_chunk_memory; i++) {
+			for (int j = 0; j < manager.range_chunk_memory; j++) {
+				if (i == 0) {//delete first column
+					delete[] chunkMemory[j][i];
+					delete chunkMemory4Tree[j][i];
+					std::cout << "delete first column on line " << j << " column " << i << std::endl;
+				}
+				if (i == manager.range_chunk_memory - 1) {//last column, rebuild
+					std::cout << "rebuild last column on line " << j << " column " << i << std::endl;
+					int x, y, w, h;
+					x = startX + manager.chunk_size * i;
+					y = startY + manager.chunk_size * j;
+					w = manager.chunk_size;
+					h = manager.chunk_size;
+					chunkMemory[j][i] = generatePerlinNoise(manager, x, y, w, h);
+					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
+				}
+				else {//shift on left
+					std::cout << "shift on left on line " << j << " column " << i << std::endl;
+					chunkMemory[j][i] = chunkMemory[j][i + 1];
+					chunkMemory4Tree[j][i] = chunkMemory4Tree[j][i + 1];
+				}
+			}
+			std::cout << "-------------\n";
+		}
+	}
+	else if (change < 0) {//if we went on left, ie shift everything on right, rebuild first column
+		for (int i = manager.range_chunk_memory - 1; i >= 0; i--) {
+			for (int j = 0; j < manager.range_chunk_memory; j++) {
+				if (i == manager.range_chunk_memory - 1) {//delete last column
+					delete[] chunkMemory[j][i];
+					delete chunkMemory4Tree[j][i];
+					std::cout << "delete last column on line " << j << " column " << i << std::endl;
+				}
+				if (i == 0) {//first column, rebuild
+					std::cout << "rebuild first column on line " << j << " column " << i << std::endl;
+					int x, y, w, h;
+					x = startX + manager.chunk_size * i;
+					y = startY + manager.chunk_size * j;
+					w = manager.chunk_size;
+					h = manager.chunk_size;
+					chunkMemory[j][i] = generatePerlinNoise(manager, x, y, w, h);
+					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
+				}
+				else {//shift on right
+					std::cout << "shift on right on line " << j << " column " << i << std::endl;
+					chunkMemory[j][i] = chunkMemory[j][i - 1];
+					chunkMemory4Tree[j][i] = chunkMemory4Tree[j][i - 1];
+				}
+			}
+			std::cout << "-------------\n";
+		}
+	}
+	std::cout << "updated Chunks X\n";
+}
+
+void	updateChunksY(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uint8_t*** chunkMemory, int change) {
+	if (abs(change) > 1) {
+		std::cout << "player went too fast on Y, or teleported" << std::endl;
+		exit(1);
+	}
+
+	manager.playerChunkY += change;
+	int startX = manager.playerChunkX * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
+	int startY = manager.playerChunkY * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
+
+	if (change > 0) {//if we went on bottom, we shift everything on top, and rebuild last column
+		for (int j = 0; j < manager.range_chunk_memory; j++) {
+			for (int i = 0; i < manager.range_chunk_memory; i++) {
+				if (j == 0) {//delete first line
+					delete[] chunkMemory[j][i];
+					delete chunkMemory4Tree[j][i];
+					std::cout << "delete first line on column " << i << " line " << j << std::endl;
+				}
+				if (j == manager.range_chunk_memory - 1) {//last line, rebuild
+					std::cout << "rebuild last line on column " << i << " line " << j << std::endl;
+					int x, y, w, h;
+					x = startX + manager.chunk_size * i;
+					y = startY + manager.chunk_size * j;
+					w = manager.chunk_size;
+					h = manager.chunk_size;
+					chunkMemory[j][i] = generatePerlinNoise(manager, x, y, w, h);
+					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
+				}
+				else {//shift on top
+					std::cout << "shift on top on column " << i << " line " << j << std::endl;
+					chunkMemory[j][i] = chunkMemory[j + 1][i];
+					chunkMemory4Tree[j][i] = chunkMemory4Tree[j + 1][i];
+				}
+			}
+			std::cout << "-------------\n";
+		}
+	}
+	else if (change < 0) {//if we went on left, ie shift everything on right, rebuild first column
+		for (int j = manager.range_chunk_memory - 1; j >= 0; j--) {
+			for (int i = 0; i < manager.range_chunk_memory; i++) {
+				if (j == manager.range_chunk_memory - 1) {//delete last column
+					delete[] chunkMemory[j][i];
+					delete chunkMemory4Tree[j][i];
+					std::cout << "delete first line on column " << i << " line " << j << std::endl;
+				}
+				if (j == 0) {//first column, rebuild
+					std::cout << "rebuild last line on column " << i << " line " << j << std::endl;
+					int x, y, w, h;
+					x = startX + manager.chunk_size * i;
+					y = startY + manager.chunk_size * j;
+					w = manager.chunk_size;
+					h = manager.chunk_size;
+					chunkMemory[j][i] = generatePerlinNoise(manager, x, y, w, h);
+					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
+				}
+				else {//shift on bottom
+					std::cout << "shift on top on column " << i << " line " << j << std::endl;
+					chunkMemory[j][i] = chunkMemory[j - 1][i];
+					chunkMemory4Tree[j][i] = chunkMemory4Tree[j - 1][i];
+				}
+			}
+			std::cout << "-------------\n";
+		}
+	}
+	std::cout << "updated Chunks Y\n";
+}
+
+static void		keyCallback_vox(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	(void)window; (void)key; (void)scancode; (void)action; (void)mods;
+	//std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+	if (action == GLFW_PRESS) {
+		//std::cout << "GLFW_PRESS" << std::endl;
+		ProceduralManager* manager = static_cast<ProceduralManager*>(glfwGetWindowUserPointer(window));
+		if (!manager) {
+			std::cout << "static_cast failed" << std::endl;
+		}
+		else if (manager->glfw) {
+			if (key == GLFW_KEY_EQUAL) {
+				manager->threshold++;
+				manager->glfw->setTitle(std::to_string(manager->threshold).c_str());
+			}
+			else if (key == GLFW_KEY_MINUS && manager->threshold > 0) {
+				manager->threshold--;
+				manager->glfw->setTitle(std::to_string(manager->threshold).c_str());
+			}
+			else if (key == GLFW_KEY_ENTER) {
+				manager->polygon_mode++;
+				manager->polygon_mode = GL_POINT + (manager->polygon_mode % 3);
+			}
+		}
+	}
+}
+
 void	scene_vox() {
 #ifndef INIT_GLFW
+	Obj3dBP::defaultSize = 1;
+	TestPerlin();
 	ProceduralManager	manager;
+	siv::PerlinNoise perlin(manager.seed);
+	manager.perlin = &perlin;
 	manager.glfw = new Glfw(WINX, WINY);
 	glDisable(GL_CULL_FACE);
 	manager.glfw->setTitle("Tests vox");
-	//manager.glfw->activateDefaultCallbacks(&manager);
+	manager.glfw->activateDefaultCallbacks(&manager);
+	manager.glfw->func[GLFW_KEY_EQUAL] = keyCallback_vox;
+	manager.glfw->func[GLFW_KEY_MINUS] = keyCallback_vox;
+	manager.glfw->func[GLFW_KEY_ENTER] = keyCallback_vox;
 
 	Obj3dPG		obj3d_prog(OBJ3D_VS_FILE, OBJ3D_FS_FILE);
 	SkyboxPG	sky_pg(CUBEMAP_VS_FILE, CUBEMAP_FS_FILE);
 
-	Obj3dBP		cubebp("obj3d/cube.obj", true);
+	Obj3dBP		cubebp("obj3d/cube.obj", true, false);
 
 	Texture*	tex_skybox = new Texture("images/skybox4.bmp");
 	Skybox		skybox(*tex_skybox, sky_pg);
 
 	Cam		cam(*(manager.glfw));
+	cam.speed = 4;
 	cam.local.setPos(0, 0, 0);
 	cam.printProperties();
 	cam.lockedMovement = false;
 	cam.lockedOrientation = false;
 	//manager.glfw->setMouseAngle(-1);//?
 	std::cout << "MouseAngle: " << manager.glfw->getMouseAngle() << std::endl;
+	manager.cam = &cam;
 
 	Fps	fps144(144);
 	Fps	fps60(60);
 	Fps* defaultFps = &fps60;
 
-	//QuadNode* root = new QuadNode(baseImage->getData(), w, 0, 0, w, h, THRESHOLD);
-
 #endif// INIT_GLFW
 
-	list<Obj3d*>	renderlist;
-
+#ifndef BASE_OBJ3d
 	Obj3d		cubeo(cubebp, obj3d_prog);
+	cubeo.local.setPos(0, 0, 0);
+	cubeo.local.setScale(1, 1, 1);
 	cubeo.setColor(255, 0, 0);
 	cubeo.displayTexture = false;
 	cubeo.setPolygonMode(GL_LINE);
+	manager.renderlist.push_back(&cubeo);
 
-	renderlist.push_back(&cubeo);
+	Obj3d		player1(cubebp, obj3d_prog);
+	player1.local.setPos(0, 2, 0);
+	player1.local.setScale(1, 2, 1);
+	player1.setColor(255, 0, 0);
+	player1.displayTexture = false;
+	player1.setPolygonMode(GL_FILL);
+	manager.player = &player1;
+
+	std::list<Obj3d*>	playerList;
+	playerList.push_back(&player1);
+#endif
+
+#ifndef CHUNKS
+	// build the heightmaps depending of tile size (for now 7x7 tiles, tile is 30x30 cubes)
+	std::cout << "manager.chunk_size " << manager.chunk_size << std::endl;
+	std::cout << "manager.range_chunk_memory " << manager.range_chunk_memory << std::endl;
+	std::cout << "manager.range_chunk_display " << manager.range_chunk_display << std::endl;
+
+	uint8_t*** chunkMemory = new uint8_t**[manager.range_chunk_memory];
+	QuadNode*** chunkMemory4Tree = new QuadNode**[manager.range_chunk_memory];
+	Math::Vector3	playerPos = player1.local.getPos();
+	int	playerChunkX = (int)playerPos.x / manager.chunk_size;
+	int	playerChunkY = (int)playerPos.z / manager.chunk_size;//opengl y is height, so we use opengl z here
+	int startX = playerChunkX * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
+	int startY = playerChunkY * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
+	for (size_t j = 0; j < manager.range_chunk_memory; j++) {
+		chunkMemory[j] = new uint8_t*[manager.range_chunk_memory];
+		chunkMemory4Tree[j] = new QuadNode*[manager.range_chunk_memory];
+		for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+			//std::cout << i << ":" << j << std::endl;
+			chunkMemory[j][i] = nullptr;
+			chunkMemory4Tree[j][i] = nullptr;
+			int x, y, w, h;
+			x = startX + manager.chunk_size * i;
+			y = startY + manager.chunk_size * j;
+			w = manager.chunk_size;
+			h = manager.chunk_size;
+			chunkMemory[j][i] = generatePerlinNoise(manager, x, y, w, h);//make a class Rect ?
+			chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
+		}
+	}
+	int startDisplay = (manager.range_chunk_memory - manager.range_chunk_display) / 2;
+	int endDisplay = startDisplay + manager.range_chunk_display;
+	int memoryTotalRange = manager.chunk_size * manager.range_chunk_memory;
+	uint8_t* dataChunkMemory = new uint8_t[3 * memoryTotalRange * memoryTotalRange];
+	for (size_t j = 0; j < manager.range_chunk_memory; j++) {
+		for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+				int leafamount = 0;
+				Math::Vector3 color(0, 0, 0);
+				if ((i >= startDisplay && i < endDisplay) && (j >= startDisplay && j < endDisplay))
+					color = Math::Vector3(255, 0, 0);
+				fillData(dataChunkMemory + 3 * (j * memoryTotalRange*manager.chunk_size + i*manager.chunk_size),
+					chunkMemory4Tree[j][i], &leafamount, memoryTotalRange, false, THRESHOLD, color);
+		}
+	}
+
+	Texture*	grid = new Texture(dataChunkMemory, memoryTotalRange, memoryTotalRange);
+	UIImage		gridPanel(grid);
+	gridPanel.setPos((WINX / 2) + manager.playerChunkX * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size),
+					(WINY / 2) + manager.playerChunkY * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size));//z cauz opengl
+	gridPanel.setSize(memoryTotalRange, memoryTotalRange);
+#endif // CHUNKS
+
+
 
 	//int thread_amount = manager.core_amount - 1;
 	//std::thread* threads_list = new std::thread[thread_amount];
@@ -1202,52 +1572,45 @@ void	scene_vox() {
 			manager.glfw->updateMouse();//to do before cam's events
 			cam.events(*(manager.glfw), float(defaultFps->getTick()));
 
+			//cubeb.local.rotate(50 * defaultFps->getTick(), 50 * defaultFps->getTick(), 0);
+
 			//defaultFps->printFps();
 
-		#ifndef PERLIN
-			//glfwGetCursorPos(manager.glfw->_window, &manager.mouseX, &manager.mouseY);
-			//int playerPosX = manager.mouseX - (WINX / 2);//center of screen is 0:0
-			//int playerPosY = WINY - manager.mouseY - (WINY / 2);//center of screen is 0:0   //invert glfw Y to match opengl image
-			//Math::Vector3	vec(playerPosX, playerPosY, 0);
-			//double dist = (double(vec.magnitude()) / double(WINY * 2));
-			//std::cout << playerPosX << ":" << playerPosY << "  \t" << dist << std::endl;
-
-			//for (size_t i = 0; i < thread_amount; i++) {//compute data with threads
-			//	int start = ((manager.areaHeight * (i + 0)) / thread_amount);
-			//	int end = ((manager.areaHeight * (i + 1)) / thread_amount);
-			//	//std::cout << start << "\t->\t" << end << "\t" << end - start << std::endl;
-			//	threads_list[i] = std::thread(th_buildData, std::ref(data), std::ref(manager), start, end);
-			//}
-			//for (size_t i = 0; i < thread_amount; i++) {
-			//	threads_list[i].join();
-			//}
-
-			//image->updateData(data, manager.areaWidth, manager.areaHeight);
-			//uiImage.setPos(manager.mouseX - (manager.areaWidth / 2), WINY - manager.mouseY - (manager.areaHeight / 2));
-			//uiImage.setSize(uiImage.getTexture()->getWidth() * size_coef, uiImage.getTexture()->getHeight() * size_coef);
-		#endif
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderObj3d(renderlist, cam);
-			renderSkybox(skybox, cam);
-			//blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &uiImage);
+			buildWorld(manager, chunkMemory4Tree);
+			renderObj3d(playerList, cam);
+			//renderSkybox(skybox, cam);
+			blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &gridPanel);
 			glfwSwapBuffers(manager.glfw->_window);
 
 
-		#ifndef KEY_EVENTS
+#ifndef KEY_EVENTS
 			int mvtSpeed = 5;
 			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_UP)) {
 				manager.posOffsetY += mvtSpeed;
+				player1.local.translate(VEC3_FORWARD);
 			}
 			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_DOWN)) {
 				manager.posOffsetY -= mvtSpeed;
+				player1.local.translate(VEC3_BACKWARD);
 			}
 
 			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_RIGHT)) {
 				manager.posOffsetX += mvtSpeed;
+				player1.local.translate(VEC3_RIGHT);
 			}
 			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_LEFT)) {
 				manager.posOffsetX -= mvtSpeed;
+				player1.local.translate(VEC3_LEFT);
 			}
+
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_SPACE)) {
+				player1.local.translate(VEC3_UP);
+			}
+			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_C)) {
+				player1.local.translate(VEC3_DOWN);
+			}
+
 
 			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_KP_7)) {
 				manager.frequency += 0.1;
@@ -1278,7 +1641,57 @@ void	scene_vox() {
 
 			if (GLFW_PRESS == glfwGetKey(manager.glfw->_window, GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(manager.glfw->_window, GLFW_TRUE);
-		#endif
+#endif
+			Math::Vector3	playerpos = manager.player->local.getPos();
+			int currentchunkX = int(playerpos.x / manager.chunk_size);
+			int currentchunkY = int(playerpos.z / manager.chunk_size);//opengl y is height, so we use opengl z here
+			if (playerpos.x < 0) // cauz x=-29..+29 ----> x / 30 = 0; 
+				currentchunkX--;
+			if (playerpos.z < 0) // same
+				currentchunkY--;
+			if (currentchunkX != manager.playerChunkX) {
+				updateChunksX(manager, chunkMemory4Tree, chunkMemory, currentchunkX - manager.playerChunkX);
+				std::cout << "===<<< Player changed chunk X: " << manager.playerChunkX << ":" << manager.playerChunkY << std::endl;
+				std::cout << "filling data to texture... ";
+				for (size_t j = 0; j < manager.range_chunk_memory; j++) {
+					for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+						int leafamount = 0;
+						Math::Vector3 color(0, 0, 0);
+						if ((i >= startDisplay && i < endDisplay) && (j >= startDisplay && j < endDisplay))
+							color = Math::Vector3(255, 0, 0);
+						fillData(dataChunkMemory + 3 * (j * memoryTotalRange * manager.chunk_size + i * manager.chunk_size),
+							chunkMemory4Tree[j][i], &leafamount, memoryTotalRange, false, THRESHOLD, color);
+					}
+				}
+				std::cout << "Done" << std::endl;
+				gridPanel.getTexture()->updateData(dataChunkMemory, memoryTotalRange, memoryTotalRange);
+				playerPos = player1.local.getPos();
+				gridPanel.setPos((WINX / 2) + manager.playerChunkX * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size),
+								(WINY / 2) + manager.playerChunkY * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size));//z cauz opengl
+				gridPanel.setSize(memoryTotalRange, memoryTotalRange);
+			}
+			if (currentchunkY != manager.playerChunkY) {
+				updateChunksY(manager, chunkMemory4Tree, chunkMemory, currentchunkY - manager.playerChunkY);
+				std::cout << "===<<< Player changed chunk Y: " << manager.playerChunkX << ":" << manager.playerChunkY << std::endl;
+				std::cout << "filling data to texture... ";
+				for (size_t j = 0; j < manager.range_chunk_memory; j++) {
+					for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+						int leafamount = 0;
+						Math::Vector3 color(0, 0, 0);
+						if ((i >= startDisplay && i < endDisplay) && (j >= startDisplay && j < endDisplay))
+							color = Math::Vector3(255, 0, 0);
+						fillData(dataChunkMemory + 3 * (j * memoryTotalRange * manager.chunk_size + i * manager.chunk_size),
+							chunkMemory4Tree[j][i], &leafamount, memoryTotalRange, false, THRESHOLD, color);
+					}
+				}
+				std::cout << "Done" << std::endl;
+				gridPanel.getTexture()->updateData(dataChunkMemory, memoryTotalRange, memoryTotalRange);
+				playerPos = player1.local.getPos();
+				gridPanel.setPos((WINX / 2) + manager.playerChunkX * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size),
+								(WINY / 2) + manager.playerChunkY * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size));//z cauz opengl
+				gridPanel.setSize(memoryTotalRange, memoryTotalRange);
+			}
+
 		}
 	}
 	//delete[] threads_list;
