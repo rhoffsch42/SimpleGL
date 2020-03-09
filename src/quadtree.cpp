@@ -1,4 +1,4 @@
-#include "QuadTree.hpp"
+#include "quadtree.hpp"
 
 Pixel   getAverage_old(Pixel** arr, int x, int y, int width, int height) {
 	//std::cout << "__getA.. " << width << "x" << height << " at " << x << ":" << y << std::endl;

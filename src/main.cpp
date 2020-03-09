@@ -729,8 +729,8 @@ void	fillData(uint8_t* dst, QuadNode* node, int* leafAmount, int baseWidth, bool
 			std::cout << "Fill new leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << "\t";
 			std::cout << (int)node->pixel.r << "  \t" << (int)node->pixel.g << "  \t" << (int)node->pixel.b << std::endl;
 		}
-		for (int j = 0; j < node->height; j++) {
-			for (int i = 0; i < node->width; i++) {
+		for (unsigned int j = 0; j < node->height; j++) {
+			for (unsigned int i = 0; i < node->width; i++) {
 				unsigned int posx = node->x + i;
 				unsigned int posy = node->y + j;
 				unsigned int index = (posy * baseWidth + posx) * 3;
@@ -916,8 +916,8 @@ public:
 		this->player = nullptr;
 		this->playerChunkX = 0;
 		this->playerChunkY = 0;
-		this->range_chunk_display = 5;
-		this->range_chunk_memory = 41;
+		this->range_chunk_display = 3;
+		this->range_chunk_memory = 15;
 		this->chunk_size = 32;
 		this->voxel_size = 1;
 		this->polygon_mode = GL_POINT;
@@ -928,9 +928,9 @@ public:
 	/*
 		sans opti:
 		30*30*256 = 775 680 octets / chunk
-		775 680 * 9 = 6 981 120 octets (block de jeu) affichés
-		6 981 120 * 6 * 2 = 83 773 440 polygones
-		775 680 * 49 = 38 008 320 octets en memoire
+		775 680 * 9 = 6ï¿½981ï¿½120 octets (block de jeu) affichï¿½s
+		6ï¿½981ï¿½120 * 6 * 2 = 83ï¿½773ï¿½440 polygones
+		775 680 * 49 = 38ï¿½008ï¿½320 octets en memoire
 	*/
 
 	virtual ~ProceduralManager() {}
@@ -949,7 +949,7 @@ public:
 	int				areaHeight;
 	double			island;
 	//vox
-	Obj3d*			player;
+	Object*			player;
 	int	playerChunkX;
 	int	playerChunkY;
 	std::list<Obj3d*>	renderlist;
@@ -1133,13 +1133,13 @@ void	scene_procedural() {
 			double dist = (double(vec.magnitude()) / double(WINY*2));
 			std::cout << playerPosX << ":" << playerPosY << "  \t" << dist << std::endl;
 
-			for (size_t i = 0; i < thread_amount; i++) {//compute data with threads
+			for (int i = 0; i < thread_amount; i++) {//compute data with threads
 				int start = ((manager.areaHeight * (i + 0)) / thread_amount);
 				int end = ((manager.areaHeight * (i + 1)) / thread_amount);
 				//std::cout << start << "\t->\t" << end << "\t" << end - start << std::endl;
 				threads_list[i] = std::thread(th_buildData, std::ref(data), std::ref(manager), start, end);
 			}
-			for (size_t i = 0; i < thread_amount; i++) {
+			for (int i = 0; i < thread_amount; i++) {
 				threads_list[i].join();
 			}
 
@@ -1252,18 +1252,24 @@ void		buildWorld(ProceduralManager & manager, QuadNode*** memory4Tree) {
 
 	int longTreshold = 12;
 	int midTreshold = 8;
+	int closeThrehold = 2;
 	int threshold = 3;
 
 	int startMid = (manager.range_chunk_memory / 2) - (20 / 2);
 	int endMid = startMid + 20;
-	int start = (manager.range_chunk_memory / 2) - (manager.range_chunk_display / 2);
-	int end = start + manager.range_chunk_display;
-	std::cout << start << " -> " << end << "\t/ " << manager.range_chunk_memory << std::endl;
-	for (size_t j = 0; j < manager.range_chunk_memory; j++) {
-		for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+	int startClose = (manager.range_chunk_memory / 2) - (manager.range_chunk_display / 2);
+	int endClose = startClose + manager.range_chunk_display;
+	int	playerI = (manager.range_chunk_memory / 2);
+	int	playerJ = (manager.range_chunk_memory / 2);
+
+	// std::cout << startClose << " -> " << endClose << "\t/ " << manager.range_chunk_memory << std::endl;
+	for (int j = 0; j < manager.range_chunk_memory; j++) {
+		for (int i = 0; i < manager.range_chunk_memory; i++) {
 			//std::cout << j << ":" << i << std::endl;
-			if (i >= start && i < end && j >= start && j < end)//around player
+			if (i == playerI && j == playerJ)//player chunk
 				threshold = manager.threshold;
+			else if (i >= startClose && i < endClose && j >= startClose && j < endClose)//around player
+				threshold = closeThrehold;
 			else if (i >= startMid && i < endMid && j >= startMid && j < endMid)//around player
 				threshold = midTreshold;
 			buildChunk(manager, memory4Tree[j][i], i, j, threshold);
@@ -1500,7 +1506,7 @@ void	scene_vox() {
 
 	Obj3dBP		cubebp("obj3d/cube.obj", true, false);
 
-	Texture*	tex_skybox = new Texture("images/skybox4.bmp");
+	Texture*	tex_skybox = new Texture("images/skybox4096.bmp");
 	Skybox		skybox(*tex_skybox, sky_pg);
 
 	Cam		cam(*(manager.glfw));
@@ -1536,6 +1542,7 @@ void	scene_vox() {
 	player1.displayTexture = false;
 	player1.setPolygonMode(GL_FILL);
 	manager.player = &player1;
+	manager.player = &cam;
 
 	std::list<Obj3d*>	playerList;
 	playerList.push_back(&player1);
@@ -1554,10 +1561,10 @@ void	scene_vox() {
 	int	playerChunkY = (int)playerPos.z / manager.chunk_size;//opengl y is height, so we use opengl z here
 	int startX = playerChunkX * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
 	int startY = playerChunkY * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
-	for (size_t j = 0; j < manager.range_chunk_memory; j++) {
+	for (int j = 0; j < manager.range_chunk_memory; j++) {
 		chunkMemory[j] = new uint8_t*[manager.range_chunk_memory];
 		chunkMemory4Tree[j] = new QuadNode*[manager.range_chunk_memory];
-		for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+		for (int i = 0; i < manager.range_chunk_memory; i++) {
 			//std::cout << i << ":" << j << std::endl;
 			chunkMemory[j][i] = nullptr;
 			chunkMemory4Tree[j][i] = nullptr;
@@ -1574,8 +1581,8 @@ void	scene_vox() {
 	int endDisplay = startDisplay + manager.range_chunk_display;
 	int memoryTotalRange = manager.chunk_size * manager.range_chunk_memory;
 	uint8_t* dataChunkMemory = new uint8_t[3 * memoryTotalRange * memoryTotalRange];
-	for (size_t j = 0; j < manager.range_chunk_memory; j++) {
-		for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+	for (int j = 0; j < manager.range_chunk_memory; j++) {
+		for (int i = 0; i < manager.range_chunk_memory; i++) {
 				int leafamount = 0;
 				Math::Vector3 color(0, 0, 0);
 				if ((i >= startDisplay && i < endDisplay) && (j >= startDisplay && j < endDisplay))
@@ -1612,7 +1619,7 @@ void	scene_vox() {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			buildWorld(manager, chunkMemory4Tree);
 			renderObj3d(playerList, cam);
-			//renderSkybox(skybox, cam);
+			renderSkybox(skybox, cam);
 			//blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &gridPanel);
 			glfwSwapBuffers(manager.glfw->_window);
 
@@ -1686,8 +1693,8 @@ void	scene_vox() {
 				updateChunksX(manager, chunkMemory4Tree, chunkMemory, currentchunkX - manager.playerChunkX);
 				std::cout << "===<<< Player changed chunk X: " << manager.playerChunkX << ":" << manager.playerChunkY << std::endl;
 				std::cout << "filling data to texture... ";
-				for (size_t j = 0; j < manager.range_chunk_memory; j++) {
-					for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+				for (int j = 0; j < manager.range_chunk_memory; j++) {
+					for (int i = 0; i < manager.range_chunk_memory; i++) {
 						int leafamount = 0;
 						Math::Vector3 color(0, 0, 0);
 						if ((i >= startDisplay && i < endDisplay) && (j >= startDisplay && j < endDisplay))
@@ -1707,8 +1714,8 @@ void	scene_vox() {
 				updateChunksY(manager, chunkMemory4Tree, chunkMemory, currentchunkY - manager.playerChunkY);
 				std::cout << "===<<< Player changed chunk Y: " << manager.playerChunkX << ":" << manager.playerChunkY << std::endl;
 				std::cout << "filling data to texture... ";
-				for (size_t j = 0; j < manager.range_chunk_memory; j++) {
-					for (size_t i = 0; i < manager.range_chunk_memory; i++) {
+				for (int j = 0; j < manager.range_chunk_memory; j++) {
+					for (int i = 0; i < manager.range_chunk_memory; i++) {
 						int leafamount = 0;
 						Math::Vector3 color(0, 0, 0);
 						if ((i >= startDisplay && i < endDisplay) && (j >= startDisplay && j < endDisplay))

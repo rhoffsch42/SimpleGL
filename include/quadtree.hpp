@@ -45,7 +45,7 @@ class QuadNode
 public:
 	QuadNode(Pixel** arr, int x, int y, int width, int height, unsigned int threshold);
 	QuadNode(uint8_t* data, int baseWidth, int x, int y, int w, int h, unsigned int threshold);
-	QuadNode::~QuadNode();
+	~QuadNode();
 	bool		isLeaf() const;
 
 	QuadNode **		children;

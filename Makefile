@@ -6,12 +6,12 @@
 #    By: rhoffsch <rhoffsch@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/05/15 17:38:19 by rhoffsch          #+#    #+#              #
-#    Updated: 2019/11/15 10:45:55 by rhoffsch         ###   ########.fr        #
+#    Updated: 2020/03/09 21:27:23 by rhoffsch         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			=	SimpleGL
-CC				=	g++ -std=c++11
+CC				=	g++ -std=c++17
 CFLAGS			=	-Wall -Wextra -Werror -MMD -g #-Wpadded
 TEST_FLAGS		=	-DUNIT_TESTS=false
 
@@ -48,7 +48,10 @@ SRC_FILE		=	main.cpp \
 					behaviormanaged.cpp \
 					transformBH.cpp \
 					fps.cpp \
-					gamemanager.cpp
+					gamemanager.cpp \
+					framebuffer.cpp \
+					uipanel.cpp \
+					quadtree.cpp
 
 HDR_FILE		=	simplegl.h
 
