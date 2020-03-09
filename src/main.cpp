@@ -916,9 +916,9 @@ public:
 		this->player = nullptr;
 		this->playerChunkX = 0;
 		this->playerChunkY = 0;
-		this->range_chunk_display = 3;
-		this->range_chunk_memory = 7;
-		this->chunk_size = 30;
+		this->range_chunk_display = 5;
+		this->range_chunk_memory = 41;
+		this->chunk_size = 32;
 		this->voxel_size = 1;
 		this->polygon_mode = GL_POINT;
 		this->polygon_mode = GL_LINE;
@@ -1204,11 +1204,11 @@ void	scene_procedural() {
 	std::cout << "deleting textures..." << endl;
 }
 
-void		buildChunk(ProceduralManager& manager, QuadNode* node, int chunkI, int chunkJ) {//can be used for every tree node
+void		buildChunk(ProceduralManager& manager, QuadNode* node, int chunkI, int chunkJ, int threshold) {//can be used for every tree node
 	if (!node)
 		return;
 	//if (node->isLeaf()) {
-	if (node->detail <= manager.threshold) {
+	if (node->detail <= threshold) {
 		//std::cout << "leaf: " << node->width << "x" << node->height << " at " << node->x << ":" << node->y << std::endl;
 		if (node->width == 0 || node->height == 0) {
 			std::cout << "error with tree data\n"; exit(2);
@@ -1222,7 +1222,7 @@ void		buildChunk(ProceduralManager& manager, QuadNode* node, int chunkI, int chu
 		int polmode = cube->getPolygonMode();
 		uint8_t	elevation = node->pixel.r;
 		Math::Vector3	color = genColor(elevation);
-		if (node->x == 0 || node->y == 0)
+		if (0 && (node->x == 0 || node->y == 0))
 			cube->setColor(0,0,0);
 		else
 			cube->setColor(color.x, color.y, color.z);
@@ -1231,8 +1231,8 @@ void		buildChunk(ProceduralManager& manager, QuadNode* node, int chunkI, int chu
 		int worldPosY = manager.playerChunkY * manager.chunk_size + node->y + chunkJ * manager.chunk_size - (manager.range_chunk_memory / 2 * manager.chunk_size);
 
 		cube->local.setPos(worldPosX, 0, worldPosY);
-		//cube->local.setScale(node->width, node->pixel.r, node->height);// height is opengl z
-		cube->local.setScale(node->width, 1, node->height);// height is opengl z
+		cube->local.setScale(node->width, node->pixel.r / 3, node->height);// height is opengl z
+		//cube->local.setScale(node->width, 1, node->height);// height is opengl z
 
 		cube->setPolygonMode(manager.polygon_mode);
 		renderObj3d(manager.renderlist, *manager.cam);
@@ -1240,22 +1240,34 @@ void		buildChunk(ProceduralManager& manager, QuadNode* node, int chunkI, int chu
 	#endif
 	}
 	else if (node->children) {
-		buildChunk(manager, node->children[0], chunkI, chunkJ);
-		buildChunk(manager, node->children[1], chunkI, chunkJ);
-		buildChunk(manager, node->children[2], chunkI, chunkJ);
-		buildChunk(manager, node->children[3], chunkI, chunkJ);
+		buildChunk(manager, node->children[0], chunkI, chunkJ, threshold);
+		buildChunk(manager, node->children[1], chunkI, chunkJ, threshold);
+		buildChunk(manager, node->children[2], chunkI, chunkJ, threshold);
+		buildChunk(manager, node->children[3], chunkI, chunkJ, threshold);
 	}
 }
 
 void		buildWorld(ProceduralManager & manager, QuadNode*** memory4Tree) {
 	//std::cout << "building world...\n";
 
-	int start = (manager.range_chunk_memory - manager.range_chunk_display) / 2;
+	int longTreshold = 12;
+	int midTreshold = 8;
+	int threshold = 3;
+
+	int startMid = (manager.range_chunk_memory / 2) - (20 / 2);
+	int endMid = startMid + 20;
+	int start = (manager.range_chunk_memory / 2) - (manager.range_chunk_display / 2);
 	int end = start + manager.range_chunk_display;
-	for (size_t j = start; j < end; j++) {
-		for (size_t i = start; i < end; i++) {
+	std::cout << start << " -> " << end << "\t/ " << manager.range_chunk_memory << std::endl;
+	for (size_t j = 0; j < manager.range_chunk_memory; j++) {
+		for (size_t i = 0; i < manager.range_chunk_memory; i++) {
 			//std::cout << j << ":" << i << std::endl;
-			buildChunk(manager, memory4Tree[j][i], i, j);
+			if (i >= start && i < end && j >= start && j < end)//around player
+				threshold = manager.threshold;
+			else if (i >= startMid && i < endMid && j >= startMid && j < endMid)//around player
+				threshold = midTreshold;
+			buildChunk(manager, memory4Tree[j][i], i, j, threshold);
+			threshold = longTreshold;
 		}
 	}
 }
@@ -1293,6 +1305,8 @@ void	updateChunksX(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 		exit(1);
 	}
 
+	bool displayDebug = false;
+
 	manager.playerChunkX += change;
 	int startX = manager.playerChunkX * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
 	int startY = manager.playerChunkY * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
@@ -1303,10 +1317,12 @@ void	updateChunksX(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 				if (i == 0) {//delete first column
 					delete[] chunkMemory[j][i];
 					delete chunkMemory4Tree[j][i];
-					std::cout << "delete first column on line " << j << " column " << i << std::endl;
+					if (displayDebug)
+						std::cout << "delete first column on line " << j << " column " << i << std::endl;
 				}
 				if (i == manager.range_chunk_memory - 1) {//last column, rebuild
-					std::cout << "rebuild last column on line " << j << " column " << i << std::endl;
+					if (displayDebug)
+						std::cout << "rebuild last column on line " << j << " column " << i << std::endl;
 					int x, y, w, h;
 					x = startX + manager.chunk_size * i;
 					y = startY + manager.chunk_size * j;
@@ -1316,12 +1332,14 @@ void	updateChunksX(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
 				}
 				else {//shift on left
-					std::cout << "shift on left on line " << j << " column " << i << std::endl;
+					if (displayDebug)
+						std::cout << "shift on left on line " << j << " column " << i << std::endl;
 					chunkMemory[j][i] = chunkMemory[j][i + 1];
 					chunkMemory4Tree[j][i] = chunkMemory4Tree[j][i + 1];
 				}
 			}
-			std::cout << "-------------\n";
+			if (displayDebug)
+				std::cout << "-------------\n";
 		}
 	}
 	else if (change < 0) {//if we went on left, ie shift everything on right, rebuild first column
@@ -1330,10 +1348,12 @@ void	updateChunksX(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 				if (i == manager.range_chunk_memory - 1) {//delete last column
 					delete[] chunkMemory[j][i];
 					delete chunkMemory4Tree[j][i];
-					std::cout << "delete last column on line " << j << " column " << i << std::endl;
+					if (displayDebug)
+						std::cout << "delete last column on line " << j << " column " << i << std::endl;
 				}
 				if (i == 0) {//first column, rebuild
-					std::cout << "rebuild first column on line " << j << " column " << i << std::endl;
+					if (displayDebug)
+						std::cout << "rebuild first column on line " << j << " column " << i << std::endl;
 					int x, y, w, h;
 					x = startX + manager.chunk_size * i;
 					y = startY + manager.chunk_size * j;
@@ -1343,12 +1363,14 @@ void	updateChunksX(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
 				}
 				else {//shift on right
-					std::cout << "shift on right on line " << j << " column " << i << std::endl;
+					if (displayDebug)
+						std::cout << "shift on right on line " << j << " column " << i << std::endl;
 					chunkMemory[j][i] = chunkMemory[j][i - 1];
 					chunkMemory4Tree[j][i] = chunkMemory4Tree[j][i - 1];
 				}
 			}
-			std::cout << "-------------\n";
+			if (displayDebug)
+				std::cout << "-------------\n";
 		}
 	}
 	std::cout << "updated Chunks X\n";
@@ -1360,6 +1382,8 @@ void	updateChunksY(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 		exit(1);
 	}
 
+	bool displayDebug = false;
+
 	manager.playerChunkY += change;
 	int startX = manager.playerChunkX * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
 	int startY = manager.playerChunkY * manager.chunk_size - (manager.chunk_size * manager.range_chunk_memory / 2);
@@ -1370,10 +1394,12 @@ void	updateChunksY(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 				if (j == 0) {//delete first line
 					delete[] chunkMemory[j][i];
 					delete chunkMemory4Tree[j][i];
-					std::cout << "delete first line on column " << i << " line " << j << std::endl;
+					if (displayDebug)
+						std::cout << "delete first line on column " << i << " line " << j << std::endl;
 				}
 				if (j == manager.range_chunk_memory - 1) {//last line, rebuild
-					std::cout << "rebuild last line on column " << i << " line " << j << std::endl;
+					if (displayDebug)
+						std::cout << "rebuild last line on column " << i << " line " << j << std::endl;
 					int x, y, w, h;
 					x = startX + manager.chunk_size * i;
 					y = startY + manager.chunk_size * j;
@@ -1383,12 +1409,14 @@ void	updateChunksY(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
 				}
 				else {//shift on top
-					std::cout << "shift on top on column " << i << " line " << j << std::endl;
+					if (displayDebug)
+						std::cout << "shift on top on column " << i << " line " << j << std::endl;
 					chunkMemory[j][i] = chunkMemory[j + 1][i];
 					chunkMemory4Tree[j][i] = chunkMemory4Tree[j + 1][i];
 				}
 			}
-			std::cout << "-------------\n";
+			if (displayDebug)
+				std::cout << "-------------\n";
 		}
 	}
 	else if (change < 0) {//if we went on left, ie shift everything on right, rebuild first column
@@ -1397,10 +1425,12 @@ void	updateChunksY(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 				if (j == manager.range_chunk_memory - 1) {//delete last column
 					delete[] chunkMemory[j][i];
 					delete chunkMemory4Tree[j][i];
-					std::cout << "delete first line on column " << i << " line " << j << std::endl;
+					if (displayDebug)
+						std::cout << "delete first line on column " << i << " line " << j << std::endl;
 				}
 				if (j == 0) {//first column, rebuild
-					std::cout << "rebuild last line on column " << i << " line " << j << std::endl;
+					if (displayDebug)
+						std::cout << "rebuild last line on column " << i << " line " << j << std::endl;
 					int x, y, w, h;
 					x = startX + manager.chunk_size * i;
 					y = startY + manager.chunk_size * j;
@@ -1410,12 +1440,14 @@ void	updateChunksY(ProceduralManager& manager, QuadNode*** chunkMemory4Tree, uin
 					chunkMemory4Tree[j][i] = new QuadNode(chunkMemory[j][i], w, 0, 0, w, h, THRESHOLD);
 				}
 				else {//shift on bottom
-					std::cout << "shift on top on column " << i << " line " << j << std::endl;
+					if (displayDebug)
+						std::cout << "shift on top on column " << i << " line " << j << std::endl;
 					chunkMemory[j][i] = chunkMemory[j - 1][i];
 					chunkMemory4Tree[j][i] = chunkMemory4Tree[j - 1][i];
 				}
 			}
-			std::cout << "-------------\n";
+			if (displayDebug)
+				std::cout << "-------------\n";
 		}
 	}
 	std::cout << "updated Chunks Y\n";
@@ -1472,8 +1504,8 @@ void	scene_vox() {
 	Skybox		skybox(*tex_skybox, sky_pg);
 
 	Cam		cam(*(manager.glfw));
-	cam.speed = 4;
-	cam.local.setPos(0, 0, 0);
+	cam.speed = 4*15;
+	cam.local.setPos(0, 30, 0);
 	cam.printProperties();
 	cam.lockedMovement = false;
 	cam.lockedOrientation = false;
@@ -1487,7 +1519,7 @@ void	scene_vox() {
 
 #endif// INIT_GLFW
 
-#ifndef BASE_OBJ3d
+#ifndef BASE_OBJ3D
 	Obj3d		cubeo(cubebp, obj3d_prog);
 	cubeo.local.setPos(0, 0, 0);
 	cubeo.local.setScale(1, 1, 1);
@@ -1497,8 +1529,9 @@ void	scene_vox() {
 	manager.renderlist.push_back(&cubeo);
 
 	Obj3d		player1(cubebp, obj3d_prog);
-	player1.local.setPos(0, 2, 0);
+	player1.local.setPos(0, 35, 0);
 	player1.local.setScale(1, 2, 1);
+	player1.local.enlarge(5, 5, 5);
 	player1.setColor(255, 0, 0);
 	player1.displayTexture = false;
 	player1.setPolygonMode(GL_FILL);
@@ -1580,7 +1613,7 @@ void	scene_vox() {
 			buildWorld(manager, chunkMemory4Tree);
 			renderObj3d(playerList, cam);
 			//renderSkybox(skybox, cam);
-			blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &gridPanel);
+			//blitToWindow(nullptr, GL_COLOR_ATTACHMENT0, &gridPanel);
 			glfwSwapBuffers(manager.glfw->_window);
 
 
