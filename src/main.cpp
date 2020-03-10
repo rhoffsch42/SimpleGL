@@ -176,38 +176,27 @@ private:
 
 void blitToWindow(FrameBuffer* readFramebuffer, GLenum attachmentPoint, UIPanel* panel) {
 	GLuint fbo;
+	int w;
+	int h;
 	if (readFramebuffer) {
 		fbo = readFramebuffer->fbo;
-	}
-	else {
+		w = readFramebuffer->getWidth();
+		h = readFramebuffer->getHeight();
+	} else if (panel->getTexture()) {
 		fbo = panel->getFbo();
+		w = panel->getTexture()->getWidth();
+		h = panel->getTexture()->getHeight();
+	} else {
+		std::cout << __PRETTY_FUNCTION__ << "failed" << std::endl;
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		exit(1);
 	}
-	// glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-
-	//glViewport(0, 0, manager->glfw->getWidth(), manager->glfw->getHeight());//size of the window/image or panel width ?
 	glReadBuffer(attachmentPoint);
 	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
 
-	int w;
-	int h;
-	if (readFramebuffer) {
-		w = readFramebuffer->getWidth();
-		h = readFramebuffer->getHeight();
-	} else if (panel->getTexture()) {
-		w = panel->getTexture()->getWidth();
-		h = panel->getTexture()->getHeight();
-	} else {
-		std::cout << "FUCK " << __PRETTY_FUNCTION__ << std::endl;
-		exit(2);
-	}
-	if (0) {
-		std::cout << "copy " << w << "x" << h << "\tresized\t" << panel->_width << "x" << panel->_height \
-			<< "\tat pos\t" << panel->_posX << ":" << panel->_posY << std::endl;
-		// << " -> " << (panel->posX + panel->width) << "x" << (panel->posY + panel->height) << std::endl;
-	}
 	glBlitFramebuffer(0, 0, w, h, \
 		panel->_posX, panel->_posY, panel->_posX2, panel->_posY2, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
@@ -712,7 +701,6 @@ void scene2() {
 	delete texture3;
 	delete texture5;
 }
-
 
 #ifdef	QUADTREE_PROTECTION
 
