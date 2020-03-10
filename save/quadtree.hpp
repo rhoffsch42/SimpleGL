@@ -47,6 +47,7 @@ public:
 	QuadNode(uint8_t* data, int baseWidth, int x, int y, int w, int h, unsigned int threshold);
 	~QuadNode();
 	bool		isLeaf() const;
+	// template<class UnaryPredicate> void	browse(int threshold, UnaryPredicate p);
 
 	QuadNode **		children;
 	Pixel			pixel;

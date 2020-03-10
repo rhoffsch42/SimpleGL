@@ -28,7 +28,7 @@
 #include "gamemanager.hpp"
 #include "framebuffer.hpp"
 #include "uipanel.hpp"
-#include "quadtree.hpp"
+// #include "quadtree.hpp"
 
 #include "perlin.hpp"
 
@@ -712,6 +712,9 @@ void scene2() {
 	delete texture3;
 	delete texture5;
 }
+
+
+#ifdef	QUADTREE_PROTECTION
 
 #define BORDERS_ON	true
 #define BORDERS_OFF	false
@@ -1741,6 +1744,8 @@ void	scene_vox() {
 	delete tex_skybox;
 }
 
+#endif//QUADTREE_PROTECTION
+
 int		main(void) {
 	check_paddings();
 	// test_behaviors();
@@ -1752,7 +1757,7 @@ int		main(void) {
 	//scene2();
 	//scene_4Tree();
 	//scene_procedural();
-	scene_vox();
+	// scene_vox();
 	// while(1);
 
 	return (EXIT_SUCCESS);

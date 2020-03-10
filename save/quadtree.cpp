@@ -274,3 +274,23 @@ QuadNode::~QuadNode() {
 bool		QuadNode::isLeaf() const {
 	return (this->children == nullptr);
 }
+
+template<class UnaryPredicate>
+void	QuadNode::browse(int threshold, UnaryPredicate p) {
+	if (this->detail <= threshold || this->isLeaf()) {
+		if (this->width == 0 || this->height == 0) {
+			std::cout << "error with tree data\n";
+			exit(1);
+		}
+		p(this); // LAMBDA PART
+	} else if (this->children) {
+		if (this->children[0])//should never be null
+			this->children[0]->browse(threshold, p);
+		if (this->children[0])
+			this->children[1]->browse(threshold, p);
+		if (this->children[0])
+			this->children[2]->browse(threshold, p);
+		if (this->children[0])
+			this->children[3]->browse(threshold, p);
+	}
+}
