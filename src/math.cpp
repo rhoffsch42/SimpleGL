@@ -208,6 +208,19 @@ void			Math::Vector3::mult(float coef) {
 	this->y *= coef;
 	this->z *= coef;
 }
+
+void	Math::Vector3::mult(Math::Matrix4& mat) {
+	uint8_t	order = mat.getOrder();
+	mat.setOrder(ROW_MAJOR);
+	float* m = mat.getData();
+	Math::Vector3	res;
+	res.x = this->x * m[0] + this->y * m[1] + this->z * m[2] + 1 * m[3];
+	res.y = this->x * m[4] + this->y * m[5] + this->z * m[6] + 1 * m[7];
+	res.z = this->x * m[8] + this->y * m[9] + this->z * m[10] + 1 * m[11];
+	*this = res;
+	mat.setOrder(order);
+}
+
 void			Math::Vector3::div(float coef) {
 	this->x /= coef;
 	this->y /= coef;

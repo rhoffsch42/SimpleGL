@@ -50,8 +50,8 @@ SRC_FILE		=	main.cpp \
 					fps.cpp \
 					gamemanager.cpp \
 					framebuffer.cpp \
-					uipanel.cpp
-					# quadtree.cpp
+					uipanel.cpp \
+					renderer.cpp
 
 HDR_FILE		=	simplegl.h
 

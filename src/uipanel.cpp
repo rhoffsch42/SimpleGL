@@ -2,26 +2,26 @@
 
 #define DEFAULT_SIZE 100
 
-void	init(UIPanel * panel) {
-	panel->isClickable = true;
-	panel->_texture = nullptr;
+void	UIPanel::init() {
+	this->isClickable = true;
+	this->_texture = nullptr;
 
-	panel->_posX = 0;
-	panel->_posY = 0;
-	panel->_width = DEFAULT_SIZE;
-	panel->_height = DEFAULT_SIZE;
-	panel->_posX2 = panel->_posX + panel->_width;
-	panel->_posY2 = panel->_posY + panel->_height;
+	this->_posX = 0;
+	this->_posY = 0;
+	this->_width = DEFAULT_SIZE;
+	this->_height = DEFAULT_SIZE;
+	this->_posX2 = this->_posX + this->_width;
+	this->_posY2 = this->_posY + this->_height;
 }
 
 UIPanel::UIPanel() {
 	glGenFramebuffers(1, &this->_fbo);
-	init(this);
+	this->init();
 }
 
 UIPanel::UIPanel(Texture * tex) {
 	glGenFramebuffers(1, &this->_fbo);
-	init(this);
+	this->init();
 	if (tex) {
 		this->setTexture(tex);
 		this->setSize(tex->getWidth(), tex->getHeight());

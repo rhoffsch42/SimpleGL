@@ -30,15 +30,15 @@ public:
 protected:
 	GLuint		_fbo;
 	Texture *	_texture;
-	int			_posX;
+	int			_posX;//do a vec2int ?
 	int			_posY;
 	int			_width;
 	int			_height;
 	int			_posX2;
 	int			_posY2;
 
-	friend void	init(UIPanel * panel);
-	friend void blitToWindow(FrameBuffer * readFramebuffer, GLenum attachmentPoint, UIPanel *panel);
+	void	init();
+	friend class Renderer;
 };
 
 #include "obj3d.hpp"

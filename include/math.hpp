@@ -92,6 +92,7 @@ public:
 		void	sub(Math::Vector3 v);
 		void	sub(float valx, float valy, float valz);
 		void	mult(float coef);
+		void	mult(Math::Matrix4& mat);
 		void	div(float coef);
 		float	magnitude() const;
 		Math::Vector3	operator-(); // in fact its for the sign minus, not the mathematical term operator
