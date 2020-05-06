@@ -27,6 +27,10 @@ Fps::Fps(unsigned int fps_val) {
 	this->last_time = glfwGetTime();
 	this->current_time = this->last_time;
 	this->ellapsed_time = 0.0;
+
+	this->_counter = 0;
+	for (size_t i = 0; i < FPS_FRAME_AVERAGE; i++)
+		this->_lastFps[i] = 0.0;
 }
 
 Fps::Fps(Fps const &instance) {
@@ -52,24 +56,36 @@ double	Fps::getTick(void) const {
 bool	Fps::wait_for_next_frame() {
 	this->current_time = glfwGetTime();
 	this->ellapsed_time = this->current_time - this->last_time;
-	if (this->ellapsed_time >= this->tick)
-	{
+	if (this->ellapsed_time >= this->tick) {
 		this->last_time = this->current_time;
 		return (true);
-	}
-	else
+	} else {
 		return (false);
+	}
 }
 
-void	Fps::printFps() const {
+int	Fps::getFps() {
 	double	cent;
-	double	fps;
+	double	fps;//if last frame time was constant
 
 	fps = 1.0 / this->ellapsed_time;
 	cent = fps - double(int(fps));
 	if (cent >= 0.5)
 		fps += 1.0;
-	cout << (float)this->current_time << "\t" << int(fps) << "fps" << endl;
+
+	//average fps of FPS_FRAME_AVERAGE last frames
+	this->_lastFps[this->_counter] = fps;
+	this->_counter++;
+	if (this->_counter >= FPS_FRAME_AVERAGE)//we could use a modulo, but a time will come where it will overflow
+		this->_counter = 0;
+	fps = 0;
+	for (size_t i = 0; i < FPS_FRAME_AVERAGE; i++) {
+		fps += this->_lastFps[i];
+	}
+	fps /= FPS_FRAME_AVERAGE;
+
+	return fps;
+	//cout << (float)this->current_time << "\t" << int(fps) << "fps" << endl;
 }
 
 void	Fps::printGlobalFps(void) {

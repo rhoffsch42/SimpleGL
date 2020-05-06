@@ -13,6 +13,8 @@
 #pragma once
 #include <cassert>
 
+#define FPS_FRAME_AVERAGE	15
+
 class Fps
 {
 	public:
@@ -24,7 +26,8 @@ class Fps
 		void	setFps(unsigned int fps_val);
 		double	getTick(void) const;
 		bool	wait_for_next_frame();
-		void	printFps() const;
+		int		getFps();
+		int		getFpsAverage() const;
 
 		static void	printGlobalFps(void);
 
@@ -37,4 +40,7 @@ class Fps
 		double			current_time;
 		double			ellapsed_time;
 
+		//only calculated if getFps is called
+		int				_counter;
+		double			_lastFps[FPS_FRAME_AVERAGE];
 };

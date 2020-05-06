@@ -29,9 +29,9 @@ class Glfw;
 class Cam : public Object
 {
 public:
-	Cam(Glfw& glfw);
-	Cam(Glfw& glfw, Math::Vector3 pos, Math::Rotation rot);
-	Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY, float rotZ);//degree
+	Cam(int width, int height);
+	Cam(int width, int height, Math::Vector3 pos, Math::Rotation rot);
+	Cam(int width, int height, float posX, float posY, float posZ, float rotX, float rotY, float rotZ);//degree
 	~Cam();
 
 	void			printProperties() const;
@@ -50,6 +50,7 @@ public:
 	float			getFov() const;
 	float			getNear() const;
 	float			getFar() const;
+	float			getAspectRatio() const;
 
 	float			speed;//max/min ? if yes ->private setter/mutator
 	bool			lockedMovement;
@@ -64,5 +65,8 @@ private:
 	float			_fov;
 	float			_near;
 	float			_far;
+	float			_aspectRatio;
 	//int			winX, winY;//?
+
+	void	init(int width, int height);
 };

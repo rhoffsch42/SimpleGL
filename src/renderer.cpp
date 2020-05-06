@@ -121,7 +121,7 @@ void	Renderer::renderObj3d(list<Obj3d*>& obj3dList, Cam& cam, bool force_draw) {
 	proMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
 
 	float			frustum[24];
-	iqFrustumF_CreatePerspective(frustum, cam.getFov(), float(WINX) / float(WINY), cam.getNear(), cam.getFar());//todo save aspect ratio in Cam::
+	iqFrustumF_CreatePerspective(frustum, cam.getFov(), cam.getAspectRatio(), cam.getNear(), cam.getFar());
 	unsigned int	counterForward = 0;
 	unsigned int	counterFrustum = 0;
 	Math::Vector3	center;

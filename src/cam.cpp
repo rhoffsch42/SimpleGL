@@ -1,33 +1,30 @@
 #include "simplegl.h"
 #include "cam.hpp"
 
-Cam::Cam(Glfw& glfw) : Object() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+void	Cam::init(int width, int height) {
 	this->_fov = CAM_FOV;
 	this->_near = CAM_NEAR;
 	this->_far = CAM_FAR;
+	this->_aspectRatio = float(width) / float(height);
 	this->speed = CAM_SPEED;
 	this->lockedMovement = false;
 	this->lockedOrientation = false;
 	this->updateCamVectors();
-	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
+	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, width, height);
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
 }
-Cam::Cam(Glfw& glfw, Math::Vector3 pos, Math::Rotation rot) : Object() {
+
+Cam::Cam(int width, int height) : Object() {
 	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
-	this->_fov = CAM_FOV;
-	this->_near = CAM_NEAR;
-	this->_far = CAM_FAR;
-	this->speed = CAM_SPEED;
-	this->lockedMovement = false;
-	this->lockedOrientation = false;
+	this->init(width, height);
+}
+Cam::Cam(int width, int height, Math::Vector3 pos, Math::Rotation rot) : Object() {
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->local._pos = pos;
 	this->local._rot = rot;
-	this->updateCamVectors();
-	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
-	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
+	this->init(width, height);
 }
-Cam::Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY, float rotZ) {//degree
+Cam::Cam(int width, int height, float posX, float posY, float posZ, float rotX, float rotY, float rotZ) {//degree
 	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->local._pos.x = posX;
 	this->local._pos.y = posY;
@@ -36,16 +33,7 @@ Cam::Cam(Glfw& glfw, float posX, float posY, float posZ, float rotX, float rotY,
 	this->local._rot.y = rotY;
 	this->local._rot.z = rotZ;
 	this->local._rot.setUnit(ROT_DEG);
-	this->_fov = CAM_FOV;
-	this->_near = CAM_NEAR;
-	this->_far = CAM_FAR;
-	this->speed = CAM_SPEED;
-	this->lockedMovement = false;
-	this->lockedOrientation = false;
-	this->updateCamVectors();
-	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, glfw._width, glfw._height);
-	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
-
+	this->init(width, height);
 }
 
 Cam::~Cam() {}
@@ -57,6 +45,7 @@ void	Cam::printProperties() const {
 	cout << "Far:\t" << this->_far << endl;
 	cout << "Near:\t" << this->_near << endl;
 	cout << "FOV:\t" << this->_fov << endl;
+	cout << "ratio:\t" << this->_aspectRatio << endl;
 	cout << "-----------" << endl;
 }
 
@@ -177,3 +166,4 @@ Math::Matrix4&	Cam::getViewMatrix() const { return ((Math::Matrix4&)this->_viewM
 float			Cam::getFov() const { return (this->_fov); }
 float			Cam::getNear() const { return (this->_near); }
 float			Cam::getFar() const { return (this->_far); }
+float			Cam::getAspectRatio() const { return (this->_aspectRatio); }
