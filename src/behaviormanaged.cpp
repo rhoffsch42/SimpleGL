@@ -1,7 +1,7 @@
 #include "behaviormanaged.hpp"
 
 BehaviorManaged::BehaviorManaged() {
-	std::cout << "_ BehaviorManaged cons" << std::endl;
+	//std::cout << "_ BehaviorManaged cons" << std::endl;
 	this->behaviorsActive = true;
 }
 

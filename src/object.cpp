@@ -7,7 +7,7 @@ unsigned int	Object::_instanceAmount = 0;
 unsigned int	Object::_instanceId = 0;
 
 Object::Object() : BehaviorManaged() {
-	cout << "_ Object cons" << endl;
+	//cout << "_ Object cons" << endl;
 	this->_id = Object::_instanceId;
 	this->_parent = nullptr;
 	this->_worldMatrixChanged = true;
@@ -45,7 +45,7 @@ Object&		Object::operator=(const Object& src) {
 }
 
 Object::~Object() {
-	cout << "_ Object des" << endl;
+	//cout << "_ Object des" << endl;
 	Object::_instanceAmount--;
 	//remove iteself from behaviors!
 }

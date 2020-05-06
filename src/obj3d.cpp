@@ -9,7 +9,7 @@ GLenum			Obj3d::defaultPolygonMode = GL_FILL;
 Math::Vector3	Obj3d::defaultColor = OBJ3D_DEFAULT_COLOR;
 
 Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
-	cout << "_ Obj3d cons" << endl;
+	//cout << "_ Obj3d cons" << endl;
 	this->_color = Obj3d::defaultColor;
 	this->_texture = nullptr;
 	this->_polygonMode = Obj3d::defaultPolygonMode;
@@ -43,7 +43,7 @@ Obj3d&		Obj3d::operator=(const Obj3d& src) {//doesnt call Object operator= ?
 }
 
 Obj3d::~Obj3d() {
-	cout << "_ Obj3d des" << endl;
+	//cout << "_ Obj3d des" << endl;
 	Obj3d::_instanceAmount--;
 	//Object destructor shouldbe called, check it
 }
