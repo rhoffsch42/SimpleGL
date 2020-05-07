@@ -79,9 +79,8 @@ int	Fps::getFps() {
 	if (this->_counter >= FPS_FRAME_AVERAGE)//we could use a modulo, but a time will come where it will overflow
 		this->_counter = 0;
 	fps = 0;
-	for (size_t i = 0; i < FPS_FRAME_AVERAGE; i++) {
+	for (size_t i = 0; i < FPS_FRAME_AVERAGE; i++)
 		fps += this->_lastFps[i];
-	}
 	fps /= FPS_FRAME_AVERAGE;
 
 	return fps;

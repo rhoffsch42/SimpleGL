@@ -98,24 +98,28 @@ bool	Renderer::isInFrustum(float* frustum, Math::Vector3 target_pos) {
 	return ((in == max) ? true : false);//is on the right halfspace of all planes, ie. is in the frustum
 }
 
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 
-Renderer::Renderer(std::string mesh_vs, std::string mesh_fs, std::string cubemap_vs, std::string cubemap_fs) {
-	this->meshProgram = new Obj3dPG(mesh_vs, mesh_fs);
-	this->skyboxProgram = new SkyboxPG(cubemap_vs, cubemap_fs);
+Renderer::Renderer(std::string vertexShader, std::string fragmentShader) {
+	this->program = nullptr;
 }
 
 Renderer::~Renderer() {
-	delete this->meshProgram;
-	delete this->skyboxProgram;
+	delete this->program;
 }
 
-void	Renderer::renderObj3d(list<Obj3d*>& obj3dList, Cam& cam, bool force_draw) {//make a renderObj3d for only 1 obj
+////////////////////////////////////////////////////////////////////
+MeshRenderer::MeshRenderer(std::string vertexShader, std::string fragmentShader) : Renderer(vertexShader, fragmentShader) {
+	this->program = new Obj3dPG(vertexShader, fragmentShader);
+}
+MeshRenderer::~MeshRenderer() {}
+
+void	MeshRenderer::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 	// cout << "render all Obj3d" << endl;
-	//assuming all Obj3d have the same program
-	if (obj3dList.empty())
+	if (list.empty())
 		return;
-	glUseProgram(this->meshProgram->_program);//used once for all obj3d
+	//assuming all Obj3d have the same program
+	glUseProgram(this->program->_program);//used once for all obj3d
 	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
 	proMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
@@ -130,35 +134,43 @@ void	Renderer::renderObj3d(list<Obj3d*>& obj3dList, Cam& cam, bool force_draw) {
 	Math::Vector3	oldcolor;
 	Math::Vector3	color;
 
-	for (Obj3d* object : obj3dList) {
-		center = object->local.getPos();
-		dim = object->local.getScale();
-		center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);
-		centerCamSpace = center;
-		centerCamSpace.mult(proMatrix);// transform object pos to camera space
-
-		bool draw = true;
-		oldcolor = object->getColor();
-		color = oldcolor;
-		if (isInFrustum(frustum, centerCamSpace)) {
-			//color = Math::Vector3(40, 200, 200);//cyan
-			counterFrustum++;
-		} else if (isForward(cam.local, center) > 0) {
-			color = Math::Vector3(200, 200, 40);//yellow
-			counterForward++;
-			draw = false;
+	for (Object* o : list) {
+		Obj3d* object = dynamic_cast<Obj3d*>(o);
+		if (!object) {
+			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
+			exit(0);
 		} else {
-			draw = false;
-		}
+			center = object->local.getPos();
+			dim = object->local.getScale();
+			center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);
+			centerCamSpace = center;
+			centerCamSpace.mult(proMatrix);// transform object pos to camera space
 
-		if (object->getPolygonMode() == GL_LINE) {
+			bool draw = true;
+			oldcolor = object->getColor();
 			color = oldcolor;
-		}
+			if (isInFrustum(frustum, centerCamSpace)) {
+				//color = Math::Vector3(40, 200, 200);//cyan
+				counterFrustum++;
+			}
+			else if (isForward(cam.local, center) > 0) {
+				color = Math::Vector3(200, 200, 40);//yellow
+				counterForward++;
+				draw = false;
+			}
+			else {
+				draw = false;
+			}
 
-		if (force_draw || draw) {
-			object->setColor(color.x, color.y, color.z);
-			object->render(proMatrix);
-			object->setColor(oldcolor.x, oldcolor.y, oldcolor.z);
+			if (object->getPolygonMode() == GL_LINE) {
+				color = oldcolor;
+			}
+
+			if (force_draw || draw) {
+				object->setColor(color.x, color.y, color.z);
+				object->render(proMatrix);
+				object->setColor(oldcolor.x, oldcolor.y, oldcolor.z);
+			}
 		}
 
 	}
@@ -171,21 +183,40 @@ void	Renderer::renderObj3d(list<Obj3d*>& obj3dList, Cam& cam, bool force_draw) {
 	}
 	//std::cout << "fustrum objects: " << counterFrustum << std::endl;
 	//std::cout << "forward objects: " << counterForward << "\t(not in fustrum)" << std::endl;
-	//std::cout << "total objects: " << obj3dList.size() << std::endl;
+	//std::cout << "total objects: " << list.size() << std::endl;
 	//std::cout << std::endl;
-	for (Obj3d* object : obj3dList) {
-		object->local._matrixChanged = false;
-		object->_worldMatrixChanged = false;
+	for (Object* o : list) {//to do AFTER all objects are rendered
+		Obj3d* object = dynamic_cast<Obj3d*>(o);
+		if (!object) {
+			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
+			exit(0);
+		} else {
+			object->local._matrixChanged = false;
+			object->_worldMatrixChanged = false;
+		}
 	}
 }
+SkyboxRenderer::SkyboxRenderer(std::string vertexShader, std::string fragmentShader) : Renderer(vertexShader, fragmentShader) {
+	this->program = new SkyboxPG(vertexShader, fragmentShader);
+}
+SkyboxRenderer::~SkyboxRenderer() {}
 
-void	Renderer::renderSkybox(Skybox& skybox, Cam& cam) {
+void	SkyboxRenderer::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 	// cout << "render Skybox" << endl;
-	glUseProgram(this->skyboxProgram->_program);
-
+	if (list.empty())
+		return;
+	//assuming all objects have the same program
+	glUseProgram(this->program->_program);
 	Math::Matrix4	proMatrix(cam.getProjectionMatrix());
-	Math::Matrix4& viewMatrix = cam.getViewMatrix();
+	Math::Matrix4&	viewMatrix = cam.getViewMatrix();
 	proMatrix.mult(viewMatrix);
-
-	skybox.render(proMatrix);
+	for (Object* o : list) {//to do AFTER all objects are rendered
+		Skybox* skybox = dynamic_cast<Skybox*>(o);
+		if (!skybox) {
+			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
+			exit(0);
+		} else {
+			skybox->render(proMatrix);
+		}
+	}
 }

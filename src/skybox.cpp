@@ -1,7 +1,7 @@
 #include "simplegl.h"
 #include "skybox.hpp"
 
-Skybox::Skybox(Texture& texture, SkyboxPG& pg) : _program(pg), _baseTexture(texture) {
+Skybox::Skybox(Texture& texture, SkyboxPG& pg) : Object(),  _program(pg), _baseTexture(texture) {
 	cout << "_ Skybox cons" << endl;
 
 	//Cubemap texture

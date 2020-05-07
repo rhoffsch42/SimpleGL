@@ -1,4 +1,5 @@
 #pragma once
+#include "object.hpp"
 #include "texture.hpp"
 #include "skyboxPG.hpp"
 class SkyboxPG;
@@ -6,7 +7,7 @@ class SkyboxPG;
 
 #define SKYBOX_LEN	400000.0f
 
-class Skybox
+class Skybox : public Object
 {
 public:
 	Skybox(Texture& texture, SkyboxPG& pg);
