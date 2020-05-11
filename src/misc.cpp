@@ -69,7 +69,6 @@ std::string			Misc::crossPlatPath(std::string path) {
 
 void				Misc::breakExit(int err) {
 	cerr << "BREAKPOINT BEFORE EXIT : " << err << endl;
-
 	exit(err);
 }
 

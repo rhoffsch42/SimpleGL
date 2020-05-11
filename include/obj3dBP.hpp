@@ -10,7 +10,9 @@
 #define BP_INDICES		0	// for glDrawElements
 #define BP_VERTEX_ARRAY	1	// for glDrawArrays
 
-
+/*
+	This class assembles all meches of a Model.
+*/
 class Obj3dBP : public Blueprint
 {
 public:
@@ -37,6 +39,7 @@ public:
 	bool			isCentered(void) const;
 	bool			isRescaled(void) const;
 
+	int				elem_count;
 protected:
 private:
 	uint8_t				_dataMode;

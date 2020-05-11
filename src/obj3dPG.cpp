@@ -64,7 +64,10 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	else
 		glUniform1f(this->_tex_coef, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
-	glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
+	if (bp.dataMode == BP_VERTEX_ARRAY)
+		glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
+	else
+		glDrawElements(GL_TRIANGLES, bp.elem_count, GL_UNSIGNED_INT, bp.getIndicesData());
 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);

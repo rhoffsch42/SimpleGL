@@ -23,6 +23,7 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 	VPmatrix.mult(Vmatrix);// do it in shader ? NO cauz shader will do it for every vertice
 
 	std::vector<float>	mvpConcatened;
+	int	index = 0;
 	for (auto o : list) {
 		Obj3d* ptr = dynamic_cast<Obj3d*>(o);
 		if (ptr) {
@@ -40,6 +41,7 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 			std::cout << "dynamic_cast<Obj3d*>(o) failed: " << o << std::endl;
 			Misc::breakExit(12);
 		}
+		index++;
 	}
 
 	Obj3d* obj = dynamic_cast<Obj3d*>(list.front());
@@ -69,7 +71,8 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 		glVertexAttribDivisor(this->_mat4_mvp + i, 1);
 	}
 
-	glUseProgram(this->_program);//used once for all obj3d
+	if (1) {
+		glUseProgram(this->_program);//used once for all obj3d
 	glUniform1i(this->_dismod, 1);// 1 = display plain_color, 0 = vertex_color
 	//plain_color should not be used, check shader
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
@@ -84,14 +87,14 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 
 	int	vertices_amount = bp.getFaceAmount() * 3;
 	int instances_amount = list.size();
-	glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
-	//glDrawElementsInstanced(GL_TRIANGLES, indices_amount, GL_UNSIGNED_INT, 0, instances_amount);
+
+	if (bp.dataMode == BP_VERTEX_ARRAY)
+		glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
+	else
+		glDrawElementsInstanced(GL_TRIANGLES, bp.elem_count, GL_UNSIGNED_INT, bp.getIndicesData(), instances_amount);
+	}
 
 	/*
-		todo:
-		glDrawElements use indices, to use it we need a BP that has a vbo with indices and a vbo with original vertex
-		set a tag in the BP: BP_INDICES (for Elements) or BP_VERTEX_ARRAY (for Arrays)
-
 		++: when all is optimised build an obj3d with the vertex and indices and textures corresponding to the entire chunk! Modify it when adding or removing a cube.
 		to make 1 draw of 1 obj3d
 	*/

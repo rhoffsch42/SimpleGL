@@ -50,6 +50,7 @@ Object::~Object() {
 	//remove iteself from behaviors!
 }
 
+// true = was already updated ; false = wasn't update
 bool		Object::update() {//update Properties
 	// cout << "* Object::update" << endl;
 	this->local.updateMatrix();
