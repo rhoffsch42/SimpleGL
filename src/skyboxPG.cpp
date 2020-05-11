@@ -11,16 +11,16 @@ SkyboxPG::~SkyboxPG() {
 	cout << "_ SkyboxPG des" << endl;
 }
 
-void	SkyboxPG::render(Skybox& skybox, Math::Matrix4& VPmatrix) {
+void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 	// glUseProgram(this->_program);
-
+	Skybox*	skybox = dynamic_cast<Skybox*>(&object);
 	VPmatrix.setOrder(COLUMN_MAJOR);
 	glUniformMatrix4fv(this->_mat4_vp, 1, GL_FALSE, VPmatrix.getData());
 	glUniform1i(this->_cubemap, 0);//a quoi ca sert ?
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getCubemapId());
-	glBindVertexArray(skybox.getVao());
-	glBindBuffer(GL_ARRAY_BUFFER, skybox.getVboVertex());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getCubemapId());
+	glBindVertexArray(skybox->getVao());
+	glBindBuffer(GL_ARRAY_BUFFER, skybox->getVboVertex());
 	glVertexAttribPointer(this->_vertex_position_data, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -30,12 +30,32 @@ void	SkyboxPG::render(Skybox& skybox, Math::Matrix4& VPmatrix) {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-/*
-	true	glGetUniformLocation
-	false	glGetAttribLocation
-*/
+void	SkyboxPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
+	// cout << "render Skybox" << endl;
+	if (list.empty())
+		return;
+	//assuming all objects have the same program
+	glUseProgram(this->_program);
+	Math::Matrix4	viewProMatrix(cam.getProjectionMatrix());
+	Math::Matrix4& viewMatrix = cam.getViewMatrix();
+	viewProMatrix.mult(viewMatrix);
+	for (Object* o : list) {
+		Skybox* skybox = dynamic_cast<Skybox*>(o);
+		if (!skybox) {
+			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
+			exit(0);
+		} else {
+			skybox->render(viewProMatrix);
+		}
+	}
+}
+
 
 void	SkyboxPG::getLocations() {
+	/*
+		true	glGetUniformLocation
+		false	glGetAttribLocation
+	*/
 	cout << "Getting slots for skybox program " << this->_program << endl;
 	this->_mat4_vp = this->getSlot("VP", true);
 	this->_cubemap = this->getSlot("cubemap", true);

@@ -14,6 +14,8 @@ public:
 	~Properties();
 	Properties&	operator=(const Properties& src);
 
+	float	forwardDistance(Math::Vector3 target_pos);
+
 	/*
 		to change the operation on relative mutators (and avoid if-else forest),
 		set this in Math::Vector3:

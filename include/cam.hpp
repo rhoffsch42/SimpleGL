@@ -37,6 +37,8 @@ public:
 	void			printProperties() const;
 	void			updateViewMatrix();
 	void			updateCamVectors();
+	void			updateFrustum();
+	bool			isInFrustum(Math::Vector3 target_pos, Math::Matrix4 VPmatrix);
 	void			events(Glfw& glfw, float fpsTick);
 	//mutator
 	void			setProjectionMatrix(Math::Matrix4& projection);
@@ -56,6 +58,7 @@ public:
 	bool			lockedMovement;
 	bool			lockedOrientation;
 private:
+	float			_frustum[24];
 	Math::Matrix4	_projectionMatrix;
 	Math::Matrix4	_viewMatrix;
 	Math::Vector3	_right;

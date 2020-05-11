@@ -42,6 +42,7 @@ using namespace std;
 
 #define OBJ3D_VS_FILE			"shaders/obj3d.vs.glsl"
 #define OBJ3D_FS_FILE			"shaders/obj3d.fs.glsl"
+#define OBJ3D_INSTANCED_VS_FILE	"shaders/obj3d_instanced.vs.glsl"
 #define CUBEMAP_VS_FILE			"shaders/cubemap.vs.glsl"
 #define CUBEMAP_FS_FILE			"shaders/cubemap.fs.glsl"
 #define OBJ_CUBE_TEST			"obj3d/cube.obj"

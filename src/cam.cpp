@@ -11,6 +11,7 @@ void	Cam::init(int width, int height) {
 	this->lockedOrientation = false;
 	this->updateCamVectors();
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, width, height);
+	this->updateFrustum();
 	this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);
 }
 
@@ -56,6 +57,51 @@ void	Cam::updateCamVectors(void) {
 	this->_up.ZYXrotate(this->local._rot, -ROT_WAY);
 	this->_forward = Math::Vector3::cross(this->_up, this->_right);
 }
+
+void	Cam::updateFrustum() {//make a switch case to update the corresponding values?
+	//from http://www.iquilezles.org/www/articles/frustum/frustum.htm iqFrustumF_CreatePerspective
+	const float an = this->_fov / 2.0f * (3.141592653589f / 180.0f);//corrected
+	const float si = sinf(an);
+	const float co = cosf(an);
+	/*
+	_frustum[0] = 0.0f;		_frustum[1] = -co;		_frustum[2] = si;					_frustum[3] = 0.0f;//top
+	_frustum[4] = 0.0f;		_frustum[5] = co;		_frustum[6] = si;					_frustum[7] = 0.0f;//bottom
+	_frustum[8] = co;		_frustum[9] = 0.0f;		_frustum[10] = si * _aspectRatio;	_frustum[11] = 0.0f;//left
+	_frustum[12] = -co;		_frustum[13] = 0.0f;	_frustum[14] = si * _aspectRatio;	_frustum[15] = 0.0f;//right
+	_frustum[16] = 0.0f;	_frustum[17] = 0.0f;	_frustum[18] = 1.0f;				_frustum[19] = _far;//far
+	_frustum[20] = 0.0f;	_frustum[21] = 0.0f;	_frustum[22] = -1.0f;				_frustum[23] = -_near;//near
+	*/
+
+	//corrected signs
+	_frustum[0] = 0.0f;		_frustum[1] = -co;		_frustum[2] = -si;					_frustum[3] = 0.0f;//top
+	_frustum[4] = 0.0f;		_frustum[5] = co;		_frustum[6] = -si;					_frustum[7] = 0.0f;//bottom
+	_frustum[8] = co;		_frustum[9] = 0.0f;		_frustum[10] = -si * _aspectRatio;	_frustum[11] = 0.0f;//left
+	_frustum[12] = -co;		_frustum[13] = 0.0f;	_frustum[14] = -si * _aspectRatio;	_frustum[15] = 0.0f;//right
+	_frustum[16] = 0.0f;	_frustum[17] = 0.0f;	_frustum[18] = 1.0f;				_frustum[19] = _far;//far
+	_frustum[20] = 0.0f;	_frustum[21] = 0.0f;	_frustum[22] = -1.0f;				_frustum[23] = -_near;//near
+}
+
+//target_pos must be in cam space
+bool	Cam::isInFrustum(Math::Vector3 target_pos, Math::Matrix4 VPmatrix) {
+	target_pos.mult(VPmatrix);// transform object pos to camera space
+	int	in = 0;
+	size_t	max = 4;// 6 = all planes, 4 = no far no near
+	for (size_t i = 0; i < max; i++) {
+		Math::Vector3	normal(_frustum[i * 4 + 0], _frustum[i * 4 + 1], _frustum[i * 4 + 2]);
+		if (Math::Vector3::dot(normal, target_pos) > 0)
+			in++;
+	}
+	
+	if (max == 4) {//manual for near and far
+		max += 2;
+		if (target_pos.z > -_frustum[19])
+			in++;
+		if (target_pos.z < _frustum[23])
+			in++;
+	}
+	return (in == max);//is on the right halfspace of all planes, ie. is in the frustum
+}
+
 
 void	Cam::updateViewMatrix() {
 	this->update();
@@ -137,7 +183,9 @@ void	Cam::events(Glfw& glfw, float fpsTick) {
 		this->_viewMatrix.printData();
 }
 
-//mutator // a completer (update projection matrix)
+//mutator
+
+//fov, far, near, and aspectRatio may not corespond anymore
 void	Cam::setProjectionMatrix(Math::Matrix4& projection) {
 	this->_projectionMatrix = projection;
 }
@@ -145,22 +193,30 @@ void	Cam::setViewMatrix(Math::Matrix4& view) {
 	this->_viewMatrix = view;
 }
 
+//update the projection matrix and the frustum accordingly
 void	Cam::setFov(float fov) {
 	fov = min(fov, CAM_FOV_MAX);
 	this->_fov = max(fov, CAM_FOV_MIN);
-	//update projectionMatrix
+	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, this->_aspectRatio, 1.0f);
+	this->updateFrustum();//could update only the right values
 }
+//update the projection matrix and the frustum accordingly
 void	Cam::setNear(float nearValue) {
 	nearValue = min(nearValue, CAM_NEAR_MAX);
 	this->_near = max(nearValue, CAM_NEAR_MIN);
-	//update projectionMatrix
+	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, this->_aspectRatio, 1.0f);
+	this->updateFrustum();//could update only the right value
 }
+//update the projection matrix and the frustum accordingly
 void	Cam::setFar(float farValue) {
 	farValue = min(farValue, CAM_FAR_MAX);
 	this->_far = max(farValue, CAM_FAR_MIN);
-	//update projectionMatrix
+	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, this->_aspectRatio, 1.0f);
+	this->updateFrustum();//could update only the right value
 }
+
 //accessor
+
 Math::Matrix4&	Cam::getProjectionMatrix() const { return ((Math::Matrix4&)this->_projectionMatrix); }
 Math::Matrix4&	Cam::getViewMatrix() const { return ((Math::Matrix4&)this->_viewMatrix); }
 float			Cam::getFov() const { return (this->_fov); }

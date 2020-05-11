@@ -4,6 +4,9 @@
 #include "tinyobjloader/tiny_obj_loader.h"
 
 float			Obj3dBP::defaultSize = OBJ3DBP_DEFAULT_SIZE;
+uint8_t			Obj3dBP::dataMode = BP_INDICES;
+bool			Obj3dBP::rescale = true;
+bool			Obj3dBP::center = true;
 
 #define mymax(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -15,7 +18,7 @@ static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 }
 
 
-Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filename) {
+Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	cout << "_ Obj3dBP cons by filename" << endl;
 
 	filename = Misc::crossPlatPath(filename);
@@ -75,11 +78,11 @@ Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filenam
 	// Loop over shapes
 	for (size_t s = 0; s < shapes.size(); s++) {
 
-		// Loop over faces(polygon)
 		if (LOGFILES) {
 			logs << "group:\t" << shapes[s].mesh.num_face_vertices.size() << " polygons" << endl;
 			c1 += shapes[s].mesh.num_face_vertices.size();
 		}
+		// Loop over faces(polygon)
 		size_t index_offset = 0;
 		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
 			int fv = shapes[s].mesh.num_face_vertices[f];
@@ -138,6 +141,7 @@ Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filenam
 			shapes[s].mesh.material_ids[f];
 		}
 	}
+
 	this->_faceAmount = (int)points.size() / 9;
 	this->_dimensions.x = vmax[0] - vmin[0];
 	this->_dimensions.y = vmax[1] - vmin[1];
@@ -147,9 +151,7 @@ Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filenam
 	centerOffset.x = (vmin[0] + vmax[0]) / 2;
 	centerOffset.y = (vmin[1] + vmax[1]) / 2;
 	centerOffset.z = (vmin[2] + vmax[2]) / 2;
-	this->_centered = center;
-	if (center) {
-
+	if ((this->_centered = Obj3dBP::center)) {
 		for (size_t i = 0; i < points.size(); i += 3) {
 			points[i + 0] -= centerOffset.x;
 			points[i + 1] -= centerOffset.y;
@@ -158,8 +160,7 @@ Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filenam
 	}
 
 	float	scaleCoef = 1.0f;
-	this->_rescaled = rescale;
-	if (rescale) {
+	if ((this->_rescaled = Obj3dBP::rescale)) {
 		scaleCoef = calcScaleCoef(this->_dimensions, Obj3dBP::defaultSize);
 		this->_dimensions.mult(scaleCoef);
 		for (size_t i = 0; i < points.size(); i++) {
@@ -243,6 +244,9 @@ Obj3dBP::Obj3dBP(string filename, bool rescale, bool center) : Blueprint(filenam
 		glBufferData(GL_ARRAY_BUFFER, textures.size() * sizeof(float), textures.data(), GL_STATIC_DRAW);
 	}
 
+	//end
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
@@ -255,23 +259,31 @@ Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
 Obj3dBP::~Obj3dBP() {
 	cout << "_ Obj3dBP des by filename" << endl;
 	/*
-		should delete opengl data here
+		delete opengl data here
 	*/
 }
 
 Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 	cout << "_ Obj3dBP operator =" << endl;
-	this->_faceAmount = src.getFaceAmount();
-	this->_dimensions = src.getDimensions();
-	this->_centered = src.isCentered();
-	this->_rescaled = src.isRescaled();
+	//what do we do for vbo? see .hpp
+	this->_dataMode = src._dataMode;
+	this->_indices = src._indices;
+	this->_faceAmount = src._faceAmount;
+	this->_dimensions = src._dimensions;
+	this->_centered = src._centered;
+	this->_rescaled = src._rescaled;
 	return (*this);
 }
 
 //mutators
 //accessors
-int				Obj3dBP::getFaceAmount(void) const { return (this->_faceAmount); }
-Math::Vector3	Obj3dBP::getDimensions(void) const { return (this->_dimensions); }
-bool			Obj3dBP::isCentered(void) const { return (this->_centered); }
-bool			Obj3dBP::isRescaled(void) const { return (this->_rescaled); }
+uint8_t			Obj3dBP::getDataMode(void) const { return this->_dataMode; }
+const GLuint*	Obj3dBP::getIndicesData(void) const { return this->_indices.data(); }
+GLuint			Obj3dBP::getVboVertex(void) const { return this->_vboVertex; }
+GLuint			Obj3dBP::getVboColor(void) const { return this->_vboColor; }
+GLuint			Obj3dBP::getVboTexture(void) const { return this->_vboTexture; }
+int				Obj3dBP::getFaceAmount(void) const { return this->_faceAmount; }
+Math::Vector3	Obj3dBP::getDimensions(void) const { return this->_dimensions; }
+bool			Obj3dBP::isCentered(void) const { return this->_centered; }
+bool			Obj3dBP::isRescaled(void) const { return this->_rescaled; }
 

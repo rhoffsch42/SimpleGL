@@ -88,7 +88,6 @@ void	Glfw::init() {
 	this->_mouseOffsetY = 0;
 	this->_mouseAngle = 0;
 	this->_mouseWall = 0;
-
 	if (!glfwInit()) {
 		cerr << "glfwInit failed" << endl;
 		Misc::breakExit(GL_ERROR);
@@ -105,7 +104,7 @@ void	Glfw::init() {
 		Misc::breakExit(GL_ERROR);
 	}
 
-	glfwMakeContextCurrent(this->_window);
+	glfwMakeContextCurrent(this->_window);//to do before init glew
 	this->cursorFree = false;
 	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(this->_window, GLFW_STICKY_KEYS, 1);

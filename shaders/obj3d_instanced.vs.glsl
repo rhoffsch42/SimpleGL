@@ -2,12 +2,11 @@
 in vec3 vertex_position_data;
 in vec3 vertex_color_data;
 in vec2 vertex_UV_data;
+in mat4 MVP;
 
 out vec2 UV;
 out vec3 color;
 
-//uniform mat4 MVP; (old)
-in mat4 MVP
 
 void main()
 {

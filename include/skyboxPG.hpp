@@ -17,7 +17,8 @@ public:
 	SkyboxPG(std::string vs_file, std::string fs_file);
 	~SkyboxPG();
 
-	void	render(Skybox& skybox, Math::Matrix4& VPmatrix);
+	void	renderObjects(list<Object*>& list, Cam& cam, bool force_draw = false);
+	void	render(Object& object, Math::Matrix4 VPmatrix) const;
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles
 		render could overwrite :

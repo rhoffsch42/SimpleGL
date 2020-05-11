@@ -27,6 +27,18 @@ Properties::~Properties() {
 	// cout << "_ Properties des" << endl;
 }
 
+float	Properties::forwardDistance(Math::Vector3 target_pos) {
+	Math::Vector3	diff(target_pos);
+	diff.sub(this->_pos);
+	Math::Vector3	right = VEC3_RIGHT;
+	Math::Vector3	up = VEC3_UP;
+	right.ZYXrotate(this->_rot, -ROT_WAY);
+	up.ZYXrotate(this->_rot, -ROT_WAY);
+	Math::Vector3	forward = Math::Vector3::cross(up, right);
+
+	return Math::Vector3::dot(forward, diff);
+}
+
 bool		Properties::updateMatrix() {
 	// cout << "* Properties::updateMatrix" << endl;
 	if (this->_matrixUpdated == false) {

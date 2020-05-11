@@ -38,7 +38,7 @@ protected:
 	int			_posY2;
 
 	void	init();
-	friend class Renderer;
+	friend void	blitToWindow(FrameBuffer* readFramebuffer, GLenum attachmentPoint, UIPanel* panel);
 };
 
 #include "obj3d.hpp"

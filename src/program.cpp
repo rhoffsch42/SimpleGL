@@ -24,9 +24,9 @@ Program::~Program() {
 	cout << "_ Program des" << endl;
 }
 
-void	Program::render() {
-	cout << "Program::render()\nThis should not be used..." << endl;
-}
+//void	Program::render() {
+//	cout << "Program::render()\nThis should not be used..." << endl;
+//}
 
 /*
 	true	glGetUniformLocation
@@ -40,10 +40,9 @@ GLint	Program::getSlot(const GLchar *varname, bool n) const {
 	else
 		slot = glGetAttribLocation(this->_program, varname);
 	cout << "slot " << slot << " :\t" << varname << endl;
-	if (slot == -1)
-	{
-		int errs[8]= { GL_NO_ERROR, GL_INVALID_ENUM, GL_INVALID_VALUE, GL_INVALID_OPERATION, GL_INVALID_FRAMEBUFFER_OPERATION, GL_OUT_OF_MEMORY, GL_STACK_UNDERFLOW, GL_STACK_OVERFLOW };
-		size_t error = glGetError();
+	if (slot == -1) {
+		//int errs[8]= { GL_NO_ERROR, GL_INVALID_ENUM, GL_INVALID_VALUE, GL_INVALID_OPERATION, GL_INVALID_FRAMEBUFFER_OPERATION, GL_OUT_OF_MEMORY, GL_STACK_UNDERFLOW, GL_STACK_OVERFLOW };
+		//size_t error = glGetError();
 		cerr << "Failed to get slot" << endl;
 		cerr << "program:\t" << this->_program << endl;
 		cerr << "varname:\t" << varname << endl;
