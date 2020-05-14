@@ -42,4 +42,5 @@ private:
 	void			printProgramInfoLog(GLuint program) const;
 	void			programLogs(GLuint program, GLenum pname, bool n, std::string msg) const;
 	const char*		glTypeToString(GLenum type) const;
+	friend void	scene_test();
 };

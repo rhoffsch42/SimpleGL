@@ -16,4 +16,7 @@ public:
 protected:
 	virtual void	getLocations();
 private:
+	GLuint			_vboMatrix;
+	int				_vboSize;//amount of matrices stored
+	//is the vbo linked to 1 vao, what if we render 2 lists of 2 different obj3d?
 };

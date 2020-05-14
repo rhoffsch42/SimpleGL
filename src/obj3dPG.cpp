@@ -57,11 +57,9 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-		glBindBuffer(GL_ARRAY_BUFFER, bp.getVboTexture());
-		glVertexAttribPointer(this->_vertex_UV_data, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	}
-	else
+	} else {
 		glUniform1f(this->_tex_coef, 0.0f);
+	}
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	if (bp.dataMode == BP_VERTEX_ARRAY)
 		glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
@@ -97,7 +95,6 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
 
 	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
@@ -125,10 +122,11 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 		if (!object) {
 			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
 			exit(22);
-		}
-		else {
+		} else {
 			object->update();
 			draw = true;
+			oldcolor = object->getColor();
+			color = oldcolor;
 			if (flags & PG_FRUSTUM_CULLING) {
 				if (object->getParent()) {
 					worldmatrix = object->getWorldMatrix();
@@ -148,8 +146,6 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 					get the center of the object BP, apply the rotation, add up to the world pos
 					for the voxel engine, it doesnt matter since the voxels dont have parent or rotation
 				*/
-				oldcolor = object->getColor();
-				color = oldcolor;
 				if (cam.isInFrustum(center, viewProMatrix)) {
 					//color = Math::Vector3(40, 200, 200);//cyan
 					counterFrustum++;
@@ -161,11 +157,12 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 				else {
 					draw = false;
 				}
+				if (object->getPolygonMode() == GL_LINE) {
+					color = oldcolor;
+				}
 			}
 
-			if (object->getPolygonMode() == GL_LINE) {
-				color = oldcolor;
-			}
+
 			if (flags & PG_FORCE_DRAW || draw) {
 				object->setColor(color.x, color.y, color.z);
 				object->render(viewProMatrix);
@@ -179,15 +176,9 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	//std::cout << "forward objects: " << counterForward << "\t(not in fustrum)" << std::endl;
 	//std::cout << "total objects: " << list.size() << std::endl;
 	//std::cout << std::endl;
-	for (Object* o : list) {//to do AFTER all objects are rendered
-		Obj3d* object = dynamic_cast<Obj3d*>(o);
-		if (!object) {
-			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
-			Misc::breakExit(22);
-		} else {
-			object->local._matrixChanged = false;
-			object->_worldMatrixChanged = false;
-		}
+	for (Object* object : list) {//to do AFTER all objects are rendered
+		object->local._matrixChanged = false;
+		object->_worldMatrixChanged = false;
 	}
 }
 

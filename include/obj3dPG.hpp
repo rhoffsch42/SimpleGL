@@ -41,5 +41,7 @@ protected:
 	//slots end
 	virtual void	getLocations();
 private:
+
+	friend void	scene_test();
 };
 #pragma clang diagnostic pop
