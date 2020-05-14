@@ -1,14 +1,15 @@
 #include "simplegl.h"
 #include "skyboxPG.hpp"
 
-SkyboxPG::SkyboxPG(std::string vs_file, std::string fs_file) : Program(vs_file, fs_file) {
-	cout << "_ SkyboxPG cons" << endl;
-
+SkyboxPG::SkyboxPG(std::string vs_file, std::string fs_file)
+	: Program(vs_file, fs_file)
+{
+	cout << "_ " << __PRETTY_FUNCTION__ << endl;
 	this->getLocations();
 }
 
 SkyboxPG::~SkyboxPG() {
-	cout << "_ SkyboxPG des" << endl;
+	cout << "_ " << __PRETTY_FUNCTION__ << endl;
 }
 
 void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
@@ -30,7 +31,7 @@ void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void	SkyboxPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
+void	SkyboxPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	// cout << "render Skybox" << endl;
 	if (list.empty())
 		return;
@@ -56,7 +57,7 @@ void	SkyboxPG::getLocations() {
 		true	glGetUniformLocation
 		false	glGetAttribLocation
 	*/
-	cout << "Getting slots for skybox program " << this->_program << endl;
+	cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << endl;
 	this->_mat4_vp = this->getSlot("VP", true);
 	this->_cubemap = this->getSlot("cubemap", true);
 

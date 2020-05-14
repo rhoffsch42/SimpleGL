@@ -1,8 +1,12 @@
 #include "obj3d_ipg.hpp"
 #include <vector>
 
-Obj3dIPG::Obj3dIPG(std::string vertexShader, std::string fragmentShader) : Obj3dPG(vertexShader, fragmentShader) {
-	//this->getLocations();
+Obj3dIPG::Obj3dIPG(std::string vertexShader, std::string fragmentShader, bool init_locations)
+	: Obj3dPG(vertexShader, fragmentShader, false)
+{
+	cout << "_ " << __PRETTY_FUNCTION__ << endl;
+	if (init_locations)
+		this->Obj3dIPG::getLocations();//explicit equivalent of: this->getLocations();
 }
 Obj3dIPG::~Obj3dIPG() {}
 
@@ -10,7 +14,7 @@ void	Obj3dIPG::render(Object& object, Math::Matrix4 VPmatrix) const { //HAS to b
 	(void)object;
 	(void)VPmatrix;
 }
-void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
+void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	/*
 			convert list<Object*> (in fact Obj3d*) matrices into vector<float>
 			all matrices must be COLUMN_MAJOR
@@ -29,6 +33,7 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 		if (ptr) {
 			ptr->update();
 			//check for frustum
+			//if (flags & PG_FRUSTUM_CULLING) {}
 			Math::Matrix4	Mmatrix = ptr->getWorldMatrix();
 			Math::Matrix4	MVPmatrix(VPmatrix);
 			MVPmatrix.mult(Mmatrix);
@@ -83,7 +88,7 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 		glVertexAttribPointer(this->_vertex_UV_data, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	} else 
 		glUniform1f(this->_tex_coef, 0.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	int	vertices_amount = bp.getFaceAmount() * 3;
 	int instances_amount = list.size();
@@ -123,7 +128,7 @@ void	Obj3dIPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	cout << "Getting slots for obj3d_instanced program " << this->_program << endl;
+	cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << endl;
 	this->_dismod = this->getSlot("dismod", true);
 	this->_plain_color = this->getSlot("plain_color", true);
 	this->_tex_coef = this->getSlot("tex_coef", true);

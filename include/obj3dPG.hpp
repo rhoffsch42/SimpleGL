@@ -15,12 +15,12 @@ class Obj3d;
 class Obj3dPG : public Program
 {
 public:
-	Obj3dPG(std::string vs_file, std::string fs_file);
+	Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations = true);
 	~Obj3dPG();
 	void	linkBuffers(GLuint& vboVertex, GLuint& vboColor, GLuint& vboTexture) const;
-	void	render(Object& object, Math::Matrix4 VPmatrix) const; //HAS to be cpy constructor! (1 PV*M per obj3d)
+	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const; //HAS to be cpy constructor! (1 PV*M per obj3d)
 	void	renderUniqueId(Obj3d & obj, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
-	void	renderObjects(list<Object*>& list, Cam& cam, bool force_draw = false);
+	virtual void	renderObjects(list<Object*>& list, Cam& cam, uint8_t flags = 0);
 
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles
@@ -28,7 +28,6 @@ public:
 			virtual void Program::render(Obj & obj, Math:Matrix4 mat);// set as virtual pure ?
 			where Obj & obj = obj3d_car; //(Obj3d obj3d_car)
 	*/
-	void	getLocations();
 protected:
 	
 	//slots
@@ -40,6 +39,7 @@ protected:
 	GLint		_vertex_color_data;
 	GLint		_vertex_UV_data;
 	//slots end
+	virtual void	getLocations();
 private:
 };
 #pragma clang diagnostic pop

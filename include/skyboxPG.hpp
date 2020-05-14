@@ -17,8 +17,8 @@ public:
 	SkyboxPG(std::string vs_file, std::string fs_file);
 	~SkyboxPG();
 
-	void	renderObjects(list<Object*>& list, Cam& cam, bool force_draw = false);
-	void	render(Object& object, Math::Matrix4 VPmatrix) const;
+	virtual void	renderObjects(list<Object*>& list, Cam& cam, uint8_t flags = 0);
+	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const;
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles
 		render could overwrite :
@@ -50,8 +50,9 @@ public:
 	*/
 	//accessors
 	GLint	getSlotCubemap() const;
+
+	virtual void	getLocations();
 private:
-	void	getLocations();
 
 	//slots
 	GLint	_mat4_vp;

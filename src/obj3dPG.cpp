@@ -1,17 +1,16 @@
 #include "simplegl.h"
 #include "obj3dPG.hpp"
 
-Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file) : \
-Program(vs_file, fs_file) {
-	cout << "_ Obj3dProgram cons" << endl;
-
-	//this->getLocations();
-
-	cout << "_ Obj3dProgram cons end" << endl;
+Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
+	: Program(vs_file, fs_file)
+{
+	cout << "_ " << __PRETTY_FUNCTION__ << endl;
+	if (init_locations)
+		this->getLocations();
 }
 
 Obj3dPG::~Obj3dPG() {
-	cout << "_ Obj3dProgram des" << endl;
+	cout << "_ " << __PRETTY_FUNCTION__ << endl;
 
 }
 
@@ -101,7 +100,7 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
+void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	// cout << "render all Obj3d" << endl;
 	if (list.empty())
 		return;
@@ -111,6 +110,7 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
 	viewProMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
 
+	bool			draw = true;
 	unsigned int	counterForward = 0;
 	unsigned int	counterFrustum = 0;
 	Math::Vector3	center;
@@ -128,46 +128,45 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, bool force_draw) {
 		}
 		else {
 			object->update();
-			if (object->getParent()) {
-				worldmatrix = object->getWorldMatrix();
-				worldmatrix.setOrder(COLUMN_MAJOR);
-				float* m = worldmatrix.getData();
-				center = Math::Vector3(m[12], m[13], m[14]);//world pos and not real center
-			} else {
-				center = object->local.getPos();//== world pos
-			}
-			scale = object->local.getScale();//what if parent?
-			dim = object->getBlueprint().getDimensions();//what if parent?
-			dim.x *= scale.x;
-			dim.y *= scale.y;
-			dim.z *= scale.z;
-			center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);//what about the rotation
-
-			/*
-				get the center of the object BP, apply the rotation, add up to the world pos
-				for the voxel engine, it doesnt matter since the voxels dont have parent or rotation
-			*/
-
-			bool draw = true;
-			oldcolor = object->getColor();
-			color = oldcolor;
-			if (cam.isInFrustum(center, viewProMatrix)) {
-				//color = Math::Vector3(40, 200, 200);//cyan
-				counterFrustum++;
-			} else if (cam.local.forwardDistance(center) > 0) {
-				color = Math::Vector3(200, 200, 40);//yellow
-				counterForward++;
-				draw = false;
-			}
-			else {
-				draw = false;
+			draw = true;
+			if (flags & PG_FRUSTUM_CULLING) {
+				if (object->getParent()) {
+					worldmatrix = object->getWorldMatrix();
+					worldmatrix.setOrder(COLUMN_MAJOR);
+					float* m = worldmatrix.getData();
+					center = Math::Vector3(m[12], m[13], m[14]);//world pos and not real center
+				} else {
+					center = object->local.getPos();//== world pos
+				}
+				scale = object->local.getScale();//what if parent?
+				dim = object->getBlueprint().getDimensions();//what if parent?
+				dim.x *= scale.x;
+				dim.y *= scale.y;
+				dim.z *= scale.z;
+				center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);//what about the rotation
+				/*
+					get the center of the object BP, apply the rotation, add up to the world pos
+					for the voxel engine, it doesnt matter since the voxels dont have parent or rotation
+				*/
+				oldcolor = object->getColor();
+				color = oldcolor;
+				if (cam.isInFrustum(center, viewProMatrix)) {
+					//color = Math::Vector3(40, 200, 200);//cyan
+					counterFrustum++;
+				} else if (cam.local.forwardDistance(center) > 0) {
+					color = Math::Vector3(200, 200, 40);//yellow
+					counterForward++;
+					draw = false;
+				}
+				else {
+					draw = false;
+				}
 			}
 
 			if (object->getPolygonMode() == GL_LINE) {
 				color = oldcolor;
 			}
-
-			if (force_draw || draw) {
+			if (flags & PG_FORCE_DRAW || draw) {
 				object->setColor(color.x, color.y, color.z);
 				object->render(viewProMatrix);
 				object->setColor(oldcolor.x, oldcolor.y, oldcolor.z);
@@ -208,7 +207,7 @@ void	Obj3dPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	cout << "Getting slots for obj3d program " << this->_program << endl;
+	cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << endl;
 	this->_mat4_mvp = this->getSlot("MVP", true);
 	this->_dismod = this->getSlot("dismod", true);
 	this->_plain_color = this->getSlot("plain_color", true);

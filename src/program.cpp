@@ -2,7 +2,7 @@
 #include "program.hpp"
 
 Program::Program(std::string vs_file, std::string fs_file) {
-	cout << "_ Program cons" << endl;
+	cout << "_ " << __PRETTY_FUNCTION__ << endl;
 
 	vs_file = Misc::crossPlatPath(vs_file);
 	fs_file = Misc::crossPlatPath(fs_file);
@@ -17,11 +17,11 @@ Program::Program(std::string vs_file, std::string fs_file) {
 	glGetProgramiv(this->_program, GL_LINK_STATUS, &p);
 	if (p != GL_TRUE)
 		this->printProgramInfoLog(this->_program);
-	cout << "Successfully created program " << this->_program << endl;
+	cout << "Successfully created Program:: " << this->_program << endl;
 }
 
 Program::~Program() {
-	cout << "_ Program des" << endl;
+	cout << "_ " << __PRETTY_FUNCTION__ << endl;
 }
 
 //void	Program::render() {
@@ -57,7 +57,6 @@ GLuint	Program::initShader(std::string filename, int type) const {
 	const GLchar	*gl_content;
 	std::string		buf;
 
-	std::cout << Misc::getCurrentDirectory() << endl;
 	buf = Misc::getFileContent(filename.c_str());
 	gl_content = buf.c_str();
 	shader = glCreateShader(type);
