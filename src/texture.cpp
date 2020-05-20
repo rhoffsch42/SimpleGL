@@ -108,7 +108,8 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	delete bmpHeader;
 	delete bmpInfo;
 	delete[] pixels;
-	std::cout << __PRETTY_FUNCTION__ << " END\n" << std::endl;
+	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
+	std::cout << "----------------------------------------\n" << std::endl;
 }
 
 Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _width(width), _height(height) {

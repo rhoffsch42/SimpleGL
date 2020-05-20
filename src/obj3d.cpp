@@ -15,12 +15,7 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	this->_polygonMode = Obj3d::defaultPolygonMode;
 	this->displayTexture = Obj3d::defaultDisplayTexture;
 
-	GLuint		vboVertex = this->_blueprint.getVboVertex();
-	GLuint		vboColor = this->_blueprint.getVboColor();
-	GLuint		vboTexture = this->_blueprint.getVboTexture();
-	glBindVertexArray(this->_blueprint.getVao());//bind the VAO to be able to link buffers to the program
-	this->_program.linkBuffers(vboVertex, vboColor, vboTexture);
-	glBindVertexArray(0);
+	this->_program.linkBuffers(this->_blueprint);
 
 	Obj3d::_instanceAmount++;
 }

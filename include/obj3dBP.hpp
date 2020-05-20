@@ -34,21 +34,21 @@ public:
 	GLuint			getVboColor(void) const;
 	GLuint			getVboTexture(void) const;
 
-	int				getFaceAmount(void) const;
+	int				getPolygonAmount(void) const;
 	Math::Vector3	getDimensions(void) const;
 	bool			isCentered(void) const;
 	bool			isRescaled(void) const;
 
-	int				elem_count;
 protected:
 private:
 	uint8_t				_dataMode;
 	std::vector<GLuint>	_indices;// for glDrawElements
+	GLuint				_eboIndices;//element array buffer object to store induces
 	GLuint				_vboVertex;// for array vertex (glDrawArrays), or simple data vertex (glDrawElements)
 	GLuint				_vboColor;// colors for each face
 	GLuint				_vboTexture;//texture coo for each face
 	// file data
-	int				_faceAmount;
+	int				_polygonAmount;// triangles
 	Math::Vector3	_dimensions;
 	bool			_centered;
 	bool			_rescaled;

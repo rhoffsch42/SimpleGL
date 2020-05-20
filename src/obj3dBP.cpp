@@ -140,9 +140,10 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 				}
 				//	cout << endl;
 				index_offset += fv;
-				shapes[s].mesh.material_ids[f];
+				shapes[s].mesh.material_ids[f];//?
 			}
 		}
+		this->_polygonAmount = (int)attribUsed.vertices.size() / 9;//xyz * 3
 	}
 	else if (this->dataMode == BP_INDICES) {
 		/*
@@ -169,21 +170,25 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 		}
 
 		// Loop over shapes
-		this->elem_count = 0;
+		this->_polygonAmount = 0;
 		for (size_t s = 0; s < shapes.size(); s++) {
-			this->elem_count += shapes[s].mesh.indices.size();
+			this->_polygonAmount += shapes[s].mesh.indices.size() / 3;
 			for (size_t i = 0; i < shapes[s].mesh.indices.size(); i++) {
 				this->_indices.push_back(shapes[s].mesh.indices[i].vertex_index);
+				//this->_indices.push_back(shapes[s].mesh.indices[i].texcoord_index);
 			}
 		}
-		//normals, textures and colors not done
+		//for (size_t s = 0; s < shapes.size(); s++) {
+		//	for (size_t i = 0; i < shapes[s].mesh.indices.size(); i++) {
+		//	}
+		//}
+		//normals, textures and colors not done, or is it?
 	}
 	else {
 		std::cout << __PRETTY_FUNCTION__ << " : data corrupt:\n\twrong dataMode: " << (int)this->dataMode << std::endl;
 		Misc::breakExit(23);
 	}
 
-	this->_faceAmount = (int)attribUsed.vertices.size() / 9;
 	this->_dimensions.x = vmax[0] - vmin[0];
 	this->_dimensions.y = vmax[1] - vmin[1];
 	this->_dimensions.z = vmax[2] - vmin[2];
@@ -209,15 +214,14 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 		}
 	}
 
-	std::cout << "faces { " << this->_faceAmount << " }" << endl;
-	std::cout << "color { " << (int)attribUsed.colors.size() / 9 << " }" << endl;
+	std::cout << "polygons { " << this->_polygonAmount << " }" << endl;
 	std::cout << "center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
 	std::cout << "scale coef:\t" << scaleCoef << endl;
 
 	if (LOGFILES) {
 		logs << endl;
 		logs << "total polygons:\t" << c1 << endl;
-		logs << "faces { " << this->_faceAmount << " }" << endl;
+		logs << "polygons { " << this->_polygonAmount << " }" << endl;
 		logs << "color { " << (int)attribUsed.colors.size() / 9 << " }" << endl;
 		logs << "rescaled: " << (this->_rescaled ? "yes" : "no") << endl;
 		logs << "scale coef:\t" << scaleCoef << endl;
@@ -243,11 +247,19 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	//VAO
 	glGenVertexArrays(1, &this->_vao);
 	glBindVertexArray(this->_vao);
-	glEnableVertexAttribArray(0);
+	//https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/mesh.h
+	// glDrawElements
+	if (this->dataMode == BP_INDICES) {
+		glGenBuffers(1, &this->_eboIndices);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_eboIndices);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->_indices.size() * sizeof(float), this->_indices.data(), GL_STATIC_DRAW);
+	}
+
 	//VBO vertex
 	glGenBuffers(1, &this->_vboVertex);
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vboVertex);
 	glBufferData(GL_ARRAY_BUFFER, attribUsed.vertices.size() * sizeof(float), attribUsed.vertices.data(), GL_STATIC_DRAW);
+
 	//VBO color
 	if (attribUsed.colors.size()) {
 		glGenBuffers(1, &this->_vboColor);
@@ -264,7 +276,7 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 		cout << "manualvbotexture" << endl;
 		glGenBuffers(1, &this->_vboTexture);
 		glBindBuffer(GL_ARRAY_BUFFER, this->_vboTexture);
-		for (int i = 0; i < this->_faceAmount; i++) {
+		for (int i = 0; i < this->_polygonAmount; i++) {
 			if (i % 2 == 0) {
 				attribUsed.texcoords.push_back(1);
 				attribUsed.texcoords.push_back(1);
@@ -288,8 +300,10 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	// ...
 
 	//end
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);//attribution will be done later with a program
 	glBindVertexArray(0);
+	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
+	std::cout << "----------------------------------------\n" << std::endl;
 }
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
@@ -306,12 +320,12 @@ Obj3dBP::~Obj3dBP() {
 	*/
 }
 
-Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
+Obj3dBP& Obj3dBP::operator=(const Obj3dBP& src) {
 	cout << "_ Obj3dBP operator =" << endl;
 	//what do we do for vbo? see .hpp
 	this->_dataMode = src._dataMode;
 	this->_indices = src._indices;
-	this->_faceAmount = src._faceAmount;
+	this->_polygonAmount = src._polygonAmount;
 	this->_dimensions = src._dimensions;
 	this->_centered = src._centered;
 	this->_rescaled = src._rescaled;
@@ -321,11 +335,11 @@ Obj3dBP &		Obj3dBP::operator=(const Obj3dBP& src) {
 //mutators
 //accessors
 uint8_t			Obj3dBP::getDataMode(void) const { return this->_dataMode; }
-const GLuint*	Obj3dBP::getIndicesData(void) const { return this->_indices.data(); }
+const GLuint* Obj3dBP::getIndicesData(void) const { return this->_indices.data(); }
 GLuint			Obj3dBP::getVboVertex(void) const { return this->_vboVertex; }
 GLuint			Obj3dBP::getVboColor(void) const { return this->_vboColor; }
 GLuint			Obj3dBP::getVboTexture(void) const { return this->_vboTexture; }
-int				Obj3dBP::getFaceAmount(void) const { return this->_faceAmount; }
+int				Obj3dBP::getPolygonAmount(void) const { return this->_polygonAmount; }
 Math::Vector3	Obj3dBP::getDimensions(void) const { return this->_dimensions; }
 bool			Obj3dBP::isCentered(void) const { return this->_centered; }
 bool			Obj3dBP::isRescaled(void) const { return this->_rescaled; }

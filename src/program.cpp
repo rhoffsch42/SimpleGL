@@ -6,17 +6,20 @@ Program::Program(std::string vs_file, std::string fs_file) {
 
 	vs_file = Misc::crossPlatPath(vs_file);
 	fs_file = Misc::crossPlatPath(fs_file);
-	this->_vertex_shader = initShader(vs_file, GL_VERTEX_SHADER);
-	this->_fragment_shader = initShader(fs_file, GL_FRAGMENT_SHADER);
+	GLuint	vertexShader = initShader(vs_file, GL_VERTEX_SHADER);
+	GLuint	fragmentShader = initShader(fs_file, GL_FRAGMENT_SHADER);
 	this->_program = glCreateProgram();
-	glAttachShader(this->_program, this->_vertex_shader);
-	glAttachShader(this->_program, this->_fragment_shader);
+	glAttachShader(this->_program, vertexShader);
+	glAttachShader(this->_program, fragmentShader);
 	glLinkProgram(this->_program);
 	int	p = -1;
 	glValidateProgram(this->_program);
 	glGetProgramiv(this->_program, GL_LINK_STATUS, &p);
 	if (p != GL_TRUE)
 		this->printProgramInfoLog(this->_program);
+	//shader objects are useless once the program is linked
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 	cout << "Successfully created Program:: " << this->_program << endl;
 }
 

@@ -74,8 +74,8 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	// vertex attributes
 	std::size_t size4float = 4 * sizeof(float);
 	for (int i = 0; i < 4; i++) {
-		glEnableVertexAttribArray(this->_mat4_mvp + i);
 		glVertexAttribPointer(this->_mat4_mvp + i, 4, GL_FLOAT, GL_FALSE, 4 * size4float, (const void*)(i * size4float));
+		glEnableVertexAttribArray(this->_mat4_mvp + i);
 		glVertexAttribDivisor(this->_mat4_mvp + i, 1);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -91,14 +91,13 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 		}
 		else
 			glUniform1f(this->_tex_coef, 0.0f);
+
 		glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
-
-		int	vertices_amount = bp.getFaceAmount() * 3;
-
-	if (bp.dataMode == BP_VERTEX_ARRAY)
-		glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
-	else
-		glDrawElementsInstanced(GL_TRIANGLES, bp.elem_count, GL_UNSIGNED_INT, bp.getIndicesData(), instances_amount);
+		int	vertices_amount = bp.getPolygonAmount() * 3;
+		if (bp.dataMode == BP_VERTEX_ARRAY)
+			glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
+		else
+			glDrawElementsInstanced(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0, instances_amount);
 	}
 	/*
 		++: when all is optimised build an obj3d with the vertex and indices and textures corresponding to the entire chunk! Modify it when adding or removing a cube.

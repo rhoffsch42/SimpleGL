@@ -7,6 +7,8 @@ Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 	cout << "_ " << __PRETTY_FUNCTION__ << endl;
 	if (init_locations)
 		this->getLocations();
+	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
+	std::cout << "----------------------------------------\n" << std::endl;
 }
 
 Obj3dPG::~Obj3dPG() {
@@ -14,18 +16,25 @@ Obj3dPG::~Obj3dPG() {
 
 }
 
-void	Obj3dPG::linkBuffers(GLuint& vboVertex, GLuint& vboColor, GLuint& vboTexture) const {
-	glBindBuffer(GL_ARRAY_BUFFER, vboVertex);
-	glVertexAttribPointer(this->_vertex_position_data, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+void	Obj3dPG::linkBuffers(const Obj3dBP& blueprint) const {
+	/*
+		glVertexAttribPointer 5th arg is stride size: 0 = tightly packed, so opengl will determine itself
+	*/
+	glBindVertexArray(blueprint.getVao());
+
+	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboVertex());
+	glVertexAttribPointer(this->_vertex_position_data, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
 	glEnableVertexAttribArray(this->_vertex_position_data);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vboColor);
-	glVertexAttribPointer(this->_vertex_color_data, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboColor());
+	glVertexAttribPointer(this->_vertex_color_data, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
 	glEnableVertexAttribArray(this->_vertex_color_data);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vboTexture);
-	glVertexAttribPointer(this->_vertex_UV_data, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboTexture());
+	glVertexAttribPointer(this->_vertex_UV_data, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
 	glEnableVertexAttribArray(this->_vertex_UV_data);
+
+	glBindVertexArray(0);
 }
 
 void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
@@ -40,7 +49,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	Math::Matrix4& modelMatrix = obj->getWorldMatrix();
 
 	// cout << "rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << endl;
-	// cout << "*\tpolygons: " << bp.getFaceAmount() << endl;
+	// cout << "*\tpolygons: " << bp.getPolygonAmount() << endl;
 
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
@@ -57,42 +66,44 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-	} else {
+	}
+	else {
 		glUniform1f(this->_tex_coef, 0.0f);
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
+	int	vertices_amount = bp.getPolygonAmount() * 3;
 	if (bp.dataMode == BP_VERTEX_ARRAY)
-		glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
+		glDrawArrays(GL_TRIANGLES, 0, vertices_amount);
 	else
-		glDrawElements(GL_TRIANGLES, bp.elem_count, GL_UNSIGNED_INT, bp.getIndicesData());
+		glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
-	Obj3dBP &		bp = obj.getBlueprint();
-	Math::Matrix4&	modelMatrix = obj.getWorldMatrix();
+	Obj3dBP& bp = obj.getBlueprint();
+	Math::Matrix4& modelMatrix = obj.getWorldMatrix();
 
 	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
-	// cout << "*\tpolygons: " << bp.getFaceAmount() << endl;
-	
+	// cout << "*\tpolygons: " << bp.getPolygonAmount() << endl;
+
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
-	
+
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
 	glUniform1i(this->_dismod, 1);// 1 = display plain_color, 0 = vertex_color
 	//plain_color should not be used, check shader
 	unsigned int id = obj.getId();
 	uint8_t	rgb[3];
 	Misc::intToRGB(id, &(*rgb));
-	glUniform3f(this->_plain_color, float(rgb[0])/255.0f, float(rgb[1])/255.0f, float(rgb[2])/255.0f);
+	glUniform3f(this->_plain_color, float(rgb[0]) / 255.0f, float(rgb[1]) / 255.0f, float(rgb[2]) / 255.0f);
 	//should store adress of object directly, if we can store RGBA with the shader
 
 	glBindVertexArray(bp.getVao());
 	glUniform1f(this->_tex_coef, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDrawArrays(GL_TRIANGLES, 0, bp.getFaceAmount() * 3);
+	glDrawArrays(GL_TRIANGLES, 0, bp.getPolygonAmount() * 3);
 
 	glBindVertexArray(0);
 }
