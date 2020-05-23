@@ -1,7 +1,7 @@
 #version 410
 in vec3 vertex_position_data;
-in vec3 vertex_color_data;
 in vec2 vertex_UV_data;
+in vec3 vertex_color_data;
 in mat4 MVP;
 
 out vec2 UV;

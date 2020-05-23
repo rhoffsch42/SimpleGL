@@ -7,14 +7,14 @@ Math::Math() {}
 Math::~Math() {}
 
 //static
-inline float	Math::toRadian(float degree) {
+float	Math::toRadian(float degree) {
 	return (degree * float(M_PI) / 180.0f);
 }
-inline float	Math::toDegree(float radian) {
+float	Math::toDegree(float radian) {
 	return (radian * (180.0f / float(M_PI)));
 }
 
-t_pp			Math::extractFromMatrix(Math::Matrix4 mat) {
+t_pp	Math::extractFromMatrix(Math::Matrix4 mat) {
 	mat.setOrder(ROW_MAJOR);
 	s_pp	pp;
 	float	(&m)[4][4] = *reinterpret_cast<float(*)[4][4]>(mat.getData());
@@ -241,8 +241,8 @@ Math::Vector3	Math::Vector3::cross(Math::Vector3 v1, Math::Vector3 v2) {
 float			Math::Vector3::dot(Math::Vector3 v1, Math::Vector3 v2) {
 	return (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
 }
-void			Math::Vector3::printData() const {
-	cout << this->x << " " << this->y << " " << this->z << endl;
+void			Math::Vector3::printData(std::string separator) const {
+	cout << this->x << " " << this->y << " " << this->z << separator;
 }
 //	Vector3 end
 /////////////////////////////////////////////////////////////////////////////

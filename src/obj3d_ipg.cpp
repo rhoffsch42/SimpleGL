@@ -18,9 +18,11 @@ void	Obj3dIPG::render(Object& object, Math::Matrix4 VPmatrix) const { //HAS to b
 }
 void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	/*
-			convert list<Object*> (in fact Obj3d*) matrices into vector<float>
-			all matrices must be COLUMN_MAJOR
-			all objects must come from the same BP
+		// https://learnopengl.com/Advanced-OpenGL/Instancing
+
+		convert list<Object*> (in fact Obj3d*) matrices into vector<float>
+		all matrices must be COLUMN_MAJOR
+		all objects must come from the same BP
 	*/
 	if (list.empty())
 		return;
@@ -31,9 +33,10 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	// this part needs threads?
 	int		instances_amount = list.size();
 	int		index = 0;
-	int		array_size = instances_amount * 16;
+	int		array_size = instances_amount * 16;//16 float for a matrix
 	float*	mvp_concatened = new float[array_size];
-	for (auto o : list) {
+
+	for (auto o : list) {// build all MVP (cam is moving so we have to do this each frame)
 		Obj3d* ptr = dynamic_cast<Obj3d*>(o);
 		if (ptr) {
 			ptr->update();
@@ -43,8 +46,7 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 			MVPmatrix.mult(ptr->getWorldMatrix());
 			MVPmatrix.setOrder(COLUMN_MAJOR);
 			memcpy(mvp_concatened + index * 16, MVPmatrix.getData(), 16 * sizeof(float));
-		}
-		else {
+		} else {
 			std::cout << "dynamic_cast<Obj3d*>(o) failed: " << o << std::endl;
 			Misc::breakExit(12);
 		}
@@ -59,46 +61,40 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	}
 	Obj3dBP& bp = obj->getBlueprint();
 	const Math::Vector3& color = obj->getColorShader();//will be used for every obj3d!
-	GLint	vao = bp.getVao();
-	glBindVertexArray(vao);
+	glBindVertexArray(bp.getVao());
 
-	// https://learnopengl.com/Advanced-OpenGL/Instancing
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vboMatrix);
-	if (this->_vboSize >= instances_amount) {
+	if (this->_vboSize >= instances_amount) {//use the current vbo as he is big enough
 		glBufferSubData(GL_ARRAY_BUFFER, 0, array_size * sizeof(float), (void*)mvp_concatened);
-	} else {
+	}
+	else {// recreate a new vbo with the new size
 		this->_vboSize = instances_amount;
 		glBufferData(GL_ARRAY_BUFFER, array_size * sizeof(float), (void*)mvp_concatened, GL_DYNAMIC_DRAW);// GL_DYNAMIC_DRAW GL_STATIC_DRAW
 	}
 	delete[] mvp_concatened;
-	// vertex attributes
+
 	std::size_t size4float = 4 * sizeof(float);
-	for (int i = 0; i < 4; i++) {
-		glVertexAttribPointer(this->_mat4_mvp + i, 4, GL_FLOAT, GL_FALSE, 4 * size4float, (const void*)(i * size4float));
+	for (int i = 0; i < 4; i++) {//could be done once?
 		glEnableVertexAttribArray(this->_mat4_mvp + i);
+		glVertexAttribPointer(this->_mat4_mvp + i, 4, GL_FLOAT, GL_FALSE, 4 * size4float, (const void*)(i * size4float));
 		glVertexAttribDivisor(this->_mat4_mvp + i, 1);
 	}
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	if (1) {
-		glUseProgram(this->_program);//used once for all obj3d
-		glUniform1i(this->_dismod, 1);// 1 = display plain_color, 0 = vertex_color
-		//plain_color should not be used, check shader
-		glUniform3f(this->_plain_color, color.x, color.y, color.z);
-		if (obj->displayTexture && obj->getTexture() != nullptr) {
-			glUniform1f(this->_tex_coef, 1.0f);
-			glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-		}
-		else
-			glUniform1f(this->_tex_coef, 0.0f);
+	glUseProgram(this->_program);//used once for all obj3d
+	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
+	glUniform3f(this->_plain_color, color.x, color.y, color.z);
+	if (obj->displayTexture && obj->getTexture() != nullptr) {
+		glUniform1f(this->_tex_coef, 1.0f);
+		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
+	} else
+		glUniform1f(this->_tex_coef, 0.0f);
 
-		glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
-		int	vertices_amount = bp.getPolygonAmount() * 3;
-		if (bp.dataMode == BP_VERTEX_ARRAY)
-			glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
-		else
-			glDrawElementsInstanced(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0, instances_amount);
-	}
+	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
+	int	vertices_amount = bp.getPolygonAmount() * 3;
+	if (bp.getDataMode() == BP_LINEAR)
+		glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
+	else // should be BP_INDICES
+		glDrawElementsInstanced(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0, instances_amount);
 	/*
 		++: when all is optimised build an obj3d with the vertex and indices and textures corresponding to the entire chunk! Modify it when adding or removing a cube.
 		to make 1 draw of 1 obj3d
@@ -110,8 +106,8 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 		object->_worldMatrixChanged = false;
 	}
 
-	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
 }
 
 void	Obj3dIPG::getLocations() {

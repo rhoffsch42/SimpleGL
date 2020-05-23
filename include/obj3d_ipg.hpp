@@ -5,6 +5,10 @@
 
 #include <string>
 
+
+/*
+	instance rendering with the BP of the first Obj3d in the list
+*/
 class Obj3dIPG : public Obj3dPG
 {
 public:

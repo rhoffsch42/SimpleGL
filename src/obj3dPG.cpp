@@ -23,16 +23,12 @@ void	Obj3dPG::linkBuffers(const Obj3dBP& blueprint) const {
 	glBindVertexArray(blueprint.getVao());
 
 	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboVertex());
-	glVertexAttribPointer(this->_vertex_position_data, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
 	glEnableVertexAttribArray(this->_vertex_position_data);
-
-	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboColor());
-	glVertexAttribPointer(this->_vertex_color_data, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
-	glEnableVertexAttribArray(this->_vertex_color_data);
-
-	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboTexture());
-	glVertexAttribPointer(this->_vertex_UV_data, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+	glVertexAttribPointer(this->_vertex_position_data, 3, GL_FLOAT, GL_FALSE, sizeof(SimpleVertex), (void*)0);
 	glEnableVertexAttribArray(this->_vertex_UV_data);
+	glVertexAttribPointer(this->_vertex_UV_data, 2, GL_FLOAT, GL_FALSE, sizeof(SimpleVertex), (void*)offsetof(SimpleVertex, texCoord));
+	glEnableVertexAttribArray(this->_vertex_color_data);
+	glVertexAttribPointer(this->_vertex_color_data, 3, GL_FLOAT, GL_FALSE, sizeof(SimpleVertex), (void*)offsetof(SimpleVertex, color));
 
 	glBindVertexArray(0);
 }
@@ -58,13 +54,13 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	// glUseProgram(this->_program);
 
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
-	glUniform1i(this->_dismod, 1);// 1 = display plain_color, 0 = vertex_color
-	//plain_color should not be used, check shader
+	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
 	glBindVertexArray(bp.getVao());
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
+		glActiveTexture(GL_TEXTURE0);//required for some drivers
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
 	}
 	else {
@@ -72,11 +68,11 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
-	if (bp.dataMode == BP_VERTEX_ARRAY)
+	if (bp.getDataMode() == BP_LINEAR)
 		glDrawArrays(GL_TRIANGLES, 0, vertices_amount);
-	else
+	else // should be BP_INDICES
 		glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
-
+	std::cout << vertices_amount << std::endl;
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -216,6 +212,6 @@ void	Obj3dPG::getLocations() {
 	this->_tex_coef = this->getSlot("tex_coef", true);
 
 	this->_vertex_position_data = this->getSlot("vertex_position_data", false);
-	this->_vertex_color_data = this->getSlot("vertex_color_data", false);
 	this->_vertex_UV_data = this->getSlot("vertex_UV_data", false);
+	this->_vertex_color_data = this->getSlot("vertex_color_data", false);
 }

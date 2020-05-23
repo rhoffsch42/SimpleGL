@@ -101,7 +101,7 @@ public:
 		static Math::Vector3	cross(Math::Vector3 v1, Math::Vector3 v2);// ie mult
 		static float			dot(Math::Vector3 v1, Math::Vector3 v2);// = scalar product
 		//other
-		void	printData() const;
+		void	printData(std::string separator = "\n") const;
 	};
 	
 	class Rotation : public Vector3
