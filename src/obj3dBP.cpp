@@ -54,12 +54,12 @@ SimpleVertex	Obj3dBP::assimpProcessVertexAt(aiMesh* mesh, const aiScene* scene, 
 	return vertex;
 }
 
-void	Obj3dBP::assimpProcessMesh(aiMesh* mesh, const aiScene* scene, std::vector<SimpleVertex>& vertices) {
+void	Obj3dBP::assimpProcessMesh(aiMesh* mesh, const aiScene* scene) {
 
-	unsigned int loaded_vertex = vertices.size();//save the amount of loaded vertex before this new mesh
+	unsigned int loaded_vertex = this->_vertices.size();//save the amount of loaded vertex before this new mesh
 	if (this->_dataMode == BP_INDICES) {
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-			vertices.push_back(this->assimpProcessVertexAt(mesh, scene, i));
+			this->_vertices.push_back(this->assimpProcessVertexAt(mesh, scene, i));
 		}
 	} else if (this->_dataMode == BP_LINEAR) {
 		//process with indices later
@@ -75,7 +75,7 @@ void	Obj3dBP::assimpProcessMesh(aiMesh* mesh, const aiScene* scene, std::vector<
 		for (unsigned int j = 0; j < face.mNumIndices; j++) {
 			unsigned int indice = face.mIndices[j];
 			if (this->_dataMode == BP_LINEAR) {
-				vertices.push_back(this->assimpProcessVertexAt(mesh, scene, indice));
+				this->_vertices.push_back(this->assimpProcessVertexAt(mesh, scene, indice));
 			} else if (this->_dataMode == BP_INDICES) {
 				this->_indices.push_back(indice + loaded_vertex);//as we merge all meshes, we have to take in account the already loaded ones
 			}
@@ -84,15 +84,15 @@ void	Obj3dBP::assimpProcessMesh(aiMesh* mesh, const aiScene* scene, std::vector<
 	}
 }
 
-void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene, std::vector<SimpleVertex>& vertices) {
+void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene) {
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		this->assimpProcessMesh(mesh, scene, vertices);
+		this->assimpProcessMesh(mesh, scene);
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
-		this->assimpProcessNode(node->mChildren[i], scene, vertices);
+		this->assimpProcessNode(node->mChildren[i], scene);
 	}
 }
 
@@ -110,10 +110,8 @@ void	Obj3dBP::loadWithAssimp(string path) {
 		return;
 	}
 	//string directory = path.substr(0, path.find_last_of("/\\"));
-	vector<SimpleVertex> vertices;
-	this->assimpProcessNode(scene->mRootNode, scene, vertices);
-	this->normalize(vertices);
-	this->initBuffers(vertices);
+	this->assimpProcessNode(scene->mRootNode, scene);
+
 	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
 }
 
@@ -126,13 +124,33 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	this->_centered = Obj3dBP::center;
 	this->_rescaled = Obj3dBP::rescale;
 	this->loadWithAssimp(filename);
-	//this->loadWithTinyobj(filename);
+	this->normalize();
+	//for (auto i : this->_indices)
+	//	std::cout << i << " ";
+	//std::cout << "\n";
+	//std::cout << "\n";
+	//for (auto i : vertices)
+	//	i.position.printData("_");
+	//std::cout << "\n";
+	//std::cout << "\n";
+	//exit(0);
+	this->initBuffers();
 
 	std::cout << this->_indices.size() << std::endl;
 	std::cout << this->_indices.size() << std::endl;
 
 	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
 	std::cout << "----------------------------------------\n" << std::endl;
+}
+
+Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear) : Blueprint("N/A") {
+	this->_dataMode = BP_LINEAR;
+	this->_polygonAmount = src_vertices_linear.size() / 3;
+	this->_centered = false;
+	this->_rescaled = false;
+	this->_vertices = src_vertices_linear;
+	this->normalize();
+	this->initBuffers();
 }
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
@@ -144,6 +162,8 @@ Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
 
 Obj3dBP::~Obj3dBP() {
 	cout << "_ Obj3dBP des by filename" << endl;
+	this->_vertices.clear();
+	this->_indices.clear();
 	/*
 		delete opengl data here
 	*/
@@ -163,30 +183,42 @@ Obj3dBP& Obj3dBP::operator=(const Obj3dBP& src) {
 
 //mutators
 //accessors
-uint8_t			Obj3dBP::getDataMode(void) const { return this->_dataMode; }
-const GLuint*	Obj3dBP::getIndicesData(void) const { return this->_indices.data(); }
-GLuint			Obj3dBP::getVboVertex(void) const { return this->_vboVertex; }
-GLuint			Obj3dBP::getVboColor(void) const { return this->_vboColor; }
-GLuint			Obj3dBP::getVboTexture(void) const { return this->_vboTexture; }
-int				Obj3dBP::getPolygonAmount(void) const { return this->_polygonAmount; }
-Math::Vector3	Obj3dBP::getDimensions(void) const { return this->_dimensions; }
-bool			Obj3dBP::isCentered(void) const { return this->_centered; }
-bool			Obj3dBP::isRescaled(void) const { return this->_rescaled; }
+uint8_t						Obj3dBP::getDataMode(void) const { return this->_dataMode; }
+std::vector<GLuint>			Obj3dBP::getIndices(void) const { return this->_indices; }
+std::vector<SimpleVertex>	Obj3dBP::getVertices(void) const { return this->_vertices; }
+GLuint						Obj3dBP::getVboVertex(void) const { return this->_vboVertex; }
+GLuint						Obj3dBP::getEboIndices(void) const { return this->_eboIndices; }
+GLuint						Obj3dBP::getVboColor(void) const { return this->_vboColor; }
+GLuint						Obj3dBP::getVboTexture(void) const { return this->_vboTexture; }
+int							Obj3dBP::getPolygonAmount(void) const { return this->_polygonAmount; }
+Math::Vector3				Obj3dBP::getDimensions(void) const { return this->_dimensions; }
+bool						Obj3dBP::isCentered(void) const { return this->_centered; }
+bool						Obj3dBP::isRescaled(void) const { return this->_rescaled; }
 
-void	Obj3dBP::normalize(std::vector<SimpleVertex>& vertices) {
+void			Obj3dBP::freeData(unsigned int flags) {
+	if ((flags & BP_FREE_INDICES) == BP_FREE_INDICES) {
+		this->_indices.clear();
+	}
+	if ((flags & BP_FREE_VERTICES) == BP_FREE_VERTICES) {
+		this->_vertices.clear();
+	}
+}
+
+void	Obj3dBP::normalize() {
 	// dimensions and centering
+	//if (!this->_vertices.size()) {return;}
 	float	vmin[3];
 	float	vmax[3];
-	vmin[0] = vertices[0].position.x;
-	vmin[1] = vertices[1].position.x;
-	vmin[2] = vertices[2].position.x;
+	vmin[0] = this->_vertices[0].position.x;
+	vmin[1] = this->_vertices[1].position.x;
+	vmin[2] = this->_vertices[2].position.x;
 	vmax[0] = vmin[0];
 	vmax[1] = vmin[1];
 	vmax[2] = vmin[2];
-	for (size_t i = 0; i < vertices.size(); i++) {
-		tinyobj::real_t vx = vertices[i].position.x;
-		tinyobj::real_t vy = vertices[i].position.y;
-		tinyobj::real_t vz = vertices[i].position.z;
+	for (size_t i = 0; i < this->_vertices.size(); i++) {
+		tinyobj::real_t vx = this->_vertices[i].position.x;
+		tinyobj::real_t vy = this->_vertices[i].position.y;
+		tinyobj::real_t vz = this->_vertices[i].position.z;
 		vmin[0] = (vx < vmin[0]) ? vx : vmin[0];
 		vmin[1] = (vy < vmin[1]) ? vy : vmin[1];
 		vmin[2] = (vz < vmin[2]) ? vz : vmin[2];
@@ -204,10 +236,10 @@ void	Obj3dBP::normalize(std::vector<SimpleVertex>& vertices) {
 	centerOffset.y = (vmin[1] + vmax[1]) / 2;
 	centerOffset.z = (vmin[2] + vmax[2]) / 2;
 	if (this->_centered) {
-		for (size_t i = 0; i < vertices.size(); i++) {
-			vertices[i].position.x -= centerOffset.x;
-			vertices[i].position.y -= centerOffset.y;
-			vertices[i].position.z -= centerOffset.z;
+		for (size_t i = 0; i < this->_vertices.size(); i++) {
+			this->_vertices[i].position.x -= centerOffset.x;
+			this->_vertices[i].position.y -= centerOffset.y;
+			this->_vertices[i].position.z -= centerOffset.z;
 		}
 	}
 
@@ -215,15 +247,16 @@ void	Obj3dBP::normalize(std::vector<SimpleVertex>& vertices) {
 	if (this->_rescaled) {
 		scaleCoef = calcScaleCoef(this->_dimensions, Obj3dBP::defaultSize);
 		this->_dimensions.mult(scaleCoef);
-		for (size_t i = 0; i < vertices.size(); i++) {
-			vertices[i].position.mult(scaleCoef);
+		for (size_t i = 0; i < this->_vertices.size(); i++) {
+			this->_vertices[i].position.mult(scaleCoef);
 		}
 	}
 
 	std::cout << "polygons { " << this->_polygonAmount << " }" << endl;
-	std::cout << "vertices array size { " << vertices.size() << " }" << endl;
+	std::cout << "vertices array size { " << this->_vertices.size() << " }" << endl;
 	std::cout << "indices array size { " << this->_indices.size() << " }" << endl;
-	std::cout << "center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
+	std::cout << (this->_centered ? "YES" : "NO");
+	std::cout << " center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
 	std::cout << "scale coef:\t" << scaleCoef << endl;
 
 	if (LOGFILES) {
@@ -239,18 +272,18 @@ void	Obj3dBP::normalize(std::vector<SimpleVertex>& vertices) {
 
 		//data
 		logs << "vertices:\t";
-		for (size_t i = 0; i < vertices.size(); i++) {
-			logs << vertices[i].position.x << " ";
-			logs << vertices[i].position.y << " ";
-			logs << vertices[i].position.z << ", ";
+		for (size_t i = 0; i < this->_vertices.size(); i++) {
+			logs << this->_vertices[i].position.x << " ";
+			logs << this->_vertices[i].position.y << " ";
+			logs << this->_vertices[i].position.z << ", ";
 		}
-		logs << endl << "size: " << vertices.size() << " : " << vertices.size() << endl;
+		logs << endl << "size: " << this->_vertices.size() << " : " << this->_vertices.size() << endl;
 		Misc::logfile(std::string("Obj3dBP_vao_") + std::to_string(this->_vao), logs.str());
 	}
 
 }
 
-void	Obj3dBP::initBuffers(std::vector<SimpleVertex>& vertices) {
+void	Obj3dBP::initBuffers() {
 	//loading blueprint with opengl
 	//VAO
 	glGenVertexArrays(1, &this->_vao);
@@ -258,6 +291,15 @@ void	Obj3dBP::initBuffers(std::vector<SimpleVertex>& vertices) {
 	//https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/mesh.h
 	// glDrawElements
 	if (this->_dataMode == BP_INDICES) {
+		if (0) {//display data
+			for (size_t i = 0; i < this->_indices.size(); i++) {
+				std::cout << this->_indices[i] << " ";
+			}std::cout << std::endl;
+			for (size_t i = 0; i < this->_vertices.size(); i++) {
+				this->_vertices[i].position.printData("_");
+				std::cout << " ";
+			}std::cout << std::endl;
+		}
 		glGenBuffers(1, &this->_eboIndices);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_eboIndices);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->_indices.size() * sizeof(float), this->_indices.data(), GL_STATIC_DRAW);
@@ -265,7 +307,7 @@ void	Obj3dBP::initBuffers(std::vector<SimpleVertex>& vertices) {
 	//VBO
 	glGenBuffers(1, &this->_vboVertex);
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vboVertex);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(SimpleVertex), vertices.data(), GL_STATIC_DRAW);//1 vbo for everything
+	glBufferData(GL_ARRAY_BUFFER, this->_vertices.size() * sizeof(SimpleVertex), this->_vertices.data(), GL_STATIC_DRAW);//1 vbo for everything
 
 	//end
 	glBindBuffer(GL_ARRAY_BUFFER, 0);//attribution will be done later with a program

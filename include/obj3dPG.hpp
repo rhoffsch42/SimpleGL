@@ -6,6 +6,10 @@ class Obj3d;
 #include "math.hpp"
 #include "misc.hpp"
 
+//X faces * 2 polygons * 3 indices * size of indices in opengl
+#define EBO_OFFSET(X)	((X) * 2 * 3 * sizeof(GLuint))
+
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"//?
 /*
@@ -20,7 +24,7 @@ public:
 	void	linkBuffers(const Obj3dBP& blueprint) const;
 	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const; //HAS to be cpy constructor! (1 PV*M per obj3d)
 	void	renderUniqueId(Obj3d & obj, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
-	virtual void	renderObjects(list<Object*>& list, Cam& cam, uint8_t flags = 0);
+	virtual void	renderObjects(list<Object*>& list, Cam& cam, unsigned int flags = 0);
 
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles

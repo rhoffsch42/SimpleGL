@@ -62,17 +62,16 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glActiveTexture(GL_TEXTURE0);//required for some drivers
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-	}
-	else {
-		glUniform1f(this->_tex_coef, 0.0f);
-	}
+	} else { glUniform1f(this->_tex_coef, 0.0f); }
+
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
 	if (bp.getDataMode() == BP_LINEAR)
 		glDrawArrays(GL_TRIANGLES, 0, vertices_amount);
-	else // should be BP_INDICES
+	else { // should be BP_INDICES
 		glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
-	std::cout << vertices_amount << std::endl;
+		//glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
+	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -94,7 +93,7 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	uint8_t	rgb[3];
 	Misc::intToRGB(id, &(*rgb));
 	glUniform3f(this->_plain_color, float(rgb[0]) / 255.0f, float(rgb[1]) / 255.0f, float(rgb[2]) / 255.0f);
-	//should store adress of object directly, if we can store RGBA with the shader
+	//should store address of object directly, if we can store RGBA with the shader
 
 	glBindVertexArray(bp.getVao());
 	glUniform1f(this->_tex_coef, 0.0f);
@@ -104,7 +103,7 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	glBindVertexArray(0);
 }
 
-void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
+void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 	// cout << "render all Obj3d" << endl;
 	if (list.empty())
 		return;

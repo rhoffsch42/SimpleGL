@@ -15,7 +15,7 @@ using namespace std;
 //flags (set statics ? less clear when we use the function)
 #define	PG_FORCE_DRAW		1
 #define	PG_FRUSTUM_CULLING	2
-#define	PG_ALL				255
+#define	PG_ALL				0xffffffff
 
 class Program
 {
@@ -26,7 +26,7 @@ public:
 	GLuint		_program;
 
 	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const = 0;
-	virtual void	renderObjects(list<Object*>& list, Cam& cam, uint8_t flags = 0) = 0;//const?
+	virtual void	renderObjects(list<Object*>& list, Cam& cam, unsigned int flags = 0) = 0;//const?
 protected:
 	GLint			getSlot(const GLchar* varname, bool n) const;
 	//a definir dans classe fille, ou faire un lecteur de shader et mapper les slots

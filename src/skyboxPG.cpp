@@ -31,7 +31,7 @@ void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void	SkyboxPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
+void	SkyboxPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 	// cout << "render Skybox" << endl;
 	if (list.empty())
 		return;

@@ -16,7 +16,7 @@ void	Obj3dIPG::render(Object& object, Math::Matrix4 VPmatrix) const { //HAS to b
 	(void)object;
 	(void)VPmatrix;
 }
-void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
+void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 	/*
 		// https://learnopengl.com/Advanced-OpenGL/Instancing
 
@@ -86,15 +86,18 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, uint8_t flags) {
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-	} else
-		glUniform1f(this->_tex_coef, 0.0f);
+	} else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
 	if (bp.getDataMode() == BP_LINEAR)
 		glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
-	else // should be BP_INDICES
+	else { // should be BP_INDICES
+		//unsigned int face = cam.speed;
+		//glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(EBO_OFFSET(face)), instances_amount);
 		glDrawElementsInstanced(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0, instances_amount);
+	}
+
 	/*
 		++: when all is optimised build an obj3d with the vertex and indices and textures corresponding to the entire chunk! Modify it when adding or removing a cube.
 		to make 1 draw of 1 obj3d
