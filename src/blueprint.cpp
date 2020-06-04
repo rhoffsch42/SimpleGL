@@ -2,9 +2,9 @@
 #include "blueprint.hpp"
 
 Blueprint::Blueprint(std::string filename) {
-	cout << "_ Blueprint cons by filename" << endl;
+	//cout << "_ Blueprint cons by filename" << endl;
 
-	cout << "building object: " << filename.c_str() << endl;
+	//cout << "building object: " << filename.c_str() << endl;
 	this->_vao = 0;
 	this->_name = filename;
 }
@@ -17,7 +17,7 @@ Blueprint::Blueprint(const Blueprint& src) {
 }
 
 Blueprint::~Blueprint() {
-	cout << "_ Blueprint des" << endl;
+	//cout << "_ Blueprint des" << endl;
 	/*
 		detruire les vbo/vao/etc d'openGL
 	*/

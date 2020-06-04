@@ -51,7 +51,7 @@ void				Misc::logfile(std::string basename, std::string logs) {
 	std::replace(basename.begin(), basename.end(), ':', '-');
 	string path("log/" + basename + "_date" + ".log");
 	path = Misc::crossPlatPath(path);
-	cout << "*** log file:\t\t" << path << endl;
+	//cout << "*** log file:\t\t" << path << endl;
 	ofstream file;
 	file.open(path);
 	file << logs;

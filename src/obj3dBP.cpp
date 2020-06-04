@@ -97,7 +97,7 @@ void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene) {
 }
 
 void	Obj3dBP::loadWithAssimp(string path) {
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	//std::cout << __PRETTY_FUNCTION__ << std::endl;
 	//https://stackoverflow.com/questions/39269121/assimp-loader-with-a-cube-of-8-vertices
 	Assimp::Importer importer;
 	//http://assimp.sourceforge.net/lib_html/postprocess_8h.html
@@ -112,7 +112,7 @@ void	Obj3dBP::loadWithAssimp(string path) {
 	//string directory = path.substr(0, path.find_last_of("/\\"));
 	this->assimpProcessNode(scene->mRootNode, scene);
 
-	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
+	//std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
 }
 
 Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
@@ -136,7 +136,7 @@ Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
 	//exit(0);
 	this->initBuffers();
 
-	std::cout << this->_indices.size() << std::endl;
+	std::cout << this->_vertices.size() << std::endl;
 	std::cout << this->_indices.size() << std::endl;
 
 	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
@@ -161,7 +161,7 @@ Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
 }
 
 Obj3dBP::~Obj3dBP() {
-	cout << "_ Obj3dBP des by filename" << endl;
+	//cout << "_ Obj3dBP des by filename" << endl;
 	this->_vertices.clear();
 	this->_indices.clear();
 	/*
@@ -252,13 +252,14 @@ void	Obj3dBP::normalize() {
 		}
 	}
 
+#if 0
 	std::cout << "polygons { " << this->_polygonAmount << " }" << endl;
 	std::cout << "vertices array size { " << this->_vertices.size() << " }" << endl;
 	std::cout << "indices array size { " << this->_indices.size() << " }" << endl;
 	std::cout << (this->_centered ? "YES" : "NO");
 	std::cout << " center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
 	std::cout << "scale coef:\t" << scaleCoef << endl;
-
+#endif
 	if (LOGFILES) {
 		std::stringstream logs;
 		int c1 = 0;
