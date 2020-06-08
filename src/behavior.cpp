@@ -1,27 +1,28 @@
-#include "simplegl.h"
+//#include "simplegl.h"
 #include "behavior.hpp"
+#include <iostream>
 
 bool	Behavior::areActive = true;
 
 Behavior::Behavior() {
-	cout << "_ Behavior cons" << endl;
+	std::cout << "_ Behavior cons" << std::endl;
 	this->isActive = true;
 }
 
 Behavior::Behavior(const Behavior& src) {
-	cout << "_ Behavior cons by copy" << endl;
+	std::cout << "_ Behavior cons by copy" << std::endl;
 	*this = src;
 }
 
-Behavior&	Behavior::operator=(const Behavior& src) {
-	cout << "_ Behavior operator=" << endl;
+Behavior& Behavior::operator=(const Behavior& src) {
+	std::cout << "_ Behavior operator=" << std::endl;
 	this->isActive = src.isActive;
 	this->targetList = src.getTargetList();//check for bugs
 	return (*this);
 }
 
 Behavior::~Behavior() {
-	cout << "_ Behavior des" << endl;
+	std::cout << "_ Behavior des" << std::endl;
 	//need to delete/empty list?
 }
 
@@ -41,7 +42,7 @@ void	Behavior::addTarget(BehaviorManaged* target) {
 		if (std::find_if(this->targetList.begin(), this->targetList.end(), 
 				[target](std::pair<BehaviorManaged*, bool> elem) { return (elem.first == target); })
 			== this->targetList.end()) {
-			std::pair<BehaviorManaged*, bool>	p = pair<BehaviorManaged*, bool>(target, true);//cast
+			std::pair<BehaviorManaged*, bool>	p = std::pair<BehaviorManaged*, bool>(target, true);//cast
 			this->targetList.push_back(p);
 			/*
 				we can check here if the target has a BehaviorManaged, and add ourself from his list:

@@ -1,4 +1,5 @@
 #include "uipanel.hpp"
+#include "compiler_settings.h"
 
 #define DEFAULT_SIZE 100
 
@@ -55,6 +56,7 @@ bool		UIPanel::isOnPanel(int glX, int glY) const {
 	return (glX >= this->_posX && glX <= this->_posX2 && glY >= this->_posY && glY <= this->_posY2);
 }
 
+//bind the texture to the framebuffer
 void		UIPanel::setTexture(Texture * tex) {
 	this->_texture = tex;
 	if (tex) {

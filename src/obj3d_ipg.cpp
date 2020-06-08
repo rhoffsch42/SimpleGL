@@ -1,10 +1,11 @@
 #include "obj3d_ipg.hpp"
+#include "compiler_settings.h"
 #include <vector>
 
 Obj3dIPG::Obj3dIPG(std::string vertexShader, std::string fragmentShader, bool init_locations)
 	: Obj3dPG(vertexShader, fragmentShader, false)
 {
-	cout << "_ " << __PRETTY_FUNCTION__ << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	if (init_locations)
 		this->Obj3dIPG::getLocations();//explicit equivalent of: this->getLocations();
 	glGenBuffers(1, &this->_vboMatrix);
@@ -34,7 +35,7 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) 
 	int		instances_amount = list.size();
 	int		index = 0;
 	int		array_size = instances_amount * 16;//16 float for a matrix
-	float*	mvp_concatened = new float[array_size];
+	float* mvp_concatened = new float[array_size];
 
 	for (auto o : list) {// build all MVP (cam is moving so we have to do this each frame)
 		Obj3d* ptr = dynamic_cast<Obj3d*>(o);
@@ -46,7 +47,8 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) 
 			MVPmatrix.mult(ptr->getWorldMatrix());
 			MVPmatrix.setOrder(COLUMN_MAJOR);
 			memcpy(mvp_concatened + index * 16, MVPmatrix.getData(), 16 * sizeof(float));
-		} else {
+		}
+		else {
 			std::cout << "dynamic_cast<Obj3d*>(o) failed: " << o << std::endl;
 			Misc::breakExit(12);
 		}
@@ -86,7 +88,8 @@ void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) 
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-	} else { glUniform1f(this->_tex_coef, 0.0f); }
+	}
+	else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
@@ -119,7 +122,7 @@ void	Obj3dIPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl;
 	this->_dismod = this->getSlot("dismod", true);
 	this->_plain_color = this->getSlot("plain_color", true);
 	this->_tex_coef = this->getSlot("tex_coef", true);

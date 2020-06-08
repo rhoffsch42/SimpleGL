@@ -9,6 +9,12 @@
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif //ignore unused variables
 
+#include <stdio.h>
+#include <stdint.h>
+#include <iostream>
+#include <sstream>
+
+
 #ifdef _WIN32 //external libraries
 #pragma warning(push, 0)		//visual studio
 #else
@@ -26,13 +32,12 @@
 #endif //external libraries
 
 #ifdef _WIN32
+#define NOMINMAX
 #include <Windows.h>
 #endif
-#include <stdio.h>
-#include <iostream>
-#include <sstream>
-using namespace std;
+
 #include "misc.hpp"
+
 
 #define EMOTE_OK			"\xe2\x9c\x85 " // ✅
 #define EMOTE_FAIL			"\xe2\x9d\x8c " // ❌

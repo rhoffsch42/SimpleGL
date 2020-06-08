@@ -9,11 +9,11 @@ public:
 
 	//accessors
 	GLuint		getVao(void) const;
-	string		getName(void) const;
+	std::string	getName(void) const;
 
 protected:
 	GLuint		_vao;
-	string		_name;
+	std::string	_name;
 
 	Blueprint(std::string filename);
 	Blueprint(const Blueprint& src);

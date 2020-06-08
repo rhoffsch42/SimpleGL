@@ -1,8 +1,8 @@
-#include "simplegl.h"
 #include "texture.hpp"
+#include "compiler_settings.h"
 
 Texture::Texture(std::string filename) : _filename(filename) {
-	cout << "_ Texture cons by filename: " << filename.c_str() << endl;
+	std::cout << "_ Texture cons by filename: " << filename.c_str() << std::endl;
 
 	filename = Misc::crossPlatPath(filename);
 	std::ifstream file(filename, std::ios::binary);
@@ -116,8 +116,7 @@ Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _widt
 	this->_filename = "N/A (data)";
 	int size = width * height * 3;
 	this->_data = new uint8_t[size];
-	for (int i = 0; i < size; i++)
-		this->_data[i] = data[i];
+	memcpy(this->_data, data, size);
 	this->loadTexture();
 }
 
@@ -167,10 +166,10 @@ void	Texture::printData() const {
 	unsigned int size = this->_width * this->_height * 3;
 	for (unsigned int i = 0; i < size; i++) {
 		if (i % (3 * this->_width) == 0)
-			cout << "\tline " << (i + 3) / (this->_width * 3) << endl;
-		cout << (unsigned int)(this->_data[i]) << ":";
+			std::cout << "\tline " << (i + 3) / (this->_width * 3) << std::endl;
+		std::cout << (unsigned int)(this->_data[i]) << ":";
 		if (i % 3 == 2)
-			cout << endl;
+			std::cout << std::endl;
 	}
 }
 

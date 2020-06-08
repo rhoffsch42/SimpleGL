@@ -53,7 +53,7 @@ void	FrameBuffer::updateFramebufferStatus() {
 	this->fboStatus = glCheckFramebufferStatus(this->fbo);
 }
 
-map<GLenum, string>	statusStr;
+std::map<GLenum, std::string>	statusStr;
 static void		initStatus() {
 	statusStr[GL_FRAMEBUFFER_COMPLETE] = "GL_FRAMEBUFFER_COMPLETE";
 	statusStr[GL_FRAMEBUFFER_UNDEFINED] = "GL_FRAMEBUFFER_UNDEFINED";
@@ -67,11 +67,11 @@ static void		initStatus() {
 	statusStr[GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS] = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
 }
 
-string	FrameBuffer::getFramebufferStatusInfos(GLenum status)//bind the FB
+std::string	FrameBuffer::getFramebufferStatusInfos(GLenum status)//bind the FB
 {
 	if (!statusStr.size())
 		initStatus();
-	string s = statusStr[status];
+	std::string s = statusStr[status];
 	if (s.length())
 		return s;
 	else

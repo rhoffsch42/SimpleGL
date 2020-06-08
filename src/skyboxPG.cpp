@@ -1,5 +1,5 @@
-#include "simplegl.h"
 #include "skyboxPG.hpp"
+#include "compiler_settings.h"
 
 SkyboxPG::SkyboxPG(std::string vs_file, std::string fs_file)
 	: Program(vs_file, fs_file)

@@ -4,23 +4,23 @@
 bool	TransformBH::areActive = true;
 
 TransformBH::TransformBH() : Behavior() {
-	cout << "_ TransformBH cons" << endl;
+	std::cout << "_ TransformBH cons" << std::endl;
 	this->modePos = ADDITIVE;
 	this->modeRot = ADDITIVE;
 	this->modeScale = ADDITIVE;
-	cout << "Cons this->targetList addr: " << &this->targetList << endl;
+	std::cout << "Cons this->targetList addr: " << &this->targetList << std::endl;
 }
 
 
 TransformBH::TransformBH(t_pp transformValues) : Behavior(), transform(transformValues) {
-	cout << "_ TransformBH cons" << endl;
+	std::cout << "_ TransformBH cons" << std::endl;
 	this->modePos = ADDITIVE;
 	this->modeRot = ADDITIVE;
 	this->modeScale = ADDITIVE;
 }
 
 TransformBH::TransformBH(Math::Vector3 pos, Math::Rotation rot, Math::Vector3 scale) : Behavior() {
-	cout << "_ TransformBH cons by copy" << endl;
+	std::cout << "_ TransformBH cons by copy" << std::endl;
 	this->transform.pos = pos;
 	this->transform.rot = rot;
 	this->transform.scale = scale;
@@ -30,13 +30,13 @@ TransformBH::TransformBH(Math::Vector3 pos, Math::Rotation rot, Math::Vector3 sc
 }
 
 TransformBH::TransformBH(const TransformBH& src) {
-	cout << "_ TransformBH cons by copy" << endl;
+	std::cout << "_ TransformBH cons by copy" << std::endl;
 	*this = src;
 }
 
-TransformBH&	TransformBH::operator=(const TransformBH& src) {
+TransformBH& TransformBH::operator=(const TransformBH& src) {
 	Behavior::operator=(src);
-	cout << "_ TransformBH operator=" << endl;
+	std::cout << "_ TransformBH operator=" << std::endl;
 	this->transform = src.transform;
 	this->modePos = src.modePos;
 	this->modeRot = src.modeRot;
@@ -45,12 +45,12 @@ TransformBH&	TransformBH::operator=(const TransformBH& src) {
 }
 
 TransformBH::~TransformBH() {
-	cout << "_ TransformBH des" << endl;
+	std::cout << "_ TransformBH des" << std::endl;
 	//need to delete/empty list? parent des is called ?
 }
 
-void	TransformBH::behaveOnTarget(BehaviorManaged *target) {
-	// cout << "_ TransformBH::run" << endl;
+void	TransformBH::behaveOnTarget(BehaviorManaged* target) {
+	// cout << "_ TransformBH::run" << std::endl;
 	Object*	speTarget = dynamic_cast<Object*>(target);//specialisation part //todo check if success (should always be? as it was checked on isCompatible())
 	if (this->modePos == ADDITIVE) {
 		speTarget->local.translate(this->transform.pos);

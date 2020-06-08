@@ -1,21 +1,21 @@
-#include "simplegl.h"
 #include "obj3dBP.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
-
+#include "compiler_settings.h"
+#include <algorithm>
 
 float			Obj3dBP::defaultSize = OBJ3DBP_DEFAULT_SIZE;
 uint8_t			Obj3dBP::defaultDataMode = BP_INDICES;
 bool			Obj3dBP::rescale = true;
 bool			Obj3dBP::center = true;
 
-#define mymax(a, b) (((a) > (b)) ? (a) : (b))
-#define mymin(a, b) (((a) < (b)) ? (a) : (b))
+//#define mymax(a, b) (((a) > (b)) ? (a) : (b))
+//#define mymin(a, b) (((a) < (b)) ? (a) : (b))
 
 static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 	float	largest = dimensions.x;
-	largest = mymax(largest, dimensions.y);
-	largest = mymax(largest, dimensions.z);
+	largest = std::max(largest, dimensions.y);
+	largest = std::max(largest, dimensions.z);
 	return (size / largest);
 }
 
@@ -96,7 +96,7 @@ void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene) {
 	}
 }
 
-void	Obj3dBP::loadWithAssimp(string path) {
+void	Obj3dBP::loadWithAssimp(std::string path) {
 	//std::cout << __PRETTY_FUNCTION__ << std::endl;
 	//https://stackoverflow.com/questions/39269121/assimp-loader-with-a-cube-of-8-vertices
 	Assimp::Importer importer;
@@ -106,7 +106,7 @@ void	Obj3dBP::loadWithAssimp(string path) {
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		cout << "ERROR::ASSIMP::" << importer.GetErrorString() << endl;
+		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
 		return;
 	}
 	//string directory = path.substr(0, path.find_last_of("/\\"));
@@ -115,8 +115,8 @@ void	Obj3dBP::loadWithAssimp(string path) {
 	//std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
 }
 
-Obj3dBP::Obj3dBP(string filename) : Blueprint(filename) {
-	cout << "_ Obj3dBP cons by filename" << endl;
+Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
+	std::cout << "_ Obj3dBP cons by filename" << std::endl;
 	filename = Misc::crossPlatPath(filename);
 
 	this->_dataMode = Obj3dBP::defaultDataMode;
@@ -154,14 +154,14 @@ Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear) : Blueprint("N/
 }
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
-	cout << "_ Obj3dBP cons by copy" << endl;
-	cout << "building object: " << src.getName().c_str() << endl;
+	std::cout << "_ Obj3dBP cons by copy" << std::endl;
+	std::cout << "building object: " << src.getName().c_str() << std::endl;
 
 	*this = src;
 }
 
 Obj3dBP::~Obj3dBP() {
-	//cout << "_ Obj3dBP des by filename" << endl;
+	//cout << "_ Obj3dBP des by filename" << std::endl;
 	this->_vertices.clear();
 	this->_indices.clear();
 	/*
@@ -170,7 +170,7 @@ Obj3dBP::~Obj3dBP() {
 }
 
 Obj3dBP& Obj3dBP::operator=(const Obj3dBP& src) {
-	cout << "_ Obj3dBP operator =" << endl;
+	std::cout << "_ Obj3dBP operator =" << std::endl;
 	//what do we do for vbo? see .hpp
 	this->_dataMode = src._dataMode;
 	this->_indices = src._indices;
@@ -253,23 +253,23 @@ void	Obj3dBP::normalize() {
 	}
 
 #if 0
-	std::cout << "polygons { " << this->_polygonAmount << " }" << endl;
-	std::cout << "vertices array size { " << this->_vertices.size() << " }" << endl;
-	std::cout << "indices array size { " << this->_indices.size() << " }" << endl;
+	std::cout << "polygons { " << this->_polygonAmount << " }" << std::endl;
+	std::cout << "vertices array size { " << this->_vertices.size() << " }" << std::endl;
+	std::cout << "indices array size { " << this->_indices.size() << " }" << std::endl;
 	std::cout << (this->_centered ? "YES" : "NO");
-	std::cout << " center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
-	std::cout << "scale coef:\t" << scaleCoef << endl;
+	std::cout << " center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << std::endl;
+	std::cout << "scale coef:\t" << scaleCoef << std::endl;
 #endif
 	if (LOGFILES) {
 		std::stringstream logs;
 		int c1 = 0;
-		logs << endl;
-		logs << "total polygons:\t" << c1 << endl;
-		logs << "polygons { " << this->_polygonAmount << " }" << endl;
-		logs << "rescaled: " << (this->_rescaled ? "yes" : "no") << endl;
-		logs << "scale coef:\t" << scaleCoef << endl;
-		logs << "centered: " << (this->_centered ? "yes" : "no") << endl;
-		logs << "center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << endl;
+		logs << std::endl;
+		logs << "total polygons:\t" << c1 << std::endl;
+		logs << "polygons { " << this->_polygonAmount << " }" << std::endl;
+		logs << "rescaled: " << (this->_rescaled ? "yes" : "no") << std::endl;
+		logs << "scale coef:\t" << scaleCoef << std::endl;
+		logs << "centered: " << (this->_centered ? "yes" : "no") << std::endl;
+		logs << "center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << std::endl;
 
 		//data
 		logs << "vertices:\t";
@@ -278,7 +278,7 @@ void	Obj3dBP::normalize() {
 			logs << this->_vertices[i].position.y << " ";
 			logs << this->_vertices[i].position.z << ", ";
 		}
-		logs << endl << "size: " << this->_vertices.size() << " : " << this->_vertices.size() << endl;
+		logs << std::endl << "size: " << this->_vertices.size() << " : " << this->_vertices.size() << std::endl;
 		Misc::logfile(std::string("Obj3dBP_vao_") + std::to_string(this->_vao), logs.str());
 	}
 

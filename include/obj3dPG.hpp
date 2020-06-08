@@ -9,9 +9,10 @@ class Obj3d;
 //X faces * 2 polygons * 3 indices * size of indices in opengl
 #define EBO_OFFSET(X)	((X) * 2 * 3 * sizeof(GLuint))
 
-
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"//?
+#endif // __clang__
 /*
 	https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
 	different amount of parameters for render()
@@ -46,6 +47,8 @@ protected:
 	virtual void	getLocations();
 private:
 
-	friend void	scene_test();
+	friend void	scene_benchmarks();
 };
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif // __clang__

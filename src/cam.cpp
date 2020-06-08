@@ -1,5 +1,7 @@
-#include "simplegl.h"
 #include "cam.hpp"
+#ifndef __clang__
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
 
 void	Cam::init(int width, int height) {
 	this->_fov = CAM_FOV;
@@ -40,14 +42,14 @@ Cam::Cam(int width, int height, float posX, float posY, float posZ, float rotX, 
 Cam::~Cam() {}
 
 void	Cam::printProperties() const {
-	cout << "Camera settings: " << this << "\t&ViewMatrix: " << &(this->_viewMatrix) << endl;
-	cout << "pos:\t" << this->local._pos.x << " " << this->local._pos.y << " " << this->local._pos.z << endl;
-	cout << "rot:\t" << this->local._rot.x << " " << this->local._rot.y << " " << this->local._rot.z << endl;
-	cout << "Far:\t" << this->_far << endl;
-	cout << "Near:\t" << this->_near << endl;
-	cout << "FOV:\t" << this->_fov << endl;
-	cout << "ratio:\t" << this->_aspectRatio << endl;
-	cout << "-----------" << endl;
+	std::cout << "Camera settings: " << this << "\t&ViewMatrix: " << &(this->_viewMatrix) << std::endl;
+	std::cout << "pos:\t" << this->local._pos.x << " " << this->local._pos.y << " " << this->local._pos.z << std::endl;
+	std::cout << "rot:\t" << this->local._rot.x << " " << this->local._rot.y << " " << this->local._rot.z << std::endl;
+	std::cout << "Far:\t" << this->_far << std::endl;
+	std::cout << "Near:\t" << this->_near << std::endl;
+	std::cout << "FOV:\t" << this->_fov << std::endl;
+	std::cout << "ratio:\t" << this->_aspectRatio << std::endl;
+	std::cout << "-----------" << std::endl;
 }
 
 void	Cam::updateCamVectors(void) {
@@ -116,7 +118,7 @@ void	Cam::updateViewMatrix() {
 			this->_viewMatrix.viewMatrix(pos, rot);
 		*/
 		if (true) {
-			// cout << "viewMatrix with parents (if there are) - only POS" << endl;
+			// cout << "viewMatrix with parents (if there are) - only POS" << std::endl;
 			t_pp	pp = Math::extractFromMatrix(this->_worldMatrix);
 			/*
 				update local ? depending on the parent
@@ -128,7 +130,7 @@ void	Cam::updateViewMatrix() {
 			this->_worldMatrixChanged = false;// is this needed ? for now updateViewMatrix is done at each frame
 			// this->_viewMatrix.printData();
 		} else {
-			// cout << "viewMatrix without parents" << endl;
+			// cout << "viewMatrix without parents" << std::endl;
 			this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);// this does not take parents into account
 		}
 	}
@@ -195,22 +197,22 @@ void	Cam::setViewMatrix(Math::Matrix4& view) {
 
 //update the projection matrix and the frustum accordingly
 void	Cam::setFov(float fov) {
-	fov = min(fov, CAM_FOV_MAX);
-	this->_fov = max(fov, CAM_FOV_MIN);
+	fov = std::min(fov, CAM_FOV_MAX);
+	this->_fov = std::max(fov, CAM_FOV_MIN);
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, this->_aspectRatio, 1.0f);
 	this->updateFrustum();//could update only the right values
 }
 //update the projection matrix and the frustum accordingly
 void	Cam::setNear(float nearValue) {
-	nearValue = min(nearValue, CAM_NEAR_MAX);
-	this->_near = max(nearValue, CAM_NEAR_MIN);
+	nearValue = std::min(nearValue, CAM_NEAR_MAX);
+	this->_near = std::max(nearValue, CAM_NEAR_MIN);
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, this->_aspectRatio, 1.0f);
 	this->updateFrustum();//could update only the right value
 }
 //update the projection matrix and the frustum accordingly
 void	Cam::setFar(float farValue) {
-	farValue = min(farValue, CAM_FAR_MAX);
-	this->_far = max(farValue, CAM_FAR_MIN);
+	farValue = std::min(farValue, CAM_FAR_MAX);
+	this->_far = std::max(farValue, CAM_FAR_MIN);
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, this->_aspectRatio, 1.0f);
 	this->updateFrustum();//could update only the right value
 }

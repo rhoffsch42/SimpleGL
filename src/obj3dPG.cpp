@@ -1,10 +1,10 @@
-#include "simplegl.h"
 #include "obj3dPG.hpp"
+#include "compiler_settings.h"
 
 Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 	: Program(vs_file, fs_file)
 {
-	cout << "_ " << __PRETTY_FUNCTION__ << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	if (init_locations)
 		this->getLocations();
 	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
@@ -12,7 +12,7 @@ Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 }
 
 Obj3dPG::~Obj3dPG() {
-	cout << "_ " << __PRETTY_FUNCTION__ << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 
 }
 
@@ -39,13 +39,13 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 		std::cout << "dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl;
 		exit(22);
 	}
-	const Math::Vector3 &	color = obj->getColorShader();
+	const Math::Vector3& color = obj->getColorShader();
 	Obj3dBP& bp = obj->getBlueprint();
 	// Math::Matrix4&	modelMatrix = obj->getParent() ? obj->getWorldMatrix() : obj->local.getMatrix();
 	Math::Matrix4& modelMatrix = obj->getWorldMatrix();
 
-	// cout << "rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << endl;
-	// cout << "*\tpolygons: " << bp.getPolygonAmount() << endl;
+	// cout << "rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << std::endl;
+	// cout << "*\tpolygons: " << bp.getPolygonAmount() << std::endl;
 
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
@@ -62,7 +62,8 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glActiveTexture(GL_TEXTURE0);//required for some drivers
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-	} else { glUniform1f(this->_tex_coef, 0.0f); }
+	}
+	else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
@@ -80,8 +81,8 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	Obj3dBP& bp = obj.getBlueprint();
 	Math::Matrix4& modelMatrix = obj.getWorldMatrix();
 
-	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << endl;
-	// cout << "*\tpolygons: " << bp.getPolygonAmount() << endl;
+	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << std::endl;
+	// cout << "*\tpolygons: " << bp.getPolygonAmount() << std::endl;
 
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
@@ -104,7 +105,7 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 }
 
 void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
-	// cout << "render all Obj3d" << endl;
+	// cout << "render all Obj3d" << std::endl;
 	if (list.empty())
 		return;
 	//assuming all Obj3d have the same program
@@ -128,7 +129,8 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 		if (!object) {
 			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
 			exit(22);
-		} else {
+		}
+		else {
 			object->update();
 			draw = true;
 			oldcolor = object->getColor();
@@ -139,7 +141,8 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 					worldmatrix.setOrder(COLUMN_MAJOR);
 					float* m = worldmatrix.getData();
 					center = Math::Vector3(m[12], m[13], m[14]);//world pos and not real center
-				} else {
+				}
+				else {
 					center = object->local.getPos();//== world pos
 				}
 				scale = object->local.getScale();//what if parent?
@@ -155,7 +158,8 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 				if (cam.isInFrustum(center, viewProMatrix)) {
 					//color = Math::Vector3(40, 200, 200);//cyan
 					counterFrustum++;
-				} else if (cam.local.forwardDistance(center) > 0) {
+				}
+				else if (cam.local.forwardDistance(center) > 0) {
 					color = Math::Vector3(200, 200, 40);//yellow
 					counterForward++;
 					draw = false;
@@ -204,7 +208,7 @@ void	Obj3dPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl;
 	this->_mat4_mvp = this->getSlot("MVP", true);
 	this->_dismod = this->getSlot("dismod", true);
 	this->_plain_color = this->getSlot("plain_color", true);

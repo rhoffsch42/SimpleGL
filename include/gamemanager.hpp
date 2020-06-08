@@ -12,9 +12,9 @@ public:
 	GameManager();
 	virtual ~GameManager();
 
-	Glfw *			glfw;
-	Cam *			cam;
-	list<Object*> *	objectList;
-	Object *		currentSelection;
+	Glfw*				glfw;
+	Cam*				cam;
+	std::list<Object*>*	objectList;
+	Object*				currentSelection;
 private:
 };

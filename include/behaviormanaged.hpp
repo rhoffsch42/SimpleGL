@@ -1,7 +1,6 @@
 #pragma once
 
 #include "behavior.hpp"
-#include <iostream>
 #include <list>
 
 class Behavior;

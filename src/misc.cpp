@@ -13,7 +13,7 @@ std::string			Misc::getCurrentDirectory(void) {
 
 	memset(path, 0, sizeof(path));
 	if (getcwd(path, sizeof(path)) == nullptr) {
-		cerr << "getcwd error" << endl;
+		std::cerr << "getcwd error" << std::endl;
 		exit(UNKNOW_ERROR);
 	}
 	return (std::string(path));
@@ -38,7 +38,7 @@ std::string			Misc::getFileContent(const char *filename) {
 		std::fread(&contents[0], 1, contents.size(), fp);
 		std::fclose(fp);
 	} else {
-		cerr << "fopen failed to open : " << filename << endl;
+		std::cerr << "fopen failed to open : " << filename << std::endl;
 		exit(102);
 	}
 
@@ -49,10 +49,10 @@ void				Misc::logfile(std::string basename, std::string logs) {
 	std::replace(basename.begin(), basename.end(), '\\', '-');
 	std::replace(basename.begin(), basename.end(), '/', '-');
 	std::replace(basename.begin(), basename.end(), ':', '-');
-	string path("log/" + basename + "_date" + ".log");
+	std::string path("log/" + basename + "_date" + ".log");
 	path = Misc::crossPlatPath(path);
 	//cout << "*** log file:\t\t" << path << endl;
-	ofstream file;
+	std::ofstream file;
 	file.open(path);
 	file << logs;
 	file.close();
@@ -68,7 +68,7 @@ std::string			Misc::crossPlatPath(std::string path) {
 }
 
 void				Misc::breakExit(int err) {
-	cerr << "BREAKPOINT BEFORE EXIT : " << err << endl;
+	std::cerr << "BREAKPOINT BEFORE EXIT : " << err << std::endl;
 	exit(err);
 }
 

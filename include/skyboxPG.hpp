@@ -5,8 +5,10 @@
 class Skybox;
 
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"
+#endif // __clang__
 /*
 	https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
 	different amount of parameters for render()
@@ -60,4 +62,6 @@ private:
 	GLint	_cubemap;
 
 };
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif // __clang__

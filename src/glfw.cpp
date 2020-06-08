@@ -1,8 +1,8 @@
-#include "simplegl.h"
 #include "glfw.hpp"
+#include "compiler_settings.h"
 
 static void		defaultErrorCallback(int error, const char *description) {
-	cerr << error << " : " << description << endl;
+	std::cerr << error << " : " << description << std::endl;
 }
 
 static void		defaultWindowCloseCallback(GLFWwindow* window) {
@@ -10,10 +10,10 @@ static void		defaultWindowCloseCallback(GLFWwindow* window) {
 }
 
 static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	(void)window;(void)button;(void)action;(void)mods;
+	(void)window; (void)button; (void)action; (void)mods;
 	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	if (action == GLFW_PRESS) {
-		GameManager * manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
+		GameManager* manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
 		if (manager->glfw && manager->glfw->cursorFree) {
 			double x, y;
 			glfwGetCursorPos(window, &x, &y);
@@ -27,7 +27,7 @@ static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int acti
 }
 
 static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
+	(void)window; (void)key; (void)scancode; (void)action; (void)mods;
 	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	if (false) {
 		std::cout << "keys: " << key << std::endl;
@@ -35,18 +35,18 @@ static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int a
 		std::cout << "action: " << action << std::endl;
 		std::cout << "mods: " << mods << std::endl;
 	}
-	GameManager * manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
+	GameManager* manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
 	if (manager->glfw && manager->glfw->func[key])
 		(manager->glfw->func[key])(window, key, scancode, action, mods);
 }
 
 static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	(void)window;(void)key;(void)scancode;(void)action;(void)mods;
+	(void)window; (void)key; (void)scancode; (void)action; (void)mods;
 	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 
 	if (action == GLFW_PRESS) {
 		std::cout << "tab press" << std::endl;
-		GameManager * manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
+		GameManager* manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
 		if (manager->glfw) {
 			manager->glfw->toggleCursor();
 		}
@@ -89,7 +89,7 @@ void	Glfw::init() {
 	this->_mouseAngle = 0;
 	this->_mouseWall = 0;
 	if (!glfwInit()) {
-		cerr << "glfwInit failed" << endl;
+		std::cerr << "glfwInit failed" << std::endl;
 		Misc::breakExit(GL_ERROR);
 	}
 	glfwSetErrorCallback(defaultErrorCallback);
@@ -100,7 +100,7 @@ void	Glfw::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	this->_window = glfwCreateWindow(this->_width, this->_height, this->_title.c_str(), NULL, NULL);
 	if (!this->_window) {
-		cerr << "glfwCreateWindow failed" << endl;
+		std::cerr << "glfwCreateWindow failed" << std::endl;
 		Misc::breakExit(GL_ERROR);
 	}
 
@@ -113,7 +113,7 @@ void	Glfw::init() {
 	//glew
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
-		cerr << "glewInit failed" << endl;
+		std::cerr << "glewInit failed" << std::endl;
 		Misc::breakExit(GL_ERROR);
 	}
 
@@ -128,7 +128,7 @@ void	Glfw::init() {
 	glfwSetCursorPos(this->_window, this->_width / 2, this->_height / 2);
 	glfwGetCursorPos(this->_window, &this->_mouseOriginX, &this->_mouseOriginY);
 	this->setMouseAngle(MOUSE_MAX_ANGLE);
-	cout << "GL version: " << glGetString(GL_VERSION) << endl;
+	std::cout << "GL version: " << glGetString(GL_VERSION) << std::endl;
 }
 
 void	Glfw::updateMouse() {

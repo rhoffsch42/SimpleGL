@@ -10,7 +10,7 @@
 
 class FrameBuffer {
 public:
-	static string getFramebufferStatusInfos(GLenum status);//bind the FB
+	static std::string getFramebufferStatusInfos(GLenum status);//bind the FB
 
 	FrameBuffer(int width, int height);
 	~FrameBuffer();

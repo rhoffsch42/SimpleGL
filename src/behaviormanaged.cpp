@@ -1,4 +1,5 @@
 #include "behaviormanaged.hpp"
+#include <iostream>
 
 BehaviorManaged::BehaviorManaged() {
 	//std::cout << "_ BehaviorManaged cons" << std::endl;

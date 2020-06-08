@@ -17,7 +17,7 @@ Object::Object() : BehaviorManaged() {
 }
 
 Object::Object(Properties object_pp) : BehaviorManaged(), local(object_pp) {
-	cout << "_ Object cons with custom Properties" << endl;
+	std::cout << "_ Object cons with custom Properties" << std::endl;
 	this->_id = Object::_instanceId;
 	this->_parent = nullptr;
 	this->_worldMatrixChanged = true;
@@ -27,7 +27,7 @@ Object::Object(Properties object_pp) : BehaviorManaged(), local(object_pp) {
 }
 
 Object::Object(const Object& src) {
-	cout << "_ Object cons by copy" << endl;
+	std::cout << "_ Object cons by copy" << std::endl;
 
 	*this = src;
 }

@@ -46,7 +46,7 @@ public:
 	static bool			center; //true
 
 
-	Obj3dBP(string filename);
+	Obj3dBP(std::string filename);
 	Obj3dBP(Obj3dBP const & src);//private? or delete
 	//array must be linear
 	Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear);
@@ -87,7 +87,7 @@ private:
 	bool			_rescaled;
 
 	//loaders
-	void			loadWithAssimp(string path);
+	void			loadWithAssimp(std::string path);
 	SimpleVertex	assimpProcessVertexAt(aiMesh* mesh, const aiScene* scene, unsigned int indice) const;
 	void			assimpProcessMesh(aiMesh* mesh, const aiScene* scene);
 	void			assimpProcessNode(aiNode* node, const aiScene* scene);

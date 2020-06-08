@@ -1,8 +1,8 @@
-#include "simplegl.h"
 #include "program.hpp"
+#include "compiler_settings.h"
 
 Program::Program(std::string vs_file, std::string fs_file) {
-	cout << "_ " << __PRETTY_FUNCTION__ << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 
 	vs_file = Misc::crossPlatPath(vs_file);
 	fs_file = Misc::crossPlatPath(fs_file);
@@ -20,35 +20,35 @@ Program::Program(std::string vs_file, std::string fs_file) {
 	//shader objects are useless once the program is linked
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-	cout << "Successfully created Program:: " << this->_program << endl;
+	std::cout << "Successfully created Program:: " << this->_program << std::endl;
 }
 
 Program::~Program() {
-	cout << "_ " << __PRETTY_FUNCTION__ << endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 }
 
 //void	Program::render() {
-//	cout << "Program::render()\nThis should not be used..." << endl;
+//	cout << "Program::render()\nThis should not be used..." << std::endl;
 //}
 
 /*
 	true	glGetUniformLocation
 	false	glGetAttribLocation
 */
-GLint	Program::getSlot(const GLchar *varname, bool n) const {
+GLint	Program::getSlot(const GLchar* varname, bool n) const {
 	GLint	slot;
 
 	if (n)
 		slot = glGetUniformLocation(this->_program, varname);
 	else
 		slot = glGetAttribLocation(this->_program, varname);
-	cout << "slot " << slot << " :\t" << varname << endl;
+	std::cout << "slot " << slot << " :\t" << varname << std::endl;
 	if (slot == -1) {
 		//int errs[8]= { GL_NO_ERROR, GL_INVALID_ENUM, GL_INVALID_VALUE, GL_INVALID_OPERATION, GL_INVALID_FRAMEBUFFER_OPERATION, GL_OUT_OF_MEMORY, GL_STACK_UNDERFLOW, GL_STACK_OVERFLOW };
 		//size_t error = glGetError();
-		cerr << "Failed to get slot" << endl;
-		cerr << "program:\t" << this->_program << endl;
-		cerr << "varname:\t" << varname << endl;
+		std::cerr << "Failed to get slot" << std::endl;
+		std::cerr << "program:\t" << this->_program << std::endl;
+		std::cerr << "varname:\t" << varname << std::endl;
 		exit(GL_ERROR);
 	}
 	return (slot);
@@ -57,7 +57,7 @@ GLint	Program::getSlot(const GLchar *varname, bool n) const {
 GLuint	Program::initShader(std::string filename, int type) const {
 	GLint			ret = GL_FALSE;
 	GLuint			shader;
-	const GLchar	*gl_content;
+	const GLchar* gl_content;
 	std::string		buf;
 
 	buf = Misc::getFileContent(filename.c_str());
@@ -71,16 +71,16 @@ GLuint	Program::initShader(std::string filename, int type) const {
 	return (shader);
 }
 
-void	Program::glCompileError(GLuint shader, const char *intro) const {
+void	Program::glCompileError(GLuint shader, const char* intro) const {
 	GLsizei		maxl;
 	GLsizei		l;
-	GLchar		*info;
+	GLchar* info;
 
 	maxl = 1000;
 	info = (GLchar*)malloc(1000);
 	glGetShaderInfoLog(shader, maxl, &l, info);
-	cerr << intro << endl << info << endl;
-	cerr << GL_COMPILE_SHADER << endl;
+	std::cerr << intro << std::endl << info << std::endl;
+	std::cerr << GL_COMPILE_SHADER << std::endl;
 	exit(GL_ERROR);
 }
 
@@ -91,18 +91,18 @@ void	Program::printProgramInfoLog(GLuint program) const {
 	char	logs[2048];
 
 	params = -1;
-	cerr << "ERROR: could not link shader program GL index " << program << endl;
-	cerr << "--------------------" << endl << "shader program " << program << " info:" << endl;
+	std::cerr << "ERROR: could not link shader program GL index " << program << std::endl;
+	std::cerr << "--------------------" << std::endl << "shader program " << program << " info:" << std::endl;
 	glGetProgramiv(program, GL_LINK_STATUS, &params);
-	cerr << "GL_LINK_STATUS = " << params << endl;
+	std::cerr << "GL_LINK_STATUS = " << params << std::endl;
 	glGetProgramiv(program, GL_ATTACHED_SHADERS, &params);
-	cerr << "GL_ATTACHED_SHADERS = " << params << endl;
+	std::cerr << "GL_ATTACHED_SHADERS = " << params << std::endl;
 	this->programLogs(program, GL_ACTIVE_ATTRIBUTES, false, "GL_ACTIVE_ATTRIBUTES = ");
 	this->programLogs(program, GL_ACTIVE_UNIFORMS, true, "GL_ACTIVE_UNIFORMS = ");
 	max_len = 2048;
 	len = 0;
 	glGetProgramInfoLog(program, max_len, &len, logs);
-	cerr << "program info log for GL index " << program << ": (" << len << " char)" << endl << logs << endl;
+	std::cerr << "program info log for GL index " << program << ": (" << len << " char)" << std::endl << logs << std::endl;
 	// this->~Program();
 	exit(GL_ERROR);
 }
@@ -125,7 +125,7 @@ void	Program::programLogs(GLuint program, GLenum pname, bool n, std::string msg)
 	int		j;
 
 	glGetProgramiv(program, pname, &params);
-	cerr << msg.c_str() << params << endl;
+	std::cerr << msg.c_str() << params << std::endl;
 	while (++i < params)
 	{
 		glGetActiveAttrib(program, i, length, &actual_length, &size, &type, name);
