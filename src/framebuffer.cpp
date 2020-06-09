@@ -46,6 +46,7 @@ FrameBuffer::FrameBuffer(int width, int height) {
 
 FrameBuffer::~FrameBuffer() {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);//0 = detach renderbuffer
+	glDeleteTextures(1, &this->texId);
 	glDeleteRenderbuffers(1, &this->rbo);
 	glDeleteFramebuffers(1, &this->fbo);
 }

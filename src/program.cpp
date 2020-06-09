@@ -25,6 +25,7 @@ Program::Program(std::string vs_file, std::string fs_file) {
 
 Program::~Program() {
 	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	glDeleteProgram(this->_program);
 }
 
 //void	Program::render() {

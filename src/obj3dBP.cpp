@@ -9,9 +9,6 @@ uint8_t			Obj3dBP::defaultDataMode = BP_INDICES;
 bool			Obj3dBP::rescale = true;
 bool			Obj3dBP::center = true;
 
-//#define mymax(a, b) (((a) > (b)) ? (a) : (b))
-//#define mymin(a, b) (((a) < (b)) ? (a) : (b))
-
 static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 	float	largest = dimensions.x;
 	largest = std::max(largest, dimensions.y);
@@ -164,9 +161,12 @@ Obj3dBP::~Obj3dBP() {
 	//cout << "_ Obj3dBP des by filename" << std::endl;
 	this->_vertices.clear();
 	this->_indices.clear();
-	/*
-		delete opengl data here
-	*/
+
+	if (this->_dataMode == BP_INDICES) {
+		glDeleteBuffers(1, &this->_eboIndices);
+	}
+	glDeleteBuffers(1, &this->_vboVertex);
+	glDeleteVertexArrays(1, &this->_vao);
 }
 
 Obj3dBP& Obj3dBP::operator=(const Obj3dBP& src) {
@@ -188,8 +188,8 @@ std::vector<GLuint>			Obj3dBP::getIndices(void) const { return this->_indices; }
 std::vector<SimpleVertex>	Obj3dBP::getVertices(void) const { return this->_vertices; }
 GLuint						Obj3dBP::getVboVertex(void) const { return this->_vboVertex; }
 GLuint						Obj3dBP::getEboIndices(void) const { return this->_eboIndices; }
-GLuint						Obj3dBP::getVboColor(void) const { return this->_vboColor; }
-GLuint						Obj3dBP::getVboTexture(void) const { return this->_vboTexture; }
+//GLuint						Obj3dBP::getVboColor(void) const { return this->_vboColor; }
+//GLuint						Obj3dBP::getVboTexture(void) const { return this->_vboTexture; }
 int							Obj3dBP::getPolygonAmount(void) const { return this->_polygonAmount; }
 Math::Vector3				Obj3dBP::getDimensions(void) const { return this->_dimensions; }
 bool						Obj3dBP::isCentered(void) const { return this->_centered; }

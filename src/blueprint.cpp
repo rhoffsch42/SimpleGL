@@ -18,9 +18,6 @@ Blueprint::Blueprint(const Blueprint& src) {
 
 Blueprint::~Blueprint() {
 	//std::cout << "_ Blueprint des" << std::endl;
-	/*
-		detruire les vbo/vao/etc d'openGL
-	*/
 }
 
 Blueprint& Blueprint::operator=(const Blueprint& src) {

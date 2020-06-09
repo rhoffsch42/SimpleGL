@@ -11,7 +11,9 @@ Obj3dIPG::Obj3dIPG(std::string vertexShader, std::string fragmentShader, bool in
 	glGenBuffers(1, &this->_vboMatrix);
 	this->_vboSize = 0;
 }
-Obj3dIPG::~Obj3dIPG() {}
+Obj3dIPG::~Obj3dIPG() {
+	glDeleteBuffers(1, &this->_vboMatrix);
+}
 
 void	Obj3dIPG::render(Object& object, Math::Matrix4 VPmatrix) const { //HAS to be cpy constructor! (1 PV*M per obj3d)
 	(void)object;

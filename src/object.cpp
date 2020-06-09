@@ -34,10 +34,10 @@ Object::Object(const Object& src) {
 
 Object&		Object::operator=(const Object& src) {
 	this->_id = Object::_instanceId;
-	this->local = src.getLocalProperties();
-	this->_worldMatrix = Math::Matrix4(src.getWorldMatrix());
+	this->local = src.local;
+	this->_worldMatrix = Math::Matrix4(src._worldMatrix);
 	this->_worldMatrixChanged = true;
-	this->_parent = src.getParent();
+	this->_parent = src._parent;
 
 	Object::_instanceAmount++;
 	Object::_instanceId++;
@@ -47,7 +47,7 @@ Object&		Object::operator=(const Object& src) {
 Object::~Object() {
 	//cout << "_ Object des" << endl;
 	Object::_instanceAmount--;
-	//remove iteself from behaviors!
+	//remove iteself from behaviors! todo
 }
 
 // true = was already updated ; false = wasn't update

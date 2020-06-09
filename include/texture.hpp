@@ -64,8 +64,8 @@ public:
 
 	// width and height have to be the same, undefined behavior of data sent is not large enough
 	void	updateData(uint8_t* data, unsigned int width, unsigned int height);
-	void	loadTexture();//GC memory
-	void	unloadTexture();//GC memory
+	void	loadTexture();//GPU memory
+	void	unloadTexture();//GPU memory
 	void	printData() const;
 
 	//accessors
@@ -73,7 +73,12 @@ public:
 	std::string		getFilename() const;
 	unsigned int	getWidth() const;
 	unsigned int	getHeight() const;
-	uint8_t*		getData() const;//dangerous
+
+	/*
+		This array is used to build a texture in the GPU
+		If you delete it, you will not be able to load the texture later
+	*/
+	uint8_t*		getData() const;
 	bool			isLoaded() const;
 
 private:

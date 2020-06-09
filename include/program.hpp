@@ -33,8 +33,6 @@ protected:
 	virtual void	getLocations() = 0;
 
 private:
-	//GLuint			_vertexShader;
-	//GLuint			_fragmentShader;
 
 	// utils
 	GLuint			initShader(std::string filename, int type) const;

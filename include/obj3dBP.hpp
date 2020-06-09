@@ -60,8 +60,8 @@ public:
 	GLuint						getVboVertex(void) const;
 	GLuint						getEboIndices(void) const;
 	//obsolete vbo
-	GLuint						getVboColor(void) const;
-	GLuint						getVboTexture(void) const;
+	//GLuint						getVboColor(void) const;
+	//GLuint						getVboTexture(void) const;
 
 	int							getPolygonAmount(void) const;
 	Math::Vector3				getDimensions(void) const;
@@ -78,8 +78,8 @@ private:
 	GLuint						_eboIndices;//element array buffer object to store induces
 	GLuint						_vboVertex;// for array vertex (glDrawArrays), or simple data vertex (glDrawElements)
 	//obsolete vbo
-	GLuint				_vboColor;// colors for each face
-	GLuint				_vboTexture;//texture coo for each face
+	//GLuint				_vboColor;// colors for each face
+	//GLuint				_vboTexture;//texture coo for each face
 	// file data
 	int				_polygonAmount;// triangles
 	Math::Vector3	_dimensions;

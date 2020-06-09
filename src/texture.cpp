@@ -152,7 +152,7 @@ void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height)
 		std::cout << this->_id << ": " << this->_filename << std::endl;
 		//exit(4);
 	} else {
-		memcpy(this->_data, data, width * height);
+		memcpy(this->_data, data, width * height * 3);
 		if (this->_isLoaded) {
 			glBindTexture(GL_TEXTURE_2D, this->_id);
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -174,34 +174,37 @@ void	Texture::printData() const {
 }
 
 void			Texture::loadTexture() {
-	this->_isLoaded = true;
-	// cout << this->_id << endl;
-	glGenTextures(1, &this->_id);
-	glBindTexture(GL_TEXTURE_2D, this->_id);
+	if (this->_isLoaded) {
+		std::cout << "warning: " << this->_filename << " is already loaded" << std::endl;
+	} else {
+		this->_isLoaded = true;
+		// cout << this->_id << endl;
+		glGenTextures(1, &this->_id);
+		glBindTexture(GL_TEXTURE_2D, this->_id);
 
-	//https://stackoverflow.com/questions/7380773/glteximage2d-segfault-related-to-width-height
-	//to avoid doing that, use bmp with width and height being even numbers
-	// can slow down performence ?
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-	glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-	glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+		//https://stackoverflow.com/questions/7380773/glteximage2d-segfault-related-to-width-height
+		//to avoid doing that, use bmp with width and height being even numbers
+		// can slow down performence ?
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+		glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->_width, this->_height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->_data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);// GL_NEAREST GL_LINEAR
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);// GL_REPEAT GL_MIRRORED_REPEAT GL_CLAMP_TO_EDGE GL_CLAMP_TO_BORDER
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);//
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->_width, this->_height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->_data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);// GL_NEAREST GL_LINEAR
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);// GL_REPEAT GL_MIRRORED_REPEAT GL_CLAMP_TO_EDGE GL_CLAMP_TO_BORDER
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);//
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 }
 
 void	Texture::unloadTexture() {
+	glDeleteTextures(1, &this->_id);
 	this->_isLoaded = false;
 	this->_id = -1;
-	glDeleteTextures(1, &this->_id);
 }
-
 
 //accessors
 GLuint			Texture::getId() const { return (this->_id); }

@@ -73,6 +73,7 @@ Glfw::Glfw(unsigned int width, unsigned int height) {
 
 Glfw::~Glfw() {
 	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	glfwDestroyWindow(this->_window);
 }
 
 void	Glfw::init() {

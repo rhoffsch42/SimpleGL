@@ -94,9 +94,9 @@ Skybox::Skybox(Texture& texture, SkyboxPG& pg) : Object(),  _program(pg), _baseT
 
 Skybox::~Skybox() {
 	cout << "_ Skybox des" << endl;
-	/*
-		detruire les vbo/vao/etc d'openGL
-	*/
+	glDeleteTextures(1, &this->_cubemapId);
+	glDeleteBuffers(1, &this->_vboVertex);
+	glDeleteVertexArrays(1, &this->_vao);
 }
 
 void			Skybox::render(Math::Matrix4& VPmatrix) const {
