@@ -415,6 +415,8 @@ void			Math::Matrix4::scaleMatrix(Math::Vector3 scale) {
 	this->tab[1][1] = scale.y;
 	this->tab[2][2] = scale.z;
 }
+/*
+ moved in the header
 inline void		Math::Matrix4::identity() {
 	e[0] = e[5] = e[10] = e[15] = 1.0f;
 	e[1] = e[2] = e[3] = e[4] = e[6] = e[7] = e[8] = e[9] = e[11] = e[12] = e[13] = e[14] = 0.0f;
@@ -423,6 +425,7 @@ inline void		Math::Matrix4::reset() {
 	e[0] = e[5] = e[10] = e[15] = 0.0f;
 	e[1] = e[2] = e[3] = e[4] = e[6] = e[7] = e[8] = e[9] = e[11] = e[12] = e[13] = e[14] = 0.0f;
 }
+*/
 void			Math::Matrix4::setOrder(uint8_t order) {
 	if (order == this->_order)
 		return;

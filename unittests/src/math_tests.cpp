@@ -350,11 +350,11 @@ void	UnitTests::MathTests::testEverything() const {
 	void	UnitTests::MathTests::testMatrix4_projectionMatrix() const {
 		Math::Matrix4	m6;
 		float	fovRadian = 0;
-		float	far = 0;
-		float	near = 0;
+		float	farValue = 0;
+		float	nearValue = 0;
 		float	win_width = 0;
 		float	win_height = 0;
-		m6.projectionMatrix(fovRadian, far, near, win_width, win_height);
+		m6.projectionMatrix(fovRadian, farValue, nearValue, win_width, win_height);
 		NOT_TESTED("Math::Matrix4 projectionMatrix", " : ca peut dependre du rendu que l'on veut", UnitTests::test_error);
 		/*
 			see math.cpp
@@ -386,7 +386,7 @@ void	UnitTests::MathTests::testEverything() const {
 		}
 		m1.identity();
 		m1._order = ROW_MAJOR;
-		TEST("Math::Matrix4 identity()", UnitTests::MathTests::isEqualMat4(&m1, &(mat4_identity)));
+		TEST("Math::Matrix4 identity()", UnitTests::MathTests::isEqualMat4(&m1, &(mat4_identity) ) );
 	}
 	void	UnitTests::MathTests::testMatrix4_reset() const {
 		Math::Matrix4	m2;

@@ -5,6 +5,9 @@
 */
 #include "behavior.hpp"
 #include "behaviormanaged.hpp"
+
+#include <iostream>
+
 class EmptyClass : public BehaviorManaged {
 public:
 	int	value;	
@@ -15,6 +18,10 @@ public:
 	EmptyBehavior() : Behavior() {
 		this->used = 0;
 	}
+	~EmptyBehavior() {
+		std::cout << "_ EmptyBehavior des" << std::endl;
+	}
+
 	void	behaveOnTarget(BehaviorManaged* target) {
 		std::cout << "doing nothing on the classes, here is the adress: " << target << std::endl;
 		this->used++;

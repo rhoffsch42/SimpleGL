@@ -20,7 +20,6 @@
 class UnitTests {
 public:
 	static std::stringstream	streamTests;
-	static std::streambuf*		oldStream;
 	static bool					continueTests;
 
 	static void				printResult();

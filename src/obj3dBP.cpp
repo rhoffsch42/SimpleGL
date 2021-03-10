@@ -140,13 +140,15 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	std::cout << "----------------------------------------\n" << std::endl;
 }
 
-Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear) : Blueprint("N/A") {
+Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear, unsigned int flags) : Blueprint("N/A") {
 	this->_dataMode = BP_LINEAR;
 	this->_polygonAmount = src_vertices_linear.size() / 3;
 	this->_centered = false;
 	this->_rescaled = false;
+	this->_normalized = false;
 	this->_vertices = src_vertices_linear;
-	this->normalize();
+	if ((flags & BP_DONT_NORMALIZE) != BP_DONT_NORMALIZE)
+		this->normalize();
 	this->initBuffers();
 }
 
@@ -194,6 +196,7 @@ int							Obj3dBP::getPolygonAmount(void) const { return this->_polygonAmount; }
 Math::Vector3				Obj3dBP::getDimensions(void) const { return this->_dimensions; }
 bool						Obj3dBP::isCentered(void) const { return this->_centered; }
 bool						Obj3dBP::isRescaled(void) const { return this->_rescaled; }
+bool						Obj3dBP::isNormalized(void) const { return this->_normalized; }
 
 void			Obj3dBP::freeData(unsigned int flags) {
 	if ((flags & BP_FREE_INDICES) == BP_FREE_INDICES) {
@@ -206,6 +209,7 @@ void			Obj3dBP::freeData(unsigned int flags) {
 
 void	Obj3dBP::normalize() {
 	// dimensions and centering
+	this->_normalized = true;
 	//if (!this->_vertices.size()) {return;}
 	float	vmin[3];
 	float	vmax[3];

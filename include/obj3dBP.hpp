@@ -19,6 +19,8 @@
 #define BP_FREE_VERTICES	2
 #define BP_FREE_ALL			0xffffffff
 
+#define BP_DONT_NORMALIZE		1
+
 struct SimpleVector2 {
 	SimpleVector2() : x(0), y(0) {}
 	SimpleVector2(float x, float y) : x(x), y(y) {}
@@ -49,7 +51,7 @@ public:
 	Obj3dBP(std::string filename);
 	Obj3dBP(Obj3dBP const & src);//private? or delete
 	//array must be linear
-	Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear);
+	Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear, unsigned int flags = 0);
 	~Obj3dBP();
 	Obj3dBP&	operator=(const Obj3dBP& obj3dbp);//a refaire
 
@@ -67,6 +69,7 @@ public:
 	Math::Vector3				getDimensions(void) const;
 	bool						isCentered(void) const;
 	bool						isRescaled(void) const;
+	bool						isNormalized(void) const;
 
 	void						freeData(unsigned int flags);
 
@@ -85,6 +88,7 @@ private:
 	Math::Vector3	_dimensions;
 	bool			_centered;
 	bool			_rescaled;
+	bool			_normalized;
 
 	//loaders
 	void			loadWithAssimp(std::string path);

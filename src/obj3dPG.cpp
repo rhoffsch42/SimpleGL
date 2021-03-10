@@ -37,7 +37,9 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	Obj3d* obj = dynamic_cast<Obj3d*>(&object);
 	if (!obj) {
 		std::cout << "dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl;
-		exit(22);
+		// exit(22);
+		// this can happen when an object is being nulled to be replaced by another one, block or continue?
+		return;
 	}
 	const Math::Vector3& color = obj->getColorShader();
 	Obj3dBP& bp = obj->getBlueprint();
@@ -128,7 +130,9 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 		Obj3d* object = dynamic_cast<Obj3d*>(o);
 		if (!object) {
 			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
-			exit(22);
+			// exit(22);
+			// this can happen when an object is being nulled to be replaced by another one, block or continue?
+			return;
 		}
 		else {
 			object->update();

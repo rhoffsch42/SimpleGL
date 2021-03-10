@@ -5,7 +5,6 @@ unsigned int UnitTests::_test_passed = 0;
 unsigned int UnitTests::_test_failed = 0;
 unsigned int UnitTests::_test_errors = 0;
 unsigned int UnitTests::_test_human = 0;
-std::streambuf*		UnitTests::oldStream = std::cout.rdbuf();
 std::stringstream	UnitTests::streamTests;
 bool		UnitTests::continueTests = true;
 
@@ -13,7 +12,7 @@ UnitTests::UnitTests(){
 }
 
 void			UnitTests::printResult() {
-	std::cout << streamTests.str();
+	std::cout << UnitTests::streamTests.str();
 	std::cout << "Tests passed: " << UT_OK << "  " << UnitTests::getTestPassed() << " / " << UnitTests::getTestAmount() << std::endl;;
 	if (UnitTests::getTestFailed())
 		std::cout << "Tests failed: " << UT_FAIL << "  " << UnitTests::getTestFailed() << std::endl;
@@ -21,6 +20,7 @@ void			UnitTests::printResult() {
 		std::cout << "Tests errors: " << UT_ERROR << "  " << UnitTests::getTestErrors() << std::endl;
 	if (UnitTests::getTestHuman())
 		std::cout << "Tests humans: " << UT_HUMAN << "  " << UnitTests::getTestHuman() << std::endl;
+	//while (1);
 }
 
 std::string		UnitTests::test_ok() {

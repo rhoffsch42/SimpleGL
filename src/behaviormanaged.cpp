@@ -18,7 +18,9 @@ BehaviorManaged::BehaviorManaged(const BehaviorManaged& src) {
 BehaviorManaged::~BehaviorManaged() {
 	//	removes itself from all its Behaviors's list
 	for (auto i : this->behaviorList) {
+		std::cout << "removing bh : " << i << std::endl;
 		i->removeTarget(this);
+		std::cout << "removing done : " << i << std::endl;
 	}
 	//	erase/empty list ?
 }

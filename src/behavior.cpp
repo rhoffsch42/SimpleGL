@@ -24,6 +24,10 @@ Behavior& Behavior::operator=(const Behavior& src) {
 Behavior::~Behavior() {
 	std::cout << "_ Behavior des" << std::endl;
 	//need to delete/empty list?
+	//should remove itseft from its target if they are managed
+	for (auto i : this->targetList) {
+		this->removeTarget(i.first);
+	}
 }
 
 void	Behavior::run() {

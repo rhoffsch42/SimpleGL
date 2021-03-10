@@ -13,7 +13,6 @@ void	UnitTests::PropertiesTests::setUp() {
 	scale_2_3_4.x = 2;			scale_2_3_4.y = 3;			scale_2_3_4.z = 4;
 	scale_3_5_7.x = 3;			scale_3_5_7.y = 5;			scale_3_5_7.z = 7;
 
-	ppA.centered = !Properties::defaultCentered;
 	ppA._matrixChanged = false;
 	for (int i = 0; i < 16; i++) {
 		ppA._matrix.e[i] = i;
@@ -22,8 +21,6 @@ void	UnitTests::PropertiesTests::setUp() {
 	ppA._pos.x = 4;				ppA._pos.y = 9;					ppA._pos.z = 1;
 	ppA._rot.x = 5;				ppA._rot.y = -9;				ppA._rot.z = 51;	ppA._rot._unit = ROT_RAD;
 	ppA._scale.x = 2;			ppA._scale.y = 4;				ppA._scale.z = 1;
-	ppA._centerOffset.x = 11;	ppA._centerOffset.y = 44;		ppA._centerOffset.z = 45;
-	ppA._centeredPos.x = 22;	ppA._centeredPos.y = 34;		ppA._centeredPos.z = 15;
 }
 void	UnitTests::PropertiesTests::tearDown() {
 }
@@ -42,34 +39,25 @@ void	UnitTests::PropertiesTests::testEverything() const {
 	testProperties_getPos();
 	testProperties_getRot();
 	testProperties_getScale();
-	testProperties_getCenterOffset();
-	testProperties_getCenteredPos();
-	testProperties_center();
 }
 
 void	UnitTests::PropertiesTests::testProperties() const {
 	Properties		pp1;
 
-	TEST("Properties()", pp1.centered == Properties::defaultCentered);
 	TEST("Properties()", pp1._matrixChanged == true);
 	TEST("Properties()", pp1._matrixUpdated == false);
 	TEST("Properties()", UnitTests::MathTests::isEqualVector3(&pp1._pos, &pos_0_0_0));
 	TEST("Properties()", UnitTests::MathTests::isEqualVector3(&pp1._rot, &rot_0_0_0_d));
 	TEST("Properties()", UnitTests::MathTests::isEqualVector3(&pp1._scale, &scale_1_1_1));
-	TEST("Properties()", UnitTests::MathTests::isEqualVector3(&pp1._centerOffset, &vA_0_0_0));
-	TEST("Properties()", UnitTests::MathTests::isEqualVector3(&pp1._centeredPos, &vA_0_0_0));
 }
 void	UnitTests::PropertiesTests::testProperties_operatorEqual() const {
 	Properties		pp2 = ppA;
 
-	TEST("Properties operator=", pp2.centered == ppA.centered);
 	TEST("Properties operator=", pp2._matrixChanged == true);
 	TEST("Properties operator=", pp2._matrixUpdated == false);
 	TEST("Properties operator=", UnitTests::MathTests::isEqualVector3(&pp2._pos, &ppA._pos));
 	TEST("Properties operator=", UnitTests::MathTests::isEqualVector3(&pp2._rot, &ppA._rot));
 	TEST("Properties operator=", UnitTests::MathTests::isEqualVector3(&pp2._scale, &ppA._scale));
-	TEST("Properties operator=", UnitTests::MathTests::isEqualVector3(&pp2._centerOffset, &ppA._centerOffset));
-	TEST("Properties operator=", UnitTests::MathTests::isEqualVector3(&pp2._centeredPos, &ppA._centeredPos));
 }
 void	UnitTests::PropertiesTests::testProperties_updateMatrix() const {
 	NOT_TESTED("Properties updateMatrix", " : todo", UnitTests::test_error);
@@ -145,17 +133,4 @@ void	UnitTests::PropertiesTests::testProperties_getScale() const {
 	Math::Vector3 v10 = ppA.getScale();
 	TEST("Properties getScale", UnitTests::MathTests::isEqualVector3(&v10, &ppA._scale));
 	TEST("Properties getScale", &v10 != &ppA._scale);
-}
-void	UnitTests::PropertiesTests::testProperties_getCenterOffset() const {
-	Math::Vector3 v11 = ppA.getCenterOffset();
-	TEST("Properties getCenterOffset", UnitTests::MathTests::isEqualVector3(&v11, &ppA._centerOffset));
-	TEST("Properties getCenterOffset", &v11 != &ppA._centerOffset);
-}
-void	UnitTests::PropertiesTests::testProperties_getCenteredPos() const {
-	Math::Vector3 v12 = ppA.getCenteredPos();
-	TEST("Properties getCenteredPos", UnitTests::MathTests::isEqualVector3(&v12, &ppA._centeredPos));
-	TEST("Properties getCenteredPos", &v12 != &ppA._centeredPos);
-}
-void	UnitTests::PropertiesTests::testProperties_center() const {
-	NOT_TESTED("Properties center", " : todo", UnitTests::test_error);
 }

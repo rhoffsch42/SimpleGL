@@ -26,6 +26,7 @@
 #endif
 #include <algorithm>
 #include <map>
+#include <thread>
 
 #define DEFAULT_WIDTH	800
 #define DEFAULT_HEIGHT	800
@@ -57,6 +58,9 @@ class Glfw
 	friend class UnitTests;
 #endif
 public:
+	static std::thread::id	thread_id;
+	static void				glThreadSafety();
+
 	Glfw();
 	Glfw(unsigned int width, unsigned int height);
 	Glfw&	operator=(const Glfw& src);

@@ -53,6 +53,15 @@ static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int acti
 	}
 }
 
+std::thread::id Glfw::thread_id = std::this_thread::get_id();
+void	Glfw::glThreadSafety() {
+	std::thread::id current = std::this_thread::get_id();
+	if (current != Glfw::thread_id) {
+		std::cout << "Error: OpenGL call in wrong thread:\n\tcurrent:\t" << current << "\n\tOpenGL: \t" << Glfw::thread_id << std::endl;
+		exit(5);
+	}
+}
+
 Glfw::Glfw() {
 	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->_width = DEFAULT_WIDTH;
@@ -104,6 +113,7 @@ void	Glfw::init() {
 		std::cerr << "glfwCreateWindow failed" << std::endl;
 		Misc::breakExit(GL_ERROR);
 	}
+	glfwSetWindowPos(this->_window, 0, 0);
 
 	glfwMakeContextCurrent(this->_window);//to do before init glew
 	this->cursorFree = false;

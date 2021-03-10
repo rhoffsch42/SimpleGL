@@ -23,9 +23,6 @@ public:
 	void	testProperties_getPos() const;
 	void	testProperties_getRot() const;
 	void	testProperties_getScale() const;
-	void	testProperties_getCenterOffset() const;
-	void	testProperties_getCenteredPos() const;
-	void	testProperties_center() const;
 private:
 	Math::Vector3	vA_0_0_0;
 	Math::Vector3	vB_1_2_3;

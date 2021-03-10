@@ -11,9 +11,13 @@ void	UnitTests::BehaviorManagedTests::testEverything() const {
 	// UnitTests::streamTests << "BehaviorManaged tests" << std::endl;
 	testBehaviorManaged();
 	testBehaviorManaged_operatorEqual();
+	std::cout << "testBehaviorManaged_operatorEqual end" << std::endl;
 	testBehaviorManaged_setBehaviorStatus();
+	std::cout << "testBehaviorManaged_setBehaviorStatus end" << std::endl;
 	testBehaviorManaged_addBehavior();
+	std::cout << "testBehaviorManaged_addBehavior end" << std::endl;
 	testBehaviorManaged_removeBehavior();
+	std::cout << "testBehaviorManaged_removeBehavior end" << std::endl;
 }
 
 void	UnitTests::BehaviorManagedTests::testBehaviorManaged() const {
@@ -38,8 +42,8 @@ void	UnitTests::BehaviorManagedTests::testBehaviorManaged_setBehaviorStatus() co
 	bool	object_found = false;
 	for (auto i : bh_printAdresstmp.targetList) {
 		if (i.first == &empty3) {
-			TEST("_ : BehaviorManaged setBehaviorStatus", i.second == false);
 			object_found = true;
+			TEST("_ : BehaviorManaged setBehaviorStatus", i.second == false);
 		}
 	}
 	TEST("_ : BehaviorManaged setBehaviorStatus", object_found == true);

@@ -35,21 +35,21 @@ void	UnitTests::GlfwTests::testGlfw() const {
 	TEST("Glfw()", gl1._height == DEFAULT_HEIGHT);
 	TEST("Glfw()", gl1._title == DEFAULT_TITLE);
 	TEST("Glfw()", gl1._window != NULL);
-	glfwDestroyWindow(gl1._window);
+//	glfwDestroyWindow(gl1._window);
 
 	Glfw	gl2(0, 0);
 	TEST("Glfw(0, 0)", gl2._width == MIN_WIDTH);
 	TEST("Glfw(0, 0)", gl2._height == MIN_HEIGHT);
 	TEST("Glfw(0, 0)", gl2._title == DEFAULT_TITLE);
 	TEST("Glfw(0, 0)", gl2._window != NULL);
-	glfwDestroyWindow(gl2._window);
+//	glfwDestroyWindow(gl2._window);
 
 	Glfw	gl3(widthA_1920, heightA_1080);
 	TEST("Glfw(1920, 1080)", gl3._width == widthA_1920);
 	TEST("Glfw(1920, 1080)", gl3._height == heightA_1080);
 	TEST("Glfw(1920, 1080)", gl3._title == DEFAULT_TITLE);
 	TEST("Glfw(1920, 1080)", gl3._window != NULL);
-	glfwDestroyWindow(gl3._window);
+//	glfwDestroyWindow(gl3._window);
 }
 void	UnitTests::GlfwTests::testGlfw_updateMouse() const {
 	NOT_TESTED("Glfw updateMouse", " : need human touch (check the cursor visually)", UnitTests::test_human);
@@ -62,7 +62,7 @@ void	UnitTests::GlfwTests::testGlfw_setMouseAngle() const {
 	gl4.setMouseAngle(angleA_45);
 	TEST("Glfw setMouseAngle(45)", gl4._mouseAngle == angleA_45);
 	NOT_TESTED("Glfw setMouseAngle", " : need to check _mouseWall, see calculation in glfw.cpp", UnitTests::test_human);
-	glfwDestroyWindow(gl4._window);
+//	glfwDestroyWindow(gl4._window);
 }
 void	UnitTests::GlfwTests::testGlfw_setTitle() const {
 	Glfw	gl5(widthA_1920, heightA_1080);

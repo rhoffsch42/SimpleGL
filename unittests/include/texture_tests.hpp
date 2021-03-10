@@ -3,7 +3,7 @@
 #include "unittests.hpp"
 #include "texture.hpp"
 
-#define TEXTURE_DIR		"unittests/resources/texture/"
+#define TEXTURE_DIR		"../../SimpleGL/images/"
 
 class UnitTests::TextureTests {
 public:

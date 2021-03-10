@@ -7,8 +7,9 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	filename = Misc::crossPlatPath(filename);
 	std::ifstream file(filename, std::ios::binary);
 	if (!file) {
-		std::cout << "Failure to open bitmap file.\n";
-		exit(1);
+		std::cout << Misc::getCurrentDirectory() << std::endl;
+		std::cout << "Failure to open bitmap file : " << filename << std::endl;
+		exit(11);
 	}
 
 	// Allocate byte memory that will hold the two headers and read headers
@@ -117,6 +118,7 @@ Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _widt
 	int size = width * height * 3;
 	this->_data = new uint8_t[size];
 	memcpy(this->_data, data, size);
+	this->_isLoaded = false;
 	this->loadTexture();
 }
 
@@ -126,15 +128,14 @@ Texture::Texture(const Texture& src) {
 }
 
 Texture&	Texture::operator=(const Texture& src) {
-	this->_filename = src.getFilename();
-	this->_width = src.getWidth();
-	this->_height = src.getHeight();
+	this->_filename = src._filename;
+	this->_width = src._width;
+	this->_height = src._height;
 	unsigned int	size = this->_width * this->_height * 3;
 	this->_data = new uint8_t[size];
-	memcpy(this->_data, src.getData(), size);
-	this->_isLoaded = src.isLoaded();
-	if (this->_isLoaded)
-		this->loadTexture();
+	memcpy(this->_data, src._data, size);
+	this->_isLoaded = false;
+	this->loadTexture();
 	return (*this);
 }
 
