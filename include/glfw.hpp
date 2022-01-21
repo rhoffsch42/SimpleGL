@@ -59,7 +59,8 @@ class Glfw
 #endif
 public:
 	static std::thread::id	thread_id;
-	static void				glThreadSafety();
+	static void	glThreadSafety();
+	static void	initDefaultState();
 
 	Glfw();
 	Glfw(unsigned int width, unsigned int height);

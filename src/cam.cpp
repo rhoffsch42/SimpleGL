@@ -11,6 +11,7 @@ void	Cam::init(int width, int height) {
 	this->speed = CAM_SPEED;
 	this->lockedMovement = false;
 	this->lockedOrientation = false;
+	this->space_movement = false;
 	this->updateCamVectors();
 	this->_projectionMatrix.projectionMatrix(Math::toRadian(this->_fov), this->_far, this->_near, width, height);
 	this->updateFrustum();
@@ -161,11 +162,19 @@ void	Cam::events(Glfw& glfw, float fpsTick) {
 		float	effectiveSpeed = this->speed * fpsTick;
 		this->_mvt[0] = this->_forward;
 		this->_mvt[1] = this->_right;
-		this->_mvt[2] = this->_up;
+		if (this->space_movement) {
+			this->_mvt[2] = this->_up;
+		} else {
+			this->_mvt[0].y = 0;
+			this->_mvt[0].normalize();
+			this->_mvt[1].y = 0;
+			this->_mvt[1].normalize();
+			this->_mvt[2] = Math::Vector3(0, 1, 0);
+		}
 		this->_mvt[0].mult(effectiveSpeed);
 		this->_mvt[1].mult(effectiveSpeed);
 		this->_mvt[2].mult(effectiveSpeed);
-		//
+
 		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_W))
 			this->local._pos.add(this->_mvt[0]);
 		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_S))
@@ -174,9 +183,9 @@ void	Cam::events(Glfw& glfw, float fpsTick) {
 			this->local._pos.add(this->_mvt[1]);
 		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_A))
 			this->local._pos.sub(this->_mvt[1]);
-		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_R))
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_SPACE))
 			this->local._pos.add(this->_mvt[2]);
-		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_F))
+		if (GLFW_PRESS == glfwGetKey(glfw._window, GLFW_KEY_C))
 			this->local._pos.sub(this->_mvt[2]);
 	}
 

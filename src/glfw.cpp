@@ -62,6 +62,21 @@ void	Glfw::glThreadSafety() {
 	}
 }
 
+void	Glfw::initDefaultState() {
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_MAJOR);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_MINOR);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glClearDepth(-1.0f);
+	glDepthFunc(GL_GREATER);
+	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+}
+
 Glfw::Glfw() {
 	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	this->_width = DEFAULT_WIDTH;

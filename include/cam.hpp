@@ -57,6 +57,7 @@ public:
 	float			speed;//max/min ? if yes ->private setter/mutator
 	bool			lockedMovement;
 	bool			lockedOrientation;
+	bool			space_movement;
 private:
 	float			_frustum[24];
 	Math::Matrix4	_projectionMatrix;

@@ -94,8 +94,13 @@ public:
 		void	mult(float coef);
 		void	mult(Math::Matrix4& mat);
 		void	div(float coef);
-		float	magnitude() const;
-		Math::Vector3	operator-(); // in fact its for the sign minus, not the mathematical term operator
+		float	len2() const;
+		float	len() const;
+		void	normalize();
+		Math::Vector3	normalized();
+
+		//operators
+		Math::Vector3	operator-(); //the sign minus, not the mathematical term operator for substractions
 		//static
 		// https://physics.info/vector-multiplication/
 		static Math::Vector3	cross(Math::Vector3 v1, Math::Vector3 v2);// ie mult

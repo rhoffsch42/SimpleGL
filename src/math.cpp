@@ -36,9 +36,9 @@ t_pp	Math::extractFromMatrix(Math::Matrix4 mat) {
 	vectorZ.y = m[1][2];
 	vectorZ.z = m[2][2];
 
-	pp.scale.x = vectorX.magnitude();
-	pp.scale.y = vectorY.magnitude();
-	pp.scale.z = vectorZ.magnitude();
+	pp.scale.x = vectorX.len();
+	pp.scale.y = vectorY.len();
+	pp.scale.z = vectorZ.len();
 	m[0][0] /= pp.scale.x;
 	m[1][0] /= pp.scale.x;
 	m[2][0] /= pp.scale.x;
@@ -209,7 +209,7 @@ void			Math::Vector3::mult(float coef) {
 	this->z *= coef;
 }
 
-void	Math::Vector3::mult(Math::Matrix4& mat) {
+void			Math::Vector3::mult(Math::Matrix4& mat) {
 	uint8_t	order = mat.getOrder();
 	mat.setOrder(ROW_MAJOR);
 	float* m = mat.getData();
@@ -226,9 +226,25 @@ void			Math::Vector3::div(float coef) {
 	this->y /= coef;
 	this->z /= coef;
 }
-float			Math::Vector3::magnitude() const {
-	return (sqrtf(powf(this->x, 2) + powf(this->y, 2) + powf(this->z, 2)));
+float			Math::Vector3::len2() const {
+	return (x * x + y * y + z * z);
 }
+float			Math::Vector3::len() const {
+	return (sqrt(x * x + y * y + z * z));
+}
+void			Math::Vector3::normalize() {
+	float len = this->len();
+	if (len > 0) {
+		this->div(len);
+	}
+}
+Math::Vector3	Math::Vector3::normalized() {
+	Math::Vector3 vec = *this;
+	vec.normalize();
+	return (vec);
+}
+
+//operators
 Math::Vector3	Math::Vector3::operator-(void) {
 	return (Math::Vector3(-this->x, -this->y, -this->z));
 }

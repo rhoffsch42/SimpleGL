@@ -1,5 +1,6 @@
 #include "obj3dPG.hpp"
 #include "compiler_settings.h"
+#include "chunk.hpp"
 
 Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 	: Program(vs_file, fs_file)
@@ -21,6 +22,22 @@ void	Obj3dPG::linkBuffers(const Obj3dBP& blueprint) const {
 		glVertexAttribPointer 5th arg is stride size: 0 = tightly packed, so opengl will determine itself
 	*/
 	glBindVertexArray(blueprint.getVao());
+
+	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboVertex());
+	glEnableVertexAttribArray(this->_vertex_position_data);
+	glVertexAttribPointer(this->_vertex_position_data, 3, GL_FLOAT, GL_FALSE, sizeof(SimpleVertex), (void*)0);
+	glEnableVertexAttribArray(this->_vertex_UV_data);
+	glVertexAttribPointer(this->_vertex_UV_data, 2, GL_FLOAT, GL_FALSE, sizeof(SimpleVertex), (void*)offsetof(SimpleVertex, texCoord));
+	glEnableVertexAttribArray(this->_vertex_color_data);
+	glVertexAttribPointer(this->_vertex_color_data, 3, GL_FLOAT, GL_FALSE, sizeof(SimpleVertex), (void*)offsetof(SimpleVertex, color));
+
+	glBindVertexArray(0);
+}
+void	Obj3dPG::linkBuffersToVao(const Obj3dBP& blueprint, GLuint vao) const {
+	/*
+		glVertexAttribPointer 5th arg is stride size: 0 = tightly packed, so opengl will determine itself
+	*/
+	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, blueprint.getVboVertex());
 	glEnableVertexAttribArray(this->_vertex_position_data);
@@ -59,13 +76,19 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
-	glBindVertexArray(bp.getVao());
+	//std::cout << "rendering BP " << &bp << " vao " << bp.getVao() << " with Chunk::cubeBlueprint vao " << Chunk::cubeBlueprint->getVao() << std::endl;
+	GLuint	vao = Chunk::cubeBlueprint->getVao();
+	this->linkBuffersToVao(bp, vao);
+	glBindVertexArray(vao);
+	//glBindVertexArray(bp.getVao());
+	//glBindVertexArray(Chunk::cubeBlueprint->getVao());
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glActiveTexture(GL_TEXTURE0);//required for some drivers
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
+	} else {
+		glUniform1f(this->_tex_coef, 0.0f);
 	}
-	else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
