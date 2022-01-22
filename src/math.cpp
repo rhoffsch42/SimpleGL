@@ -1,6 +1,7 @@
 // #include "simplegl.h"
 #include "math.hpp"
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 Math::Math() {}
@@ -257,8 +258,10 @@ Math::Vector3	Math::Vector3::cross(Math::Vector3 v1, Math::Vector3 v2) {
 float			Math::Vector3::dot(Math::Vector3 v1, Math::Vector3 v2) {
 	return (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
 }
-void			Math::Vector3::printData(std::string separator) const {
-	cout << this->x << " " << this->y << " " << this->z << separator;
+std::string		Math::Vector3::toString() const {
+	std::stringstream ss;
+	ss << "(" << this->x << ", " << this->y << ", " << this->z << ")";
+	return ss.str();
 }
 //	Vector3 end
 /////////////////////////////////////////////////////////////////////////////

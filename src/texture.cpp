@@ -2,13 +2,13 @@
 #include "compiler_settings.h"
 
 Texture::Texture(std::string filename) : _filename(filename) {
-	std::cout << "_ Texture cons by filename: " << filename.c_str() << std::endl;
+	std::cout << "_ Texture cons by filename: " << filename.c_str() << "\n";
 
 	filename = Misc::crossPlatPath(filename);
 	std::ifstream file(filename, std::ios::binary);
 	if (!file) {
-		std::cout << Misc::getCurrentDirectory() << std::endl;
-		std::cout << "Failure to open bitmap file : " << filename << std::endl;
+		std::cout << Misc::getCurrentDirectory() << "\n";
+		std::cout << "Failure to open bitmap file : " << filename << "\n";
 		exit(11);
 	}
 
@@ -44,21 +44,21 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	int row_size_used = this->_width * pixelSize;
 	int padding = (4 - (row_size_used % 4)) % 4;
 	int row_size_full = row_size_used + padding;
-	std::cout << "row_size_used:" << row_size_used << std::endl;
-	std::cout << "padding:" << padding << std::endl;
-	std::cout << "row_size_full:" << row_size_full << std::endl;
-	std::cout << "bmpInfo->biSize:" << bmpInfo->biSize << std::endl;
-	std::cout << "bmpInfo->biWidth:" << bmpInfo->biWidth << std::endl;
-	std::cout << "bmpInfo->biHeight:" << bmpInfo->biHeight << std::endl;
-	std::cout << "bmpInfo->biCompression:" << bmpInfo->biCompression << std::endl;
-	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << std::endl;
+	std::cout << "row_size_used:" << row_size_used << "\n";
+	std::cout << "padding:" << padding << "\n";
+	std::cout << "row_size_full:" << row_size_full << "\n";
+	std::cout << "bmpInfo->biSize:" << bmpInfo->biSize << "\n";
+	std::cout << "bmpInfo->biWidth:" << bmpInfo->biWidth << "\n";
+	std::cout << "bmpInfo->biHeight:" << bmpInfo->biHeight << "\n";
+	std::cout << "bmpInfo->biCompression:" << bmpInfo->biCompression << "\n";
+	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << "\n";
 	// if (!bmpInfo->biSizeImage)//Specifies the size, in bytes, of the image. This can be set to 0 for uncompressed RGB bitmaps.
 		bmpInfo->biSizeImage = row_size_full * bmpInfo->biHeight;
-	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << " (computed)"<< std::endl;
-	std::cout << "bmpInfo->biBitCount:" << bmpInfo->biBitCount << std::endl;
+	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << " (computed)"<< "\n";
+	std::cout << "bmpInfo->biBitCount:" << bmpInfo->biBitCount << "\n";
 
 	unsigned int RGBsize = (this->_width * 3) * bmpInfo->biHeight;// 3 cauz RGB
-	std::cout << "RGBsize:" << RGBsize << std::endl;
+	std::cout << "RGBsize:" << RGBsize << "\n";
 	uint8_t*	pixels = new uint8_t[bmpInfo->biSizeImage];
 	// this->_data = new uint8_t[bmpInfo->biSizeImage];//oversized, but well padded for opengl (contains padding and potential 32bit size)
 	this->_data = new uint8_t[RGBsize];//size can be not well padded for openGL, see Texture::loadTexture();
@@ -79,15 +79,15 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	int j = 0;
 	for (int i = 0; i < bmpInfo->biSizeImage; i++) {
 		if (bitMode == GL_RGBA && i % 4 == 3) {
-			// std::cout << "fuck A:" << (int)pixels[i] << std::endl;
+			// std::cout << "fuck A:" << (int)pixels[i] << "\n";
 		} else if (padding && (i % row_size_full) > row_size_used - 1) {
-			// std::cout << "fuck padding" << std::endl;
+			// std::cout << "fuck padding\n";
 		} else {
 			this->_data[j] = pixels[i];
 			j++;
 		}
 	}
-	std::cout << " Done" << std::endl;
+	std::cout << " Done\n";
 
 	/*
 		.bmp files store image data in the BGR format, and we have to convert it to RGB.
@@ -102,15 +102,15 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		this->_data[i + 0] = this->_data[i + 2];
 		this->_data[i + 2] = tmp;
 	}
-	std::cout << " Done" << std::endl;
+	std::cout << " Done\n";
 	//construct GL Texture
 	this->loadTexture();
 
 	delete bmpHeader;
 	delete bmpInfo;
 	delete[] pixels;
-	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
-	std::cout << "----------------------------------------\n" << std::endl;
+	std::cout << __PRETTY_FUNCTION__ << " END\n";
+	std::cout << "----------------------------------------\n\n";
 }
 
 Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _width(width), _height(height) {
@@ -123,7 +123,7 @@ Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _widt
 }
 
 Texture::Texture(const Texture& src) {
-	// cout << "_ Texture cons by copy" << endl;
+	// cout << "_ Texture cons by copy" << "\n";
 	*this = src;
 }
 
@@ -140,7 +140,7 @@ Texture&	Texture::operator=(const Texture& src) {
 }
 
 Texture::~Texture() {
-	// cout << "_ Texture des" << endl;
+	//std::cout << __PRETTY_FUNCTION__ << this << " : " << this->_filename << "\n";
 	delete[] this->_data;
 	this->unloadTexture();
 }
@@ -150,7 +150,7 @@ void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height)
 	if (this->_width != width || this->_height != height) {
 		std::cout << "Texture::updateData(...) failed: wrong width and/or height\n";
 		std::cout << this->_width << "x" << this->_height << " != " << width << "x" << height << "\n";
-		std::cout << this->_id << ": " << this->_filename << std::endl;
+		std::cout << this->_id << ": " << this->_filename << "\n";
 		//exit(4);
 	} else {
 		memcpy(this->_data, data, width * height * 3);
@@ -162,24 +162,23 @@ void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height)
 	}
 }
 
-
 void	Texture::printData() const {
 	unsigned int size = this->_width * this->_height * 3;
 	for (unsigned int i = 0; i < size; i++) {
 		if (i % (3 * this->_width) == 0)
-			std::cout << "\tline " << (i + 3) / (this->_width * 3) << std::endl;
+			std::cout << "\tline " << (i + 3) / (this->_width * 3) << "\n";
 		std::cout << (unsigned int)(this->_data[i]) << ":";
 		if (i % 3 == 2)
-			std::cout << std::endl;
+			std::cout << "\n";
 	}
 }
 
 void			Texture::loadTexture() {
 	if (this->_isLoaded) {
-		std::cout << "warning: " << this->_filename << " is already loaded" << std::endl;
+		std::cout << "warning: " << this->_filename << " is already loaded\n";
 	} else {
 		this->_isLoaded = true;
-		// cout << this->_id << endl;
+		// cout << this->_id << "\n";
 		glGenTextures(1, &this->_id);
 		glBindTexture(GL_TEXTURE_2D, this->_id);
 

@@ -122,14 +122,13 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	this->_rescaled = Obj3dBP::rescale;
 	this->loadWithAssimp(filename);
 	this->normalize();
+	//std::stringstream ss;
 	//for (auto i : this->_indices)
-	//	std::cout << i << " ";
-	//std::cout << "\n";
-	//std::cout << "\n";
+	//	ss << i << " ";
+	//ss << "\n\n";
 	//for (auto i : vertices)
-	//	i.position.printData("_");
-	//std::cout << "\n";
-	//std::cout << "\n";
+	//	ss << i.position.toString();
+	//ss << "\n\n";
 	//exit(0);
 	this->initBuffers();
 
@@ -301,7 +300,7 @@ void	Obj3dBP::initBuffers() {
 				std::cout << this->_indices[i] << " ";
 			}std::cout << std::endl;
 			for (size_t i = 0; i < this->_vertices.size(); i++) {
-				this->_vertices[i].position.printData("_");
+				std::cout << this->_vertices[i].position.toString() << "\n";
 				std::cout << " ";
 			}std::cout << std::endl;
 		}
