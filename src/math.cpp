@@ -69,25 +69,19 @@ t_pp	Math::extractFromMatrix(Math::Matrix4 mat) {
 	return (pp);
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 //	class Vector3
-Math::Vector3::Vector3() {
-	this->x = 0;
-	this->y = 0;
-	this->z = 0;
-}
+Math::Vector3::Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
 Math::Vector3::Vector3(float valx, float valy, float valz) : x(valx), y(valy), z(valz) {}
 Math::Vector3::Vector3(const Math::Vector3& src) {
 	*this = src;
 }
-Math::Vector3::~Vector3() {}
-Math::Vector3&	Math::Vector3::operator=(const Math::Vector3& src) {
-	this->x = src.x;
-	this->y = src.y;
-	this->z = src.z;
-	return (*this);
-}
+//Math::Vector3&	Math::Vector3::operator=(const Math::Vector3& src) {
+//	this->x = src.x;
+//	this->y = src.y;
+//	this->z = src.z;
+//	return (*this);
+//}
 //	Vector3 member func
 void			Math::Vector3::rotate(Math::Rotation rot, float rotWay) {
 	float		val[8];
@@ -177,12 +171,7 @@ void			Math::Vector3::rotateAround(Math::Vector3 rotatePoint, Math::Rotation rot
 		this->rotate(rot, rotWay);
 		this->add(rotatePoint);
 }
-void			Math::Vector3::translate(Math::Vector3 v) {
-	this->add(v);
-}
-void			Math::Vector3::translate(float valx, float valy, float valz) {
-	this->add(valx, valy, valz);
-}
+
 //vector operation
 void			Math::Vector3::add(Math::Vector3 v) {
 	this->x += v.x;
@@ -209,7 +198,6 @@ void			Math::Vector3::mult(float coef) {
 	this->y *= coef;
 	this->z *= coef;
 }
-
 void			Math::Vector3::mult(Math::Matrix4& mat) {
 	uint8_t	order = mat.getOrder();
 	mat.setOrder(ROW_MAJOR);
@@ -221,11 +209,15 @@ void			Math::Vector3::mult(Math::Matrix4& mat) {
 	*this = res;
 	mat.setOrder(order);
 }
-
 void			Math::Vector3::div(float coef) {
 	this->x /= coef;
 	this->y /= coef;
 	this->z /= coef;
+}
+void			Math::Vector3::scale(Math::Vector3 v) {
+	this->x *= v.x;
+	this->y *= v.y;
+	this->z *= v.z;
 }
 float			Math::Vector3::len2() const {
 	return (x * x + y * y + z * z);
@@ -239,15 +231,57 @@ void			Math::Vector3::normalize() {
 		this->div(len);
 	}
 }
-Math::Vector3	Math::Vector3::normalized() {
+Math::Vector3	Math::Vector3::normalized() const {
 	Math::Vector3 vec = *this;
 	vec.normalize();
 	return (vec);
 }
 
 //operators
-Math::Vector3	Math::Vector3::operator-(void) {
+//Math::Vector3::operator*<int>(int n) const;
+
+Math::Vector3	Math::Vector3::operator-(void) const {
 	return (Math::Vector3(-this->x, -this->y, -this->z));
+}
+void	Math::Vector3::operator+=(const Math::Vector3& rhs) {
+	this->x += rhs.x;
+	this->y += rhs.y;
+	this->z += rhs.z;
+}
+void	Math::Vector3::operator-=(const Math::Vector3& rhs) {
+	this->x -= rhs.x;
+	this->y -= rhs.y;
+	this->z -= rhs.z;
+}
+void	Math::Vector3::operator*=(const float& rhs) {
+	this->x *= rhs;
+	this->y *= rhs;
+	this->z *= rhs;
+}
+void	Math::Vector3::operator/=(const float& rhs) {
+	this->x /= rhs;
+	this->y /= rhs;
+	this->z /= rhs;
+}
+Math::Vector3	Math::Vector3::operator+(const Math::Vector3& rhs) const {
+	Math::Vector3 vec(*this);
+	vec += rhs;
+	return vec;
+}
+Math::Vector3	Math::Vector3::operator-(const Math::Vector3& rhs) const {
+	Math::Vector3 vec(*this);
+	vec -= rhs;
+	return vec;
+}
+Math::Vector3	Math::Vector3::operator*(const float& rhs) const {
+	Math::Vector3 vec(*this);
+	vec *= rhs;
+	return vec;
+}
+Math::Vector3	Math::Vector3::operator/(const float& rhs) const {
+	Math::Vector3 vec(*this);
+	vec /= rhs;
+	return vec;
 }
 //static
 Math::Vector3	Math::Vector3::cross(Math::Vector3 v1, Math::Vector3 v2) {

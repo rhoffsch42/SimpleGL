@@ -66,8 +66,6 @@ public:
 		Vector3();
 		Vector3(float valx, float valy, float valz);
 		Vector3(const Math::Vector3& src);
-		Math::Vector3&	operator=(const Math::Vector3& src);//useless?
-		~Vector3();
 
 		void	rotate(Math::Rotation rot, float rotWay);
 		void	rotate(float x, float y, float z, float rotWay);//degree
@@ -82,10 +80,6 @@ public:
 				void	rotateAround(float posX, float posY, float posZ, float rotX, float rotY, float rotZ, float rotWay = ROT_WAY);
 		*/
 
-		// https://physics.stackexchange.com/questions/318989/vector-addition-and-translations
-		void	translate(Math::Vector3 v);// mathematically non sense
-		void	translate(float x, float y, float z);// mathematically non sense
-
 		//vector operation
 		void	add(Math::Vector3 v);
 		void	add(float valx, float valy, float valz);
@@ -94,13 +88,26 @@ public:
 		void	mult(float coef);
 		void	mult(Math::Matrix4& mat);
 		void	div(float coef);
+		void	scale(Math::Vector3 v);//Multiplies the vectors component-wise. 
 		float	len2() const;
 		float	len() const;
 		void	normalize();
-		Math::Vector3	normalized();
+		Math::Vector3	normalized() const;
 
 		//operators
-		Math::Vector3	operator-(); //the sign minus, not the mathematical term operator for substractions
+		Math::Vector3	operator-() const; //the sign minus, not the mathematical operator for substractions
+		void			operator+=(const Math::Vector3& rhs);
+		void			operator-=(const Math::Vector3& rhs);
+		void			operator*=(const float& rhs);
+		void			operator/=(const float& rhs);
+		Math::Vector3	operator+(const Math::Vector3& rhs) const;
+		Math::Vector3	operator-(const Math::Vector3& rhs) const;
+		Math::Vector3	operator*(const float& rhs) const;
+		Math::Vector3	operator/(const float& rhs) const;
+		friend Math::Vector3 operator*(float lhs, const Math::Vector3& rhs) { return rhs * lhs; }
+		friend Math::Vector3 operator/(float lhs, const Math::Vector3& rhs) { return rhs / lhs; }
+		friend std::ostream& operator<<(std::ostream& os, const Math::Vector3& vec) { return os << vec.toString(); }
+
 		//static
 		// https://physics.info/vector-multiplication/
 		static Math::Vector3	cross(Math::Vector3 v1, Math::Vector3 v2);// ie mult
@@ -108,7 +115,7 @@ public:
 		//other
 		std::string		toString() const;
 	};
-	
+
 	class Rotation : public Vector3
 	{
 #if UNIT_TESTS == true
