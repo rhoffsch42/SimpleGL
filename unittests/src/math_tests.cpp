@@ -168,15 +168,6 @@ void	UnitTests::MathTests::testEverything() const {
 		NOT_TESTED("Math::Vector3 rotate(rot, ROT_WAY)", "", UnitTests::test_error);
 		NOT_TESTED("Math::Vector3 ZYXrotate(rot, ROT_WAY)", "", UnitTests::test_error);
 	}
-	void	UnitTests::MathTests::testVector3_translate() const {
-		Math::Vector3	v6(1, 1, 1);
-		v6.translate(3, 4, 5);
-		TEST("Math::Vector3 translate(x, y, z)", isEqualVector3(&v6, &vecB_4_5_6));
-
-		Math::Vector3	v7(1, 1, 1);
-		v7.translate(vecD_3_4_5);
-		TEST("Math::Vector3 translate(vec)", isEqualVector3(&v7, &vecB_4_5_6));
-	}
 	void	UnitTests::MathTests::testVector3_add() const {
 		Math::Vector3	v8(1, 1, 1);
 		v8.add(3, 4, 5);
@@ -209,10 +200,10 @@ void	UnitTests::MathTests::testEverything() const {
 		v13.div(2);
 		TEST("Math::Vector3 div(coef)", isEqualVector3(&v13, &vecE_1_1_1));
 	}
-	void	UnitTests::MathTests::testVector3_magnitude() const {
+	void	UnitTests::MathTests::testVector3_len() const {
 		Math::Vector3	v14(2, 16, 8);
-		float	mag1 = v14.magnitude();
-		TEST("Math::Vector3 magnitude()", isEqualf(mag1, magnitude_18, ULP));
+		float	mag1 = v14.len();
+		TEST("Math::Vector3 len()", isEqualf(mag1, magnitude_18, ULP));
 	}
 	void	UnitTests::MathTests::testVector3_operatorMinus() const {
 		Math::Vector3	v15(-1, -1, -1);

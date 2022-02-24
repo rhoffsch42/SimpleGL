@@ -1,6 +1,5 @@
 #include "obj3dPG.hpp"
 #include "compiler_settings.h"
-#include "chunk.hpp"
 
 Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 	: Program(vs_file, fs_file)
@@ -70,18 +69,24 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	PVmatrix.setOrder(COLUMN_MAJOR);
 
 	//can be done once for all obj3d
-	// glUseProgram(this->_program);
+	 glUseProgram(this->_program);
 
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
 	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
 	//std::cout << "rendering BP " << &bp << " vao " << bp.getVao() << " with Chunk::cubeBlueprint vao " << Chunk::cubeBlueprint->getVao() << std::endl;
-	GLuint	vao = Chunk::cubeBlueprint->getVao();
-	this->linkBuffersToVao(bp, vao);
+	//GLuint	vao = Chunk::cubeBlueprint->getVao();
+	GLuint	vao = bp.getVao();
+	if (vao == 0) {
+		std::cout << "vao: " << vao << "\n";
+		std::exit(66);
+	}//else { std::cout << "vao>>" << vao << "<<\n"; }
+	//this->linkBuffersToVao(bp, vao);
+	this->linkBuffers(bp);//is it really required?
 	glBindVertexArray(vao);
-	//glBindVertexArray(bp.getVao());
 	//glBindVertexArray(Chunk::cubeBlueprint->getVao());
+
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glActiveTexture(GL_TEXTURE0);//required for some drivers
@@ -92,6 +97,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
+	//std::cout << vertices_amount << "_";
 	if (bp.getDataMode() == BP_LINEAR)
 		glDrawArrays(GL_TRIANGLES, 0, vertices_amount);
 	else { // should be BP_INDICES
@@ -137,7 +143,7 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 	glUseProgram(this->_program);//used once for all obj3d
 	Math::Matrix4	viewProMatrix(cam.getProjectionMatrix());
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
-	viewProMatrix.mult(viewMatrix);// do it in shader ? NO cauz shader will do it for every vertix
+	viewProMatrix.mult(viewMatrix);
 
 	bool			draw = true;
 	unsigned int	counterForward = 0;
@@ -153,11 +159,9 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 		Obj3d* object = dynamic_cast<Obj3d*>(o);
 		if (!object) {
 			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
-			// exit(22);
-			// this can happen when an object is being nulled to be replaced by another one, block or continue?
+			std::exit(22);
 			return;
-		}
-		else {
+		} else {
 			object->update();
 			draw = true;
 			oldcolor = object->getColor();
@@ -199,14 +203,13 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 				}
 			}
 
-
 			if (flags & PG_FORCE_DRAW || draw) {
 				object->setColor(color.x, color.y, color.z);
-				object->render(viewProMatrix);
+				object->render(viewProMatrix);//use the object renderer, might be different depending on the object
+				//this->render(*object, viewProMatrix);//use this renderer for all objects
 				object->setColor(oldcolor.x, oldcolor.y, oldcolor.z);
 			}
 		}
-
 	}
 
 	//std::cout << "fustrum objects: " << counterFrustum << std::endl;

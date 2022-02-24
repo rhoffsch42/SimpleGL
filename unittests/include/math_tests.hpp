@@ -28,12 +28,11 @@ public:
 	void	testVector3() const;
 	void	testVector3_operatorEqual() const;
 	void	testVector3_rotate() const;
-	void	testVector3_translate() const;
 	void	testVector3_add() const;
 	void	testVector3_sub() const;
 	void	testVector3_mult() const;
 	void	testVector3_div() const;
-	void	testVector3_magnitude() const;
+	void	testVector3_len() const;
 	void	testVector3_operatorMinus() const; // in fact its for the sign minus, not the mathematical term operator
 	void	testVector3_cross() const;
 	void	testVector3_dot() const;

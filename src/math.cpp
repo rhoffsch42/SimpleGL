@@ -2,7 +2,7 @@
 #include "math.hpp"
 #include <iostream>
 #include <sstream>
-using namespace std;
+#include <tuple>
 
 Math::Math() {}
 Math::~Math() {}
@@ -239,26 +239,25 @@ Math::Vector3	Math::Vector3::normalized() const {
 
 //operators
 //Math::Vector3::operator*<int>(int n) const;
-
 Math::Vector3	Math::Vector3::operator-(void) const {
 	return (Math::Vector3(-this->x, -this->y, -this->z));
 }
-void	Math::Vector3::operator+=(const Math::Vector3& rhs) {
+void			Math::Vector3::operator+=(const Math::Vector3& rhs) {
 	this->x += rhs.x;
 	this->y += rhs.y;
 	this->z += rhs.z;
 }
-void	Math::Vector3::operator-=(const Math::Vector3& rhs) {
+void			Math::Vector3::operator-=(const Math::Vector3& rhs) {
 	this->x -= rhs.x;
 	this->y -= rhs.y;
 	this->z -= rhs.z;
 }
-void	Math::Vector3::operator*=(const float& rhs) {
+void			Math::Vector3::operator*=(const float& rhs) {
 	this->x *= rhs;
 	this->y *= rhs;
 	this->z *= rhs;
 }
-void	Math::Vector3::operator/=(const float& rhs) {
+void			Math::Vector3::operator/=(const float& rhs) {
 	this->x /= rhs;
 	this->y /= rhs;
 	this->z /= rhs;
@@ -282,6 +281,15 @@ Math::Vector3	Math::Vector3::operator/(const float& rhs) const {
 	Math::Vector3 vec(*this);
 	vec /= rhs;
 	return vec;
+}
+bool			Math::Vector3::operator<(const Math::Vector3& rhs) const {
+	return std::tie(x, y, z) < std::tie(rhs.x, rhs.y, rhs.z);
+}
+bool			Math::Vector3::operator==(const Math::Vector3& rhs) const {
+	return (x == rhs.x && y == rhs.y && z == rhs.z);
+}
+bool			Math::Vector3::operator!=(const Math::Vector3& rhs) const {
+	return !(*this == rhs);
 }
 //static
 Math::Vector3	Math::Vector3::cross(Math::Vector3 v1, Math::Vector3 v2) {
@@ -374,6 +382,16 @@ Math::Matrix4&	Math::Matrix4::operator=(const Math::Matrix4& src) {
 	return (*this);
 }
 Math::Matrix4::~Matrix4() {}
+void	Math::Matrix4::orthogonalMatrix(float left, float right, float bottom, float top) {
+	this->identity();
+	this->_order = ROW_MAJOR;
+	this->tab[0][0] = 2 / (right - left);
+	this->tab[1][1] = 2 / (top - bottom);
+	this->tab[2][2] = -1;
+	this->tab[3][0] = -(right + left) / (right - left);
+	this->tab[3][1] = -(top + bottom) / (top - bottom);
+	this->setOrder(COLUMN_MAJOR);
+}
 void			Math::Matrix4::projectionMatrix(float fovRad, float farv, float nearv, int win_x, int win_y) {
 	this->reset();
 	this->_order = ROW_MAJOR;
@@ -497,32 +515,32 @@ void			Math::Matrix4::transpose() {
 void			Math::Matrix4::printData() const {
 	std::ios oldState(nullptr);
 	oldState.copyfmt(std::cout);
-	cout << std::fixed << std::setprecision(2);
+	std::cout << std::fixed << std::setprecision(2);
 
 	for (int i = 0; i < 16; i++) {
-		cout << setfill('0') << setw(5) << this->e[i] << " ";
+		std::cout << std::setfill('0') << std::setw(5) << this->e[i] << " ";
 		if (i % 4 == 3)
-			cout << " ";
+			std::cout << " ";
 	}
-	cout << endl << endl;
+	std::cout << "\n\n";
 
 	std::cout << "Matrix representation ( " << EMOTE_WARNING << " not the data as a tab[][] )\taddr: " << this << std::endl;
 	if (this->_order == ROW_MAJOR)
-		cout << "row major" << endl;
+		std::cout << "row major\n";
 	else
-		cout << "column major" << endl;
+		std::cout << "column major\n";
 
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (this->_order == ROW_MAJOR)
-				cout << setfill('0') << setw(5) << this->tab[i][j] << " ";
+				std::cout << std::setfill('0') << std::setw(5) << this->tab[i][j] << " ";
 			else
-				cout << setfill('0') << setw(5) << this->tab[j][i] << " ";
+				std::cout << std::setfill('0') << std::setw(5) << this->tab[j][i] << " ";
 		}
-		cout << endl;
+		std::cout << "\n";
 	}
-	cout << endl;
-	cout.copyfmt(oldState);
+	std::cout << "\n";
+	std::cout.copyfmt(oldState);
 }
 void			Math::Matrix4::updatePosValue(Math::Vector3 pos) {//inline ?
 	if (this->_order == ROW_MAJOR) {
@@ -536,7 +554,7 @@ void			Math::Matrix4::updatePosValue(Math::Vector3 pos) {//inline ?
 		this->tab[3][2] = pos.z;
 	}
 	else {
-		cerr << "Matrix4::_order impossible case: must be either ROW_MAJOR or COLUMN_MAJOR" << endl;
+		std::cerr << "Matrix4::_order impossible case: must be either ROW_MAJOR or COLUMN_MAJOR\n";
 		exit(EXIT_FAILURE);
 	}
 

@@ -16,7 +16,7 @@ std::string			Misc::getCurrentDirectory(void) {
 		std::cerr << "getcwd error" << std::endl;
 		exit(UNKNOW_ERROR);
 	}
-	return (std::string(path));
+	return (std::string(path)+"/");
 }
 
 #ifdef _WIN32 

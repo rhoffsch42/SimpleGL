@@ -107,6 +107,9 @@ public:
 		friend Math::Vector3 operator*(float lhs, const Math::Vector3& rhs) { return rhs * lhs; }
 		friend Math::Vector3 operator/(float lhs, const Math::Vector3& rhs) { return rhs / lhs; }
 		friend std::ostream& operator<<(std::ostream& os, const Math::Vector3& vec) { return os << vec.toString(); }
+		bool			operator<(const Math::Vector3& rhs) const;//to be used as functor
+		bool			operator==(const Math::Vector3& rhs) const;
+		bool			operator!=(const Math::Vector3& rhs) const;
 
 		//static
 		// https://physics.info/vector-multiplication/
@@ -152,6 +155,7 @@ public:
 		~Matrix4();
 
 		//add scale
+		void		orthogonalMatrix(float left, float right, float bottom, float top);
 		void		projectionMatrix(float fovRad, float farv, float nearv, int win_x, int win_y);
 		void		viewMatrix(Math::Vector3 camPos, Math::Rotation camRot);
 		void		modelMatrix(Math::Vector3 pos, Math::Rotation rot, Math::Vector3 scale);

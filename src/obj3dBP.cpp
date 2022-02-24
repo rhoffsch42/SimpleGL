@@ -118,6 +118,8 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 
 	this->_dataMode = Obj3dBP::defaultDataMode;
 	this->_polygonAmount = 0;
+	this->_eboIndices = 0;
+	this->_vboVertex = 0;
 	this->_centered = Obj3dBP::center;
 	this->_rescaled = Obj3dBP::rescale;
 	this->loadWithAssimp(filename);
@@ -142,6 +144,8 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear, unsigned int flags) : Blueprint("N/A") {
 	this->_dataMode = BP_LINEAR;
 	this->_polygonAmount = src_vertices_linear.size() / 3;
+	this->_eboIndices = 0;
+	this->_vboVertex = 0;
 	this->_centered = false;
 	this->_rescaled = false;
 	this->_normalized = false;
@@ -314,7 +318,7 @@ void	Obj3dBP::initBuffers() {
 	glBufferData(GL_ARRAY_BUFFER, this->_vertices.size() * sizeof(SimpleVertex), this->_vertices.data(), GL_STATIC_DRAW);//1 vbo for everything
 
 	//end
-	glBindBuffer(GL_ARRAY_BUFFER, 0);//attribution will be done later with a program
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 

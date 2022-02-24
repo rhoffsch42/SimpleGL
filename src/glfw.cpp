@@ -2,7 +2,7 @@
 #include "compiler_settings.h"
 
 static void		defaultErrorCallback(int error, const char *description) {
-	std::cerr << error << " : " << description << std::endl;
+	std::cerr << error << " : " << description << "\n";
 }
 
 static void		defaultWindowCloseCallback(GLFWwindow* window) {
@@ -11,7 +11,7 @@ static void		defaultWindowCloseCallback(GLFWwindow* window) {
 
 static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 	(void)window; (void)button; (void)action; (void)mods;
-	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	//std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 	if (action == GLFW_PRESS) {
 		GameManager* manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
 		if (manager->glfw && manager->glfw->cursorFree) {
@@ -21,19 +21,19 @@ static void		defaultMouseButtonCallback(GLFWwindow* window, int button, int acti
 				std::cout << "right button: ";
 			else if (button == GLFW_MOUSE_BUTTON_LEFT)
 				std::cout << "left button: ";
-			std::cout << x << " : " << y << std::endl;
+			std::cout << x << " : " << y << "\n";
 		}
 	}
 }
 
 static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	(void)window; (void)key; (void)scancode; (void)action; (void)mods;
-	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	//std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 	if (false) {
-		std::cout << "keys: " << key << std::endl;
-		std::cout << "scancode: " << scancode << std::endl;
-		std::cout << "action: " << action << std::endl;
-		std::cout << "mods: " << mods << std::endl;
+		std::cout << "keys: " << key << "\n";
+		std::cout << "scancode: " << scancode << "\n";
+		std::cout << "action: " << action << "\n";
+		std::cout << "mods: " << mods << "\n";
 	}
 	GameManager* manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
 	if (manager->glfw && manager->glfw->func[key])
@@ -42,10 +42,10 @@ static void		defaultkeyCallback(GLFWwindow* window, int key, int scancode, int a
 
 static void		keyCallback_tab(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	(void)window; (void)key; (void)scancode; (void)action; (void)mods;
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 
 	if (action == GLFW_PRESS) {
-		std::cout << "tab press" << std::endl;
+		std::cout << "tab press\n";
 		GameManager* manager = static_cast<GameManager*>(glfwGetWindowUserPointer(window));
 		if (manager->glfw) {
 			manager->glfw->toggleCursor();
@@ -57,28 +57,22 @@ std::thread::id Glfw::thread_id = std::this_thread::get_id();
 void	Glfw::glThreadSafety() {
 	std::thread::id current = std::this_thread::get_id();
 	if (current != Glfw::thread_id) {
-		std::cout << "Error: OpenGL call in wrong thread:\n\tcurrent:\t" << current << "\n\tOpenGL: \t" << Glfw::thread_id << std::endl;
+		std::cout << "Error: OpenGL call in wrong thread:\n\tcurrent:\t" << current << "\n\tOpenGL: \t" << Glfw::thread_id << "\n";
 		exit(5);
 	}
 }
 
 void	Glfw::initDefaultState() {
+	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_MAJOR);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_MINOR);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glClearDepth(-1.0f);
-	glDepthFunc(GL_GREATER);
-	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 }
 
 Glfw::Glfw() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 	this->_width = DEFAULT_WIDTH;
 	this->_height = DEFAULT_HEIGHT;
 	this->_title = DEFAULT_TITLE;
@@ -86,7 +80,7 @@ Glfw::Glfw() {
 }
 
 Glfw::Glfw(unsigned int width, unsigned int height) {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 	this->_width = std::min(width, (unsigned int)MAX_WIDTH);
 	this->_width = std::max(width, (unsigned int)MIN_WIDTH);
 	this->_height = std::min(height, (unsigned int)MAX_HEIGHT);
@@ -96,12 +90,12 @@ Glfw::Glfw(unsigned int width, unsigned int height) {
 }
 
 Glfw::~Glfw() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 	glfwDestroyWindow(this->_window);
 }
 
 void	Glfw::init() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
 
 	this->_mouseX = 0;
 	this->_mouseY = 0;
@@ -114,23 +108,19 @@ void	Glfw::init() {
 	this->_mouseAngle = 0;
 	this->_mouseWall = 0;
 	if (!glfwInit()) {
-		std::cerr << "glfwInit failed" << std::endl;
+		std::cerr << "glfwInit failed\n";
 		Misc::breakExit(GL_ERROR);
 	}
 	glfwSetErrorCallback(defaultErrorCallback);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_MAJOR);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_MINOR);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	Glfw::initDefaultState();
 	this->_window = glfwCreateWindow(this->_width, this->_height, this->_title.c_str(), NULL, NULL);
 	if (!this->_window) {
-		std::cerr << "glfwCreateWindow failed" << std::endl;
+		std::cerr << "glfwCreateWindow failed\n";
 		Misc::breakExit(GL_ERROR);
 	}
+	glfwMakeContextCurrent(this->_window);//to do before init glew
 	glfwSetWindowPos(this->_window, 0, 0);
 
-	glfwMakeContextCurrent(this->_window);//to do before init glew
 	this->cursorFree = false;
 	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(this->_window, GLFW_STICKY_KEYS, 1);
@@ -139,7 +129,7 @@ void	Glfw::init() {
 	//glew
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
-		std::cerr << "glewInit failed" << std::endl;
+		std::cerr << "glewInit failed\n";
 		Misc::breakExit(GL_ERROR);
 	}
 
@@ -154,7 +144,7 @@ void	Glfw::init() {
 	glfwSetCursorPos(this->_window, this->_width / 2, this->_height / 2);
 	glfwGetCursorPos(this->_window, &this->_mouseOriginX, &this->_mouseOriginY);
 	this->setMouseAngle(MOUSE_MAX_ANGLE);
-	std::cout << "GL version: " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "GL version: " << glGetString(GL_VERSION) << "\n";
 }
 
 void	Glfw::updateMouse() {
@@ -162,11 +152,11 @@ void	Glfw::updateMouse() {
 	
 	if (false) {
 	std::cout << this->_mouseX << " : " << this->_mouseY \
-	<< "\t(" << this->_mouseOriginX << " : " << this->_mouseOriginY << ")" << std::endl;
+	<< "\t(" << this->_mouseOriginX << " : " << this->_mouseOriginY << ")\n";
 	} else if (false) {
 		//diff
 		std::cout <<this->_mouseOriginX - this->_mouseX << " : " \
-				<< this->_mouseOriginY - this->_mouseY << std::endl;
+				<< this->_mouseOriginY - this->_mouseY << "\n";
 	}
 
 	if (!this->cursorFree) {
@@ -185,7 +175,7 @@ void	Glfw::updateMouse() {
 	}
 }
 
-void		Glfw::toggleCursor() {
+void	Glfw::toggleCursor() {
 	int	modes[2] = {GLFW_CURSOR_NORMAL, GLFW_CURSOR_DISABLED};
 	glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
 	if (this->cursorFree) {// if cursor is about to be locked
@@ -203,7 +193,7 @@ void		Glfw::toggleCursor() {
 	glfwSetInputMode(this->_window, GLFW_CURSOR, modes[(this->cursorFree ? 0 : 1)]);
 }
 
-void		Glfw::activateDefaultCallbacks(GameManager * manager) {
+void	Glfw::activateDefaultCallbacks(GameManager * manager) {
 	glfwSetWindowUserPointer(this->_window, manager);
 	glfwSetWindowCloseCallback(this->_window, defaultWindowCloseCallback);
 	glfwSetKeyCallback(this->_window, defaultkeyCallback);
@@ -213,12 +203,12 @@ void		Glfw::activateDefaultCallbacks(GameManager * manager) {
 	this->func[GLFW_KEY_TAB] = keyCallback_tab;
 }
 
-void		Glfw::setMouseAngle(double angle) {// set to negative to deactivate
+void	Glfw::setMouseAngle(double angle) {// set to negative to deactivate
 	this->_mouseAngle = std::min(angle, (double)MOUSE_MAX_ANGLE);
 	this->_mouseWall = this->_mouseAngle / (360.0 / MOUSE_SENSIBILITY);
 }
 
-void		Glfw::setTitle(std::string newTitle) {
+void	Glfw::setTitle(std::string newTitle) {
 	//verifier selon la taille de la fenetre? trunc ? a check
 	this->_title = newTitle;
 	glfwSetWindowTitle(this->_window, this->_title.c_str());
@@ -231,7 +221,7 @@ int			Glfw::getHeight() const { return (this->_height); }
 
 //shoudl never be called
 Glfw&		Glfw::operator=(const Glfw& src) {
-	std::cout << "_ "<< __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "_ "<< __PRETTY_FUNCTION__ << "\n";
 	std::cout << "WTF\n";
 	exit(0);
 	(void)src;
