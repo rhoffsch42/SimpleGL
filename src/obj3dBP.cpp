@@ -296,6 +296,12 @@ void	Obj3dBP::initBuffers() {
 	//VAO
 	glGenVertexArrays(1, &this->_vao);
 	glBindVertexArray(this->_vao);
+	glBindVertexArray(0);
+
+	/*
+		these buffers are created in a context that can potentially be shared with some other contexts 
+	*/
+
 	//https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/mesh.h
 	// glDrawElements
 	if (this->_dataMode == BP_INDICES) {
@@ -319,7 +325,6 @@ void	Obj3dBP::initBuffers() {
 
 	//end
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 /*

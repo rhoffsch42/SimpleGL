@@ -15,7 +15,7 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	this->_polygonMode = Obj3d::defaultPolygonMode;
 	this->displayTexture = Obj3d::defaultDisplayTexture;
 
-	this->_program.linkBuffers(this->_blueprint);//this should be done only once, in the BP vao!
+	this->_program.linkBuffers(this->_blueprint);//this should only be done in the rendering context
 
 	Obj3d::_instanceAmount++;
 }

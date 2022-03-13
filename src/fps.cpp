@@ -14,7 +14,6 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-using namespace std;
 
 
 Fps::Fps() {
@@ -100,6 +99,6 @@ void	Fps::printGlobalFps(void) {
 	cent = fps - double(int(fps));
 	if (cent >= 0.5)
 		fps += 1.0;
-	cout << (float)current_time << "\t" << int(fps) << "fps" << endl;
+	std::cout << (float)current_time << "\t" << int(fps) << "fps" << std::endl;
 	last_time += ellapsed_time;
 }

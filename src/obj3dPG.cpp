@@ -16,6 +16,9 @@ Obj3dPG::~Obj3dPG() {
 
 }
 
+/*
+	a vao exists only in the context it was created in
+*/
 void	Obj3dPG::linkBuffers(const Obj3dBP& blueprint) const {
 	/*
 		glVertexAttribPointer 5th arg is stride size: 0 = tightly packed, so opengl will determine itself
@@ -69,7 +72,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	PVmatrix.setOrder(COLUMN_MAJOR);
 
 	//can be done once for all obj3d
-	 glUseProgram(this->_program);
+	glUseProgram(this->_program);
 
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
 	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
@@ -83,7 +86,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 		std::exit(66);
 	}//else { std::cout << "vao>>" << vao << "<<\n"; }
 	//this->linkBuffersToVao(bp, vao);
-	this->linkBuffers(bp);//is it really required?
+	//this->linkBuffers(bp);//is it really required?
 	glBindVertexArray(vao);
 	//glBindVertexArray(Chunk::cubeBlueprint->getVao());
 
@@ -100,10 +103,8 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	//std::cout << vertices_amount << "_";
 	if (bp.getDataMode() == BP_LINEAR)
 		glDrawArrays(GL_TRIANGLES, 0, vertices_amount);
-	else { // should be BP_INDICES
+	else // should be BP_INDICES
 		glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
-		//glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
-	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -217,6 +218,7 @@ void	Obj3dPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
 	//std::cout << "total objects: " << list.size() << std::endl;
 	//std::cout << std::endl;
 	for (Object* object : list) {//to do AFTER all objects are rendered
+		//std::cout << "rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n";
 		object->local._matrixChanged = false;
 		object->_worldMatrixChanged = false;
 	}

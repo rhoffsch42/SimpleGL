@@ -7,6 +7,9 @@ public:
 	~Blueprint();
 	Blueprint&	operator=(const Blueprint& bp);
 
+	GLuint	createVao();
+	void	deleteVao();
+
 	//accessors
 	GLuint		getVao(void) const;
 	std::string	getName(void) const;
