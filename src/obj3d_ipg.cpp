@@ -19,7 +19,7 @@ void	Obj3dIPG::render(Object& object, Math::Matrix4 VPmatrix) const { //HAS to b
 	(void)object;
 	(void)VPmatrix;
 }
-void	Obj3dIPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {
+void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int flags) {
 	/*
 		// https://learnopengl.com/Advanced-OpenGL/Instancing
 

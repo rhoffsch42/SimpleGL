@@ -21,7 +21,7 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 }
 
 Obj3d::Obj3d(const Obj3d& src) : Object(src), _blueprint(src.getBlueprint()), _program(src.getProgram()) {
-	cout << "_ Obj3d cons by copy" << endl;
+	std::cout << "_ Obj3d cons by copy\n";
 	*this = src;
 }
 

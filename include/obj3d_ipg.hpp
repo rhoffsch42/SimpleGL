@@ -30,7 +30,7 @@ public:
 	~Obj3dIPG();
 
 	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
-	virtual void	renderObjects(list<Object*>& list, Cam& cam, unsigned int flags = 0);
+	virtual void	renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
 protected:
 	virtual void	getLocations();
 private:

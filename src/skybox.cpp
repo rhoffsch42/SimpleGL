@@ -2,7 +2,7 @@
 #include "skybox.hpp"
 
 Skybox::Skybox(Texture& texture, SkyboxPG& pg) : Object(),  _program(pg), _baseTexture(texture) {
-	cout << "_ Skybox cons" << endl;
+	std::cout << "_ Skybox cons\n";
 
 	//Cubemap texture
 	glEnable(GL_TEXTURE_CUBE_MAP);
@@ -93,7 +93,7 @@ Skybox::Skybox(Texture& texture, SkyboxPG& pg) : Object(),  _program(pg), _baseT
 }
 
 Skybox::~Skybox() {
-	cout << "_ Skybox des" << endl;
+	std::cout << "_ Skybox des\n";
 	glDeleteTextures(1, &this->_cubemapId);
 	glDeleteBuffers(1, &this->_vboVertex);
 	glDeleteVertexArrays(1, &this->_vao);

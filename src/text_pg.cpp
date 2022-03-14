@@ -89,7 +89,7 @@ void	TextPG::render(std::string text, float x, float y, float scale, Math::Vecto
 	glBindTexture(GL_TEXTURE_2D, 0);
  }
 
-void	TextPG::renderObjects(list<Object*>& list, Cam& cam, unsigned int flags) {}
+void	TextPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags) {}
 
 void	TextPG::getLocations() {
 	/* refacto: envoyer la fonction dans la classe Program:
