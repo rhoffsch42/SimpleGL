@@ -11,6 +11,10 @@ std::string	TextPG::fonts_folder = Misc::getCurrentDirectory() + "fonts/";
 TextPG::TextPG(std::string vs_file, std::string fs_file, bool init_locations)
 	: Program(vs_file, fs_file)
 {
+	this->_projection = 0;
+	this->_textColor = 0;
+	this->_vao = 0;
+	this->_vbo = 0;
 	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
 	if (init_locations)
 		this->getLocations();
@@ -27,7 +31,7 @@ void	TextPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 	Text* obj = dynamic_cast<Text*>(&object);
 	if (!obj) {
 		std::cout << "dynamic_cast<Text*> failed on Object : " << obj << std::endl;
-		// exit(22);
+		// Misc::breakExit(22);
 		// this can happen when an object is being nulled to be replaced by another one, block or continue?
 		return;
 	}
@@ -55,7 +59,7 @@ void	TextPG::render(std::string text, float x, float y, float scale, Math::Vecto
 		Character* ch = &cho;
 		if (!ch) {
 			std::cout << "ficl\n";
-			std::exit(-44);
+			Misc::breakExit(-44);
 		}
 
 		float xpos = x + ch->Bearing.x * scale;

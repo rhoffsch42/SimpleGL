@@ -50,7 +50,7 @@ GLint	Program::getSlot(const GLchar* varname, bool n) const {
 		std::cerr << "Failed to get slot" << std::endl;
 		std::cerr << "program:\t" << this->_program << std::endl;
 		std::cerr << "varname:\t" << varname << std::endl;
-		exit(GL_ERROR);
+		Misc::breakExit(GL_ERROR);
 	}
 	return (slot);
 }
@@ -82,7 +82,7 @@ void	Program::glCompileError(GLuint shader, const char* intro) const {
 	glGetShaderInfoLog(shader, maxl, &l, info);
 	std::cerr << intro << std::endl << info << std::endl;
 	std::cerr << GL_COMPILE_SHADER << std::endl;
-	exit(GL_ERROR);
+	Misc::breakExit(GL_ERROR);
 }
 
 void	Program::printProgramInfoLog(GLuint program) const {
@@ -105,7 +105,7 @@ void	Program::printProgramInfoLog(GLuint program) const {
 	glGetProgramInfoLog(program, max_len, &len, logs);
 	std::cerr << "program info log for GL index " << program << ": (" << len << " char)" << std::endl << logs << std::endl;
 	// this->~Program();
-	exit(GL_ERROR);
+	Misc::breakExit(GL_ERROR);
 }
 
 /*

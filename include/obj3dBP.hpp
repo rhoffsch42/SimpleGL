@@ -28,11 +28,47 @@ struct SimpleVector2 {
 	float	y;
 };
 
+/*
+	v  |   grid_size   |
+
+
+	textures: 1 big texture containing 256 sprites (16x16 grid)
+
+	https://www.youtube.com/watch?v=bGN445_2NSw
+	chunk 32x32x32 :
+		3 x 11bits per pos
+		6 possible normals: 3bits
+
+
+
+	buildVertexArrayFromOctree in GPU:
+		1 voxel id containing:
+			textureID,
+				2 texCoo per 1 vertex computed on GPU
+		neighbors_flag: determining if each faces are drawn
+		voxel pos & size: allowing to compute each vertex for drawn faces
+*/
 struct SimpleVertex {
 	Math::Vector3	position;
 	SimpleVector2	texCoord;
 	Math::Vector3	color;
 	//Math::Vector3	Normal;
+	bool			operator<(const SimpleVertex& rhs) const {//to be used as functor
+		return std::tie(position.x, position.y, position.z) < std::tie(rhs.position.x, rhs.position.y, rhs.position.z);
+	}
+};
+
+struct TinyVertex {
+	uint8_t	x;
+	uint8_t	y;
+	uint8_t	z;
+	bool			operator<(const TinyVertex& rhs) const {//to be used as functor
+		return std::tie(x, y, z) < std::tie(rhs.x, rhs.y, rhs.z);
+	}
+	//bool			operator==(const TinyVertex& rhs) const {//to be used as functor
+	//	return (this->x != rhs.x && this->y != rhs.y && this->z != rhs.z);
+	//}
+
 };
 
 /*
@@ -51,7 +87,7 @@ public:
 	Obj3dBP(std::string filename);
 	Obj3dBP(Obj3dBP const & src);//private? or delete
 	//array must be linear
-	Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear, unsigned int flags = 0);
+	Obj3dBP(std::vector<SimpleVertex>& src_vertices, std::vector<unsigned int>& src_indices, unsigned int flags = 0);
 	~Obj3dBP();
 	Obj3dBP&	operator=(const Obj3dBP& obj3dbp);//a refaire
 

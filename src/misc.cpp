@@ -1,5 +1,8 @@
 #include "simplegl.h"
 #include "misc.hpp"
+#include <chrono>
+#include <thread>
+using namespace std::chrono_literals;
 
 Misc::Misc() {
 }
@@ -68,8 +71,13 @@ std::string			Misc::crossPlatPath(std::string path) {
 }
 
 void				Misc::breakExit(int err) {
-	std::cerr << "BREAKPOINT BEFORE EXIT : " << err << std::endl;
-	exit(err);
+	//std::cerr << "BREAKPOINT BEFORE EXIT : " << err << std::endl;
+	std::cout << "\nExiting in 10sec";
+	for (size_t i = 0; i < 10; i++) {
+		std::this_thread::sleep_for(1s);
+		std::cout << ".";
+	}
+	std::exit(err);
 }
 
 void				Misc::intToRGB(unsigned int value, uint8_t * dst) {

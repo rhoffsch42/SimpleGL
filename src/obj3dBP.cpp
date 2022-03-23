@@ -131,7 +131,7 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	//for (auto i : vertices)
 	//	ss << i.position.toString();
 	//ss << "\n\n";
-	//exit(0);
+	//Misc::breakExit(0);
 	this->initBuffers();
 
 	std::cout << this->_vertices.size() << std::endl;
@@ -141,15 +141,21 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	std::cout << "----------------------------------------\n" << std::endl;
 }
 
-Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices_linear, unsigned int flags) : Blueprint("N/A") {
-	this->_dataMode = BP_LINEAR;
-	this->_polygonAmount = src_vertices_linear.size() / 3;
+Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices, std::vector<unsigned int>& src_indices, unsigned int flags) : Blueprint("N/A") {
 	this->_eboIndices = 0;
 	this->_vboVertex = 0;
 	this->_centered = false;
 	this->_rescaled = false;
 	this->_normalized = false;
-	this->_vertices = src_vertices_linear;
+	this->_vertices = src_vertices;//todo: std::move?
+	if (src_indices.empty()) {
+		this->_dataMode = BP_LINEAR;
+		this->_polygonAmount = src_vertices.size() / 3;
+	} else {
+		this->_dataMode = BP_INDICES;
+		this->_indices = src_indices;//todo: std::move?
+		this->_polygonAmount = src_indices.size() / 3;
+	}
 	if ((flags & BP_DONT_NORMALIZE) != BP_DONT_NORMALIZE)
 		this->normalize();
 	this->initBuffers();
@@ -210,8 +216,11 @@ void			Obj3dBP::freeData(unsigned int flags) {
 	}
 }
 
+/*
+	is it really normalized if centered and rescaled are false?
+*/
 void	Obj3dBP::normalize() {
-	// dimensions and centering
+	// dimensions, vertices rescale and centering
 	this->_normalized = true;
 	//if (!this->_vertices.size()) {return;}
 	float	vmin[3];
@@ -223,9 +232,9 @@ void	Obj3dBP::normalize() {
 	vmax[1] = vmin[1];
 	vmax[2] = vmin[2];
 	for (size_t i = 0; i < this->_vertices.size(); i++) {
-		tinyobj::real_t vx = this->_vertices[i].position.x;
-		tinyobj::real_t vy = this->_vertices[i].position.y;
-		tinyobj::real_t vz = this->_vertices[i].position.z;
+		float vx = this->_vertices[i].position.x;
+		float vy = this->_vertices[i].position.y;
+		float vz = this->_vertices[i].position.z;
 		vmin[0] = (vx < vmin[0]) ? vx : vmin[0];
 		vmin[1] = (vy < vmin[1]) ? vy : vmin[1];
 		vmin[2] = (vz < vmin[2]) ? vz : vmin[2];
@@ -296,14 +305,13 @@ void	Obj3dBP::initBuffers() {
 	//VAO
 	glGenVertexArrays(1, &this->_vao);
 	glBindVertexArray(this->_vao);
-	glBindVertexArray(0);
 
 	/*
 		these buffers are created in a context that can potentially be shared with some other contexts 
 	*/
 
-	//https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/mesh.h
-	// glDrawElements
+	// https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/mesh.h
+	// EBO glDrawElements
 	if (this->_dataMode == BP_INDICES) {
 		if (0) {//display data
 			for (size_t i = 0; i < this->_indices.size(); i++) {
@@ -316,15 +324,14 @@ void	Obj3dBP::initBuffers() {
 		}
 		glGenBuffers(1, &this->_eboIndices);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_eboIndices);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->_indices.size() * sizeof(float), this->_indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->_indices.size() * sizeof(unsigned int), this->_indices.data(), GL_STATIC_DRAW);
 	}
 	//VBO
 	glGenBuffers(1, &this->_vboVertex);
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vboVertex);
 	glBufferData(GL_ARRAY_BUFFER, this->_vertices.size() * sizeof(SimpleVertex), this->_vertices.data(), GL_STATIC_DRAW);//1 vbo for everything
 
-	//end
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 /*

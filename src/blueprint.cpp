@@ -31,7 +31,7 @@ Blueprint& Blueprint::operator=(const Blueprint& src) {
 GLuint	Blueprint::createVao() {
 	if (this->_vao != 0) {
 		std::cerr << "overriding the vao: " << this->_vao << ". This shouldn't happen.\n";
-		std::exit(-56);
+		Misc::breakExit(-56);
 	}
 	glGenVertexArrays(1, &this->_vao);
 	std::cout << "creating vao: " << this->_vao << " for bp: " << this << "\n";

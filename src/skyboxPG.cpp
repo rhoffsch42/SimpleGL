@@ -44,7 +44,7 @@ void	SkyboxPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fl
 		Skybox* skybox = dynamic_cast<Skybox*>(o);
 		if (!skybox) {
 			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
-			exit(0);
+			Misc::breakExit(0);
 		} else {
 			skybox->render(viewProMatrix);
 		}

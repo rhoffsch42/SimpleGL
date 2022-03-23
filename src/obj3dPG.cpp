@@ -56,7 +56,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	Obj3d* obj = dynamic_cast<Obj3d*>(&object);
 	if (!obj) {
 		std::cout << "dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl;
-		// exit(22);
+		// Misc::breakExit(22);
 		// this can happen when an object is being nulled to be replaced by another one, block or continue?
 		return;
 	}
@@ -79,24 +79,18 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
 	//std::cout << "rendering BP " << &bp << " vao " << bp.getVao() << " with Chunk::cubeBlueprint vao " << Chunk::cubeBlueprint->getVao() << std::endl;
-	//GLuint	vao = Chunk::cubeBlueprint->getVao();
 	GLuint	vao = bp.getVao();
 	if (vao == 0) {
 		std::cout << "vao: " << vao << "\n";
-		std::exit(66);
-	}//else { std::cout << "vao>>" << vao << "<<\n"; }
-	//this->linkBuffersToVao(bp, vao);
-	//this->linkBuffers(bp);//is it really required?
+		Misc::breakExit(66);
+	}
 	glBindVertexArray(vao);
-	//glBindVertexArray(Chunk::cubeBlueprint->getVao());
 
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glActiveTexture(GL_TEXTURE0);//required for some drivers
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
-	} else {
-		glUniform1f(this->_tex_coef, 0.0f);
-	}
+	} else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp.getPolygonAmount() * 3;
@@ -105,6 +99,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 		glDrawArrays(GL_TRIANGLES, 0, vertices_amount);
 	else // should be BP_INDICES
 		glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
+
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -160,9 +155,10 @@ void	Obj3dPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fla
 		Obj3d* object = dynamic_cast<Obj3d*>(o);
 		if (!object) {
 			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
-			std::exit(22);
+			Misc::breakExit(22);
 			return;
-		} else {
+		}
+		else {
 			object->update();
 			draw = true;
 			oldcolor = object->getColor();
@@ -250,7 +246,7 @@ void	Obj3dPG::renderObjects(Object** objectArray, Cam& cam, unsigned int flags) 
 		object = dynamic_cast<Obj3d*>(objectArray[i]);
 		if (!object) {
 			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << objectArray[i] << std::endl;
-			std::exit(22);
+			Misc::breakExit(22);
 			return;
 		}
 		else {

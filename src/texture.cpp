@@ -9,7 +9,7 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	if (!file) {
 		std::cout << Misc::getCurrentDirectory() << "\n";
 		std::cout << "Failure to open bitmap file : " << filename << "\n";
-		exit(11);
+		Misc::breakExit(11);
 	}
 
 	// Allocate byte memory that will hold the two headers and read headers
@@ -23,22 +23,25 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	this->_height = bmpInfo->biHeight;
 
 	// Checks
-	if (bmpHeader->bfType != 0x4D42 ) {
+	if (bmpHeader->bfType != 0x4D42) {
 		std::cout << "File \"" << filename.c_str() << "\" isn't a bitmap file\n";
-		exit(2);
-	} else if (bmpInfo->biWidth < 0 || bmpInfo->biHeight < 0) {
+		Misc::breakExit(2);
+	}
+	else if (bmpInfo->biWidth < 0 || bmpInfo->biHeight < 0) {
 		std::cout << "File \"" << filename.c_str() << "\" has a negative width or height. Not supported (yet).\n";
-		exit(2);
+		Misc::breakExit(2);
 	}
 	GLenum bitMode;
 	int pixelSize = bmpInfo->biBitCount / 8;
 	if (bmpInfo->biBitCount == 24) {
 		bitMode = GL_RGB;
-	} else if (bmpInfo->biBitCount == 32) {
+	}
+	else if (bmpInfo->biBitCount == 32) {
 		bitMode = GL_RGBA;
-	} else {
+	}
+	else {
 		std::cout << "File \"" << filename.c_str() << "\" isn't a 24/32 bits bitmap file\n";
-		exit(2);
+		Misc::breakExit(2);
 	}
 
 	int row_size_used = this->_width * pixelSize;
@@ -53,13 +56,13 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	std::cout << "bmpInfo->biCompression:" << bmpInfo->biCompression << "\n";
 	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << "\n";
 	// if (!bmpInfo->biSizeImage)//Specifies the size, in bytes, of the image. This can be set to 0 for uncompressed RGB bitmaps.
-		bmpInfo->biSizeImage = row_size_full * bmpInfo->biHeight;
-	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << " (computed)"<< "\n";
+	bmpInfo->biSizeImage = row_size_full * bmpInfo->biHeight;
+	std::cout << "bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << " (computed)" << "\n";
 	std::cout << "bmpInfo->biBitCount:" << bmpInfo->biBitCount << "\n";
 
 	unsigned int RGBsize = (this->_width * 3) * bmpInfo->biHeight;// 3 cauz RGB
 	std::cout << "RGBsize:" << RGBsize << "\n";
-	uint8_t*	pixels = new uint8_t[bmpInfo->biSizeImage];
+	uint8_t* pixels = new uint8_t[bmpInfo->biSizeImage];
 	// this->_data = new uint8_t[bmpInfo->biSizeImage];//oversized, but well padded for opengl (contains padding and potential 32bit size)
 	this->_data = new uint8_t[RGBsize];//size can be not well padded for openGL, see Texture::loadTexture();
 
@@ -80,9 +83,11 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	for (int i = 0; i < bmpInfo->biSizeImage; i++) {
 		if (bitMode == GL_RGBA && i % 4 == 3) {
 			// std::cout << "fuck A:" << (int)pixels[i] << "\n";
-		} else if (padding && (i % row_size_full) > row_size_used - 1) {
+		}
+		else if (padding && (i % row_size_full) > row_size_used - 1) {
 			// std::cout << "fuck padding\n";
-		} else {
+		}
+		else {
 			this->_data[j] = pixels[i];
 			j++;
 		}
@@ -127,7 +132,7 @@ Texture::Texture(const Texture& src) {
 	*this = src;
 }
 
-Texture&	Texture::operator=(const Texture& src) {
+Texture& Texture::operator=(const Texture& src) {
 	this->_filename = src._filename;
 	this->_width = src._width;
 	this->_height = src._height;
@@ -151,7 +156,7 @@ void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height)
 		std::cout << "Texture::updateData(...) failed: wrong width and/or height\n";
 		std::cout << this->_width << "x" << this->_height << " != " << width << "x" << height << "\n";
 		std::cout << this->_id << ": " << this->_filename << "\n";
-		//exit(4);
+		//Misc::breakExit(4);
 	} else {
 		memcpy(this->_data, data, width * height * 3);
 		if (this->_isLoaded) {
