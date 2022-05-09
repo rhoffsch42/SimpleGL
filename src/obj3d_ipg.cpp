@@ -63,9 +63,9 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 		std::cout << "dynamic_cast<Obj3d*>(list.front()) failed: " << list.front() << std::endl;
 		Misc::breakExit(12);
 	}
-	Obj3dBP& bp = obj->getBlueprint();
+	Obj3dBP* bp = obj->getBlueprint();
 	const Math::Vector3& color = obj->getColorShader();//will be used for every obj3d!
-	glBindVertexArray(bp.getVao());
+	glBindVertexArray(bp->getVao());
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vboMatrix);
 	if (this->_vboSize >= instances_amount) {//use the current vbo as he is big enough
@@ -94,8 +94,8 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 	else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
-	int	vertices_amount = bp.getPolygonAmount() * 3;
-	if (bp.getDataMode() == BP_LINEAR)
+	int	vertices_amount = bp->getPolygonAmount() * 3;
+	if (bp->getDataMode() == BP_LINEAR)
 		glDrawArraysInstanced(GL_TRIANGLES, 0, vertices_amount, instances_amount);
 	else { // should be BP_INDICES
 		//unsigned int face = cam.speed;

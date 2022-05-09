@@ -19,7 +19,7 @@
 #define BP_FREE_VERTICES	2
 #define BP_FREE_ALL			0xffffffff
 
-#define BP_DONT_NORMALIZE		1
+#define BP_DONT_NORMALIZE		0x00000001
 
 struct SimpleVector2 {
 	SimpleVector2() : x(0), y(0) {}
@@ -83,11 +83,15 @@ public:
 	static bool			rescale; //true
 	static bool			center; //true
 
-
 	Obj3dBP(std::string filename);
 	Obj3dBP(Obj3dBP const & src);//private? or delete
+
 	//array must be linear
-	Obj3dBP(std::vector<SimpleVertex>& src_vertices, std::vector<unsigned int>& src_indices, unsigned int flags = 0);
+	Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vector<unsigned int>& src_indices, unsigned int flags = 0);
+
+	//merge everything into 1 BP, all BP must have the same _dataMode (BP_LINEAR or BP_INDICES)
+	Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags = 0);
+
 	~Obj3dBP();
 	Obj3dBP&	operator=(const Obj3dBP& obj3dbp);//a refaire
 

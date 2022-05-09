@@ -104,7 +104,7 @@ void	Obj3dBP::loadWithAssimp(std::string path) {
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-		return;
+		std::exit(2);
 	}
 	//string directory = path.substr(0, path.find_last_of("/\\"));
 	this->assimpProcessNode(scene->mRootNode, scene);
@@ -141,7 +141,7 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	std::cout << "----------------------------------------\n" << std::endl;
 }
 
-Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices, std::vector<unsigned int>& src_indices, unsigned int flags) : Blueprint("N/A") {
+Obj3dBP::Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vector<unsigned int>& src_indices, unsigned int flags) : Blueprint("N/A by vertices") {
 	this->_eboIndices = 0;
 	this->_vboVertex = 0;
 	this->_centered = false;
@@ -160,6 +160,46 @@ Obj3dBP::Obj3dBP(std::vector<SimpleVertex>& src_vertices, std::vector<unsigned i
 		this->normalize();
 	this->initBuffers();
 }
+
+/*
+	This will merge multiple objects BPs in a single object BP (they probably will be intricated).
+
+	This doesnt mean that the vertices original positions are related to an instanced obj3d,
+	this will not offset the vertices original positions with the obj3d position in local space.
+*/
+Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A by BPs merging") {
+	this->_polygonAmount = 0;
+	this->_eboIndices = 0;
+	this->_vboVertex = 0;
+	this->_centered = false;
+	this->_rescaled = false;
+	this->_normalized = false;
+
+	this->_dataMode = src.front()->getDataMode();
+	for (auto bp : src) {
+		if (bp->getDataMode() != this->_dataMode) {
+			std::cout << "Obj3dBP merging constructor error: a BP has a different data mode.\n";
+			Misc::breakExit(56);
+		}
+		const std::vector<SimpleVertex>& vert = bp->getVertices();
+		this->_vertices.insert(this->_vertices.end(), vert.begin(), vert.end());
+		if (this->_dataMode == BP_INDICES) {
+			std::vector<GLuint>&	ind = bp->getIndices();
+			this->_indices.insert(this->_indices.end(), ind.begin(), ind.end());
+		}
+		this->_polygonAmount += bp->getPolygonAmount();
+	}
+	if (this->_polygonAmount != this->_vertices.size() / 3) {
+		std::cout << "Obj3dBP merging constructor error: data corrupted when merging polygons.\n";
+		std::cout << this->_polygonAmount << " != " << (this->_vertices.size() / 3) << "\n";
+		Misc::breakExit(56);
+	}
+
+	if ((flags & BP_DONT_NORMALIZE) != BP_DONT_NORMALIZE)
+		this->normalize();
+	this->initBuffers();
+}
+
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
 	std::cout << "_ Obj3dBP cons by copy" << std::endl;

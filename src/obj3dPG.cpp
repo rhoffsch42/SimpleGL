@@ -61,7 +61,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 		return;
 	}
 	const Math::Vector3& color = obj->getColorShader();
-	Obj3dBP& bp = obj->getBlueprint();
+	Obj3dBP* bp = obj->getBlueprint();
 	// Math::Matrix4&	modelMatrix = obj->getParent() ? obj->getWorldMatrix() : obj->local.getMatrix();
 	Math::Matrix4& modelMatrix = obj->getWorldMatrix();
 
@@ -79,7 +79,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
 	//std::cout << "rendering BP " << &bp << " vao " << bp.getVao() << " with Chunk::cubeBlueprint vao " << Chunk::cubeBlueprint->getVao() << std::endl;
-	GLuint	vao = bp.getVao();
+	GLuint	vao = bp->getVao();
 	if (vao == 0) {
 		std::cout << "vao: " << vao << "\n";
 		Misc::breakExit(66);
@@ -93,19 +93,22 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	} else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
-	int	vertices_amount = bp.getPolygonAmount() * 3;
+	int	vertices_amount = bp->getPolygonAmount() * 3;
 	//std::cout << vertices_amount << "_";
-	if (bp.getDataMode() == BP_LINEAR)
+
+	/**/
+	if (bp->getDataMode() == BP_LINEAR)
 		glDrawArrays(GL_TRIANGLES, 0, vertices_amount);
 	else // should be BP_INDICES
 		glDrawElements(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0);
+	/**/
 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
-	Obj3dBP& bp = obj.getBlueprint();
+	Obj3dBP* bp = obj.getBlueprint();
 	Math::Matrix4& modelMatrix = obj.getWorldMatrix();
 
 	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << std::endl;
@@ -123,10 +126,10 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	glUniform3f(this->_plain_color, float(rgb[0]) / 255.0f, float(rgb[1]) / 255.0f, float(rgb[2]) / 255.0f);
 	//should store address of object directly, if we can store RGBA with the shader
 
-	glBindVertexArray(bp.getVao());
+	glBindVertexArray(bp->getVao());
 	glUniform1f(this->_tex_coef, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDrawArrays(GL_TRIANGLES, 0, bp.getPolygonAmount() * 3);
+	glDrawArrays(GL_TRIANGLES, 0, bp->getPolygonAmount() * 3);
 
 	glBindVertexArray(0);
 }
@@ -174,7 +177,7 @@ void	Obj3dPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fla
 					center = object->local.getPos();//== world pos
 				}
 				scale = object->local.getScale();//what if parent?
-				dim = object->getBlueprint().getDimensions();//what if parent?
+				dim = object->getBlueprint()->getDimensions();//what if parent?
 				dim.x *= scale.x;
 				dim.y *= scale.y;
 				dim.z *= scale.z;
@@ -265,7 +268,7 @@ void	Obj3dPG::renderObjects(Object** objectArray, Cam& cam, unsigned int flags) 
 					center = object->local.getPos();//== world pos
 				}
 				scale = object->local.getScale();//what if parent?
-				dim = object->getBlueprint().getDimensions();//what if parent?
+				dim = object->getBlueprint()->getDimensions();//what if parent?
 				dim.x *= scale.x;
 				dim.y *= scale.y;
 				dim.z *= scale.z;

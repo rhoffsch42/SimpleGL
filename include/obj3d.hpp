@@ -32,8 +32,8 @@ public:
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
 
 	//accessors
-	Obj3dBP&		getBlueprint(void) const;
-	Obj3dPG&		getProgram(void) const;
+	Obj3dBP*		getBlueprint(void) const;
+	Obj3dPG*		getProgram(void) const;
 	Math::Vector3	getColor(void) const;
 	Math::Vector3	getColorShader(void) const;
 	Texture*		getTexture(void) const;

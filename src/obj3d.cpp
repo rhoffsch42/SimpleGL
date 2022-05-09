@@ -20,18 +20,18 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 	Obj3d::_instanceAmount++;
 }
 
-Obj3d::Obj3d(const Obj3d& src) : Object(src), _blueprint(src.getBlueprint()), _program(src.getProgram()) {
+Obj3d::Obj3d(const Obj3d& src) : Object(src), _blueprint(src._blueprint), _program(src._program) {
 	std::cout << "_ Obj3d cons by copy\n";
 	*this = src;
 }
 
 Obj3d&		Obj3d::operator=(const Obj3d& src) {//doesnt call Object operator= ?
 	this->displayTexture = src.displayTexture;
-	this->_blueprint = src.getBlueprint();
-	this->_program = src.getProgram();
-	this->_color = src.getColor();
-	this->_texture = src.getTexture();
-	this->_polygonMode = src.getPolygonMode();
+	this->_blueprint = src._blueprint;
+	this->_program = src._program;
+	this->_color = src._color;
+	this->_texture = src._texture;
+	this->_polygonMode = src._polygonMode;
 
 	Obj3d::_instanceAmount++;
 	return (*this);
@@ -81,8 +81,8 @@ void		Obj3d::setPolygonMode(GLenum mode) {
 }
 
 //accessors
-Obj3dBP&		Obj3d::getBlueprint(void) const { return (this->_blueprint); }
-Obj3dPG&		Obj3d::getProgram(void) const { return (this->_program); }
+Obj3dBP*		Obj3d::getBlueprint(void) const { return (&this->_blueprint); }
+Obj3dPG*		Obj3d::getProgram(void) const { return (&this->_program); }
 Math::Vector3	Obj3d::getColor(void) const { return (this->_color); }
 Math::Vector3	Obj3d::getColorShader(void) const { return (this->_colorShader); }
 Texture*		Obj3d::getTexture(void) const { return (this->_texture); }
