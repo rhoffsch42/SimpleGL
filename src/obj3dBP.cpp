@@ -6,12 +6,12 @@
 #include <algorithm>
 
 #ifdef SGL_DEBUG
- #define SGL_SKYBOX_DEBUG
+ //#define SGL_OBJ3DBP_DEBUG
 #endif
-#ifdef SGL_SKYBOX_DEBUG 
- #define D(x) std::cout << "[Skybox] " << x ;
+#ifdef SGL_OBJ3DBP_DEBUG 
+ #define D(x) std::cout << "[Obj3dBP] " << x ;
  #define D_(x) x
- #define D_SPACER "-- skybox.cpp -------------------------------------------------\n"
+ #define D_SPACER "-- obj3dBP.cpp -------------------------------------------------\n"
  #define D_SPACER_END "----------------------------------------------------------------\n"
 #else 
  #define D(x)
@@ -110,7 +110,7 @@ void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene) {
 }
 
 void	Obj3dBP::loadWithAssimp(std::string path) {
-	//D(__PRETTY_FUNCTION__ << std::endl)
+	D(__PRETTY_FUNCTION__ << std::endl)
 	//https://stackoverflow.com/questions/39269121/assimp-loader-with-a-cube-of-8-vertices
 	Assimp::Importer importer;
 	//http://assimp.sourceforge.net/lib_html/postprocess_8h.html
@@ -125,7 +125,7 @@ void	Obj3dBP::loadWithAssimp(std::string path) {
 	//string directory = path.substr(0, path.find_last_of("/\\"));
 	this->assimpProcessNode(scene->mRootNode, scene);
 
-	//D(__PRETTY_FUNCTION__ << " END" << std::endl)
+	D(__PRETTY_FUNCTION__ << " END" << std::endl)
 }
 
 Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {

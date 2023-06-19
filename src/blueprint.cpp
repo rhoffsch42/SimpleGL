@@ -3,7 +3,7 @@
 #include "blueprint.hpp"
 
 #ifdef SGL_DEBUG
- #define SGL_BLUEPRINT_DEBUG
+ //#define SGL_BLUEPRINT_DEBUG
 #endif
 #ifdef SGL_BLUEPRINT_DEBUG 
  #define D(x) std::cout << "[Blueprint] " << x ;
