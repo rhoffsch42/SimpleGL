@@ -1,4 +1,21 @@
 #include "framebuffer.hpp"
+#include "simplegl.h"
+
+#ifdef SGL_DEBUG
+#define SGL_FRAMEBUFFER_DEBUG
+#endif
+#ifdef SGL_FRAMEBUFFER_DEBUG 
+#define D(x) std::cout << "[FrameBuffer] " << x ;
+#define D_(x) x
+#define D_SPACER "-- framebuffer.cpp -------------------------------------------------\n"
+#define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+#define D(x)
+#define D_(x)
+#define D_SPACER ""
+#define D_SPACER_END ""
+#endif
+
 
 FrameBuffer::FrameBuffer(int width, int height) {
 	this->rboFormat = GL_DEPTH_COMPONENT;
@@ -31,7 +48,7 @@ FrameBuffer::FrameBuffer(int width, int height) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// attach
-	std::cout << "attach: " << this->fbo << " : " << this->rbo << " | " << this->texId << std::endl;
+	D("attach: " << this->fbo << " : " << this->rbo << " | " << this->texId << std::endl)
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->rbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,	this->texId, 0);// mipmap level: 0(base)
 

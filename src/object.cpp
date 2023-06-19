@@ -1,5 +1,21 @@
 #include "simplegl.h"
+#include "compiler_settings.h"
 #include "object.hpp"
+
+#ifdef SGL_DEBUG
+ #define SGL_OBJECT_DEBUG
+#endif
+#ifdef SGL_OBJECT_DEBUG 
+ #define D(x) std::cout << "[Object] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- object.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 //static variables initialisation
 unsigned int	Object::getInstanceAmount() { return (Object::_instanceAmount); }
@@ -7,7 +23,7 @@ unsigned int	Object::_instanceAmount = 0;
 unsigned int	Object::_instanceId = 0;
 
 Object::Object() : BehaviorManaged() {
-	//cout << "_ Object cons" << endl;
+	//D("Object cons" << endl)
 	this->_id = Object::_instanceId;
 	this->_parent = nullptr;
 	this->_worldMatrixChanged = true;
@@ -17,7 +33,7 @@ Object::Object() : BehaviorManaged() {
 }
 
 Object::Object(Properties object_pp) : BehaviorManaged(), local(object_pp) {
-	std::cout << "_ Object cons with custom Properties" << std::endl;
+	D("Object cons with custom Properties" << std::endl)
 	this->_id = Object::_instanceId;
 	this->_parent = nullptr;
 	this->_worldMatrixChanged = true;
@@ -27,7 +43,7 @@ Object::Object(Properties object_pp) : BehaviorManaged(), local(object_pp) {
 }
 
 Object::Object(const Object& src) {
-	std::cout << "_ Object cons by copy" << std::endl;
+	D("Object cons by copy" << std::endl)
 
 	*this = src;
 }
@@ -45,14 +61,14 @@ Object&		Object::operator=(const Object& src) {
 }
 
 Object::~Object() {
-	//cout << "_ Object des" << endl;
+	//D("Object des" << endl)
 	Object::_instanceAmount--;
 	//remove iteself from behaviors! todo
 }
 
 // true = was already updated ; false = wasn't update
 bool		Object::update() {//update Properties
-	// cout << "* Object::update" << endl;
+	//D("* Object::update" << endl)
 	this->local.updateMatrix();
 	if (this->_parent) {
 		this->_parent->update();
@@ -83,7 +99,7 @@ bool		Object::update() {//update Properties
 void		Object::render(Math::Matrix4& PVmatrix) {
 	this->update();
 	(void)PVmatrix;
-	// cout << "Empty Object: nothing to render." << endl;
+	//D("Empty Object: nothing to render." << endl)
 }
 
 //mutators

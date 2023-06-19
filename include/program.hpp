@@ -15,6 +15,7 @@
 //flags (set statics ? less clear when we use the function)
 #define	PG_FORCE_DRAW		1
 #define	PG_FRUSTUM_CULLING	2
+#define	PG_MULTIDRAW		4
 #define	PG_ALL				0xffffffff
 
 class Program

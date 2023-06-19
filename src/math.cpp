@@ -1,8 +1,23 @@
-// #include "simplegl.h"
+#include "simplegl.h"
 #include "math.hpp"
 #include <iostream>
 #include <sstream>
 #include <tuple>
+
+//#ifdef SGL_DEBUG
+ #define SGL_MATH_DEBUG
+//#endif
+#ifdef SGL_MATH_DEBUG 
+ #define D(x) std::cout << "[Math] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- math.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 Math::Math() {}
 Math::~Math() {}
@@ -406,7 +421,7 @@ void			Math::Matrix4::projectionMatrix(float fovRad, float farv, float nearv, in
 	this->setOrder(COLUMN_MAJOR);
 }
 void			Math::Matrix4::viewMatrix(Math::Vector3 camPos, Math::Rotation camRot) {
-	//std::cout << "_ " << __PRETTY_FUNCTION__ << "\taddr: " << this << std::endl;
+	//D(__PRETTY_FUNCTION__ << "\taddr: " << this << std::endl)
 	float		val[8];
 	
 	this->identity();
@@ -554,8 +569,8 @@ void			Math::Matrix4::updatePosValue(Math::Vector3 pos) {//inline ?
 		this->tab[3][2] = pos.z;
 	}
 	else {
-		std::cerr << "Matrix4::_order impossible case: must be either ROW_MAJOR or COLUMN_MAJOR\n";
-		exit(EXIT_FAILURE);
+		D("Matrix4::_order impossible case: must be either ROW_MAJOR or COLUMN_MAJOR\n")
+		std::exit(EXIT_FAILURE);
 	}
 
 }

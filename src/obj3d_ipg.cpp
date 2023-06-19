@@ -1,11 +1,28 @@
+#include "simplegl.h"
 #include "obj3d_ipg.hpp"
 #include "compiler_settings.h"
 #include <vector>
 
+#ifdef SGL_DEBUG
+ #define SGL_OBJ3D_IPG_DEBUG
+#endif
+#ifdef SGL_OBJ3D_IPG_DEBUG 
+ #define D(x) std::cout << "[Obj3dIPG] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- obj3d_ipg.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
+
+
 Obj3dIPG::Obj3dIPG(std::string vertexShader, std::string fragmentShader, bool init_locations)
 	: Obj3dPG(vertexShader, fragmentShader, false)
 {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	D(__PRETTY_FUNCTION__ << std::endl)
 	if (init_locations)
 		this->Obj3dIPG::getLocations();//explicit equivalent of: this->getLocations();
 	glGenBuffers(1, &this->_vboMatrix);
@@ -51,7 +68,7 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 			memcpy(mvp_concatened + index * 16, MVPmatrix.getData(), 16 * sizeof(float));
 		}
 		else {
-			std::cout << "dynamic_cast<Obj3d*>(o) failed: " << o << std::endl;
+			D("dynamic_cast<Obj3d*>(o) failed: " << o << std::endl)
 			Misc::breakExit(12);
 		}
 		index++;
@@ -60,7 +77,7 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 
 	Obj3d* obj = dynamic_cast<Obj3d*>(list.front());
 	if (!obj) {
-		std::cout << "dynamic_cast<Obj3d*>(list.front()) failed: " << list.front() << std::endl;
+		D("dynamic_cast<Obj3d*>(list.front()) failed: " << list.front() << std::endl)
 		Misc::breakExit(12);
 	}
 	Obj3dBP* bp = obj->getBlueprint();
@@ -124,7 +141,7 @@ void	Obj3dIPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	std::cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl;
+	D(__PRETTY_FUNCTION__ << " : " << this->_program << std::endl)
 	this->_dismod = this->getSlot("dismod", true);
 	this->_plain_color = this->getSlot("plain_color", true);
 	this->_tex_coef = this->getSlot("tex_coef", true);

@@ -15,6 +15,21 @@
 
 #include <iostream>
 
+#ifdef SGL_DEBUG
+ #define SGL_FPS_DEBUG
+#endif
+#ifdef SGL_FPS_DEBUG 
+ #define D(x) std::cout << "[Fps] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- fps.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
+
 
 Fps::Fps() {
 }
@@ -83,7 +98,7 @@ int	Fps::getFps() {
 	fps /= FPS_FRAME_AVERAGE;
 
 	return fps;
-	//cout << (float)this->current_time << "\t" << int(fps) << "fps" << endl;
+	//D((float)this->current_time << "\t" << int(fps) << "fps" << endl)
 }
 
 void	Fps::printGlobalFps(void) {
@@ -99,6 +114,6 @@ void	Fps::printGlobalFps(void) {
 	cent = fps - double(int(fps));
 	if (cent >= 0.5)
 		fps += 1.0;
-	std::cout << (float)current_time << "\t" << int(fps) << "fps" << std::endl;
+	D((float)current_time << "\t" << int(fps) << "fps" << std::endl)
 	last_time += ellapsed_time;
 }

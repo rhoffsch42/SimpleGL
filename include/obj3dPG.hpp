@@ -28,6 +28,8 @@ public:
 	void			renderUniqueId(Obj3d & obj, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
 	virtual void	renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
 	virtual void	renderObjects(Object** objectArray, Cam& cam, unsigned int flags = 0);
+	virtual void	renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
+	virtual void	renderObjectsMultiDraw(Object** objectArray, Cam& cam, unsigned int flags = 0);
 
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles

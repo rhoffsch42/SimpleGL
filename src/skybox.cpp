@@ -1,8 +1,23 @@
 #include "simplegl.h"
 #include "skybox.hpp"
 
+#ifdef SGL_DEBUG
+ #define SGL_SKYBOX_DEBUG
+#endif
+#ifdef SGL_SKYBOX_DEBUG 
+ #define D(x) std::cout << "[Skybox] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- skybox.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
+
 Skybox::Skybox(Texture& texture, SkyboxPG& pg) : Object(),  _program(pg), _baseTexture(texture) {
-	std::cout << "_ Skybox cons\n";
+	D(__PRETTY_FUNCTION__ << "\n")
 
 	//Cubemap texture
 	glEnable(GL_TEXTURE_CUBE_MAP);
@@ -93,7 +108,7 @@ Skybox::Skybox(Texture& texture, SkyboxPG& pg) : Object(),  _program(pg), _baseT
 }
 
 Skybox::~Skybox() {
-	std::cout << "_ Skybox des\n";
+	D(__PRETTY_FUNCTION__ << "\n")
 	glDeleteTextures(1, &this->_cubemapId);
 	glDeleteBuffers(1, &this->_vboVertex);
 	glDeleteVertexArrays(1, &this->_vao);

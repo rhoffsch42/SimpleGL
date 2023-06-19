@@ -1,27 +1,41 @@
 #include "simplegl.h"
+#include "compiler_settings.h"
 #include "blueprint.hpp"
 
-Blueprint::Blueprint(std::string filename) {
-	//cout << "_ Blueprint cons by filename" << std::endl;
+#ifdef SGL_DEBUG
+ #define SGL_BLUEPRINT_DEBUG
+#endif
+#ifdef SGL_BLUEPRINT_DEBUG 
+ #define D(x) std::cout << "[Blueprint] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- blueprint.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
-	//cout << "building object: " << filename.c_str() << std::endl;
+Blueprint::Blueprint(std::string filename) {
+	D("Blueprint cons by filename" << std::endl)
+	D("building object: " << filename.c_str() << std::endl)
 	this->_vao = 0;
 	this->_name = filename;
 }
 
 Blueprint::Blueprint(const Blueprint& src) {
-	std::cout << "_ Blueprint cons by copy" << std::endl;
-
-	std::cout << "building object: " << src.getName().c_str() << std::endl;
+	D("Blueprint cons by copy" << std::endl)
+	D("building object: " << src.getName().c_str() << std::endl)
 	*this = src;
 }
 
 Blueprint::~Blueprint() {
-	//std::cout << "_ Blueprint des" << std::endl;
+	//D("Blueprint des" << std::endl)
 }
 
 Blueprint& Blueprint::operator=(const Blueprint& src) {
-	std::cout << "_ Blueprint operator =" << std::endl;
+	D("Blueprint operator =" << std::endl)
 
 	this->_vao = src.getVao();
 	this->_name = src.getName();
@@ -30,11 +44,11 @@ Blueprint& Blueprint::operator=(const Blueprint& src) {
 
 GLuint	Blueprint::createVao() {
 	if (this->_vao != 0) {
-		std::cerr << "overriding the vao: " << this->_vao << ". This shouldn't happen.\n";
+		D("overriding the vao: " << this->_vao << ". This shouldn't happen.\n")
 		Misc::breakExit(-56);
 	}
 	glGenVertexArrays(1, &this->_vao);
-	std::cout << "creating vao: " << this->_vao << " for bp: " << this << "\n";
+	D("creating vao: " << this->_vao << " for bp: " << this << "\n")
 	return this->_vao;
 }
 /*
@@ -43,7 +57,7 @@ GLuint	Blueprint::createVao() {
 	this function used in the wrong context can lead to the deletion of the wrong vao
 */
 void	Blueprint::deleteVao() {
-	std::cout << "deleting vao: " << this->_vao << " for bp: " << this << "\n";
+	D("deleting vao: " << this->_vao << " for bp: " << this << "\n")
 	glDeleteVertexArrays(1, &this->_vao);
 	this->_vao = 0;
 }

@@ -1,19 +1,33 @@
+#include "simplegl.h"
 #include "obj3dPG.hpp"
 #include "compiler_settings.h"
+
+#ifdef SGL_DEBUG
+ #define SGL_OBJ3DPG_DEBUG
+#endif
+#ifdef SGL_OBJ3DPG_DEBUG 
+ #define D(x) std::cout << "[Obj3dPG] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- obj3dPG.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 	: Program(vs_file, fs_file)
 {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	D(__PRETTY_FUNCTION__ << std::endl)
 	if (init_locations)
 		this->getLocations();
-	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
-	std::cout << "----------------------------------------\n" << std::endl;
+	D(__PRETTY_FUNCTION__ << " END" << std::endl)
 }
 
 Obj3dPG::~Obj3dPG() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
-
+	D(__PRETTY_FUNCTION__ << std::endl)
 }
 
 /*
@@ -55,7 +69,7 @@ void	Obj3dPG::linkBuffersToVao(const Obj3dBP& blueprint, GLuint vao) const {
 void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	Obj3d* obj = dynamic_cast<Obj3d*>(&object);
 	if (!obj) {
-		std::cout << "dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl;
+		D("dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl)
 		// Misc::breakExit(22);
 		// this can happen when an object is being nulled to be replaced by another one, block or continue?
 		return;
@@ -65,8 +79,8 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	// Math::Matrix4&	modelMatrix = obj->getParent() ? obj->getWorldMatrix() : obj->local.getMatrix();
 	Math::Matrix4& modelMatrix = obj->getWorldMatrix();
 
-	// cout << "rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << std::endl;
-	// cout << "*\tpolygons: " << bp.getPolygonAmount() << std::endl;
+	//D("rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << std::endl)
+	//D("*\tpolygons: " << bp.getPolygonAmount() << std::endl)
 
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
@@ -78,10 +92,10 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
-	//std::cout << "rendering BP " << &bp << " vao " << bp.getVao() << " with Chunk::cubeBlueprint vao " << Chunk::cubeBlueprint->getVao() << std::endl;
+	//D("rendering BP " << &bp << " vao " << bp.getVao() << " with Chunk::cubeBlueprint vao " << Chunk::cubeBlueprint->getVao() << std::endl)
 	GLuint	vao = bp->getVao();
 	if (vao == 0) {
-		std::cout << "vao: " << vao << "\n";
+		D("vao: " << vao << "\n")
 		Misc::breakExit(66);
 	}
 	glBindVertexArray(vao);
@@ -94,7 +108,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
 	int	vertices_amount = bp->getPolygonAmount() * 3;
-	//std::cout << vertices_amount << "_";
+	//D(vertices_amount << "_")
 
 	/**/
 	if (bp->getDataMode() == BP_LINEAR)
@@ -111,8 +125,8 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	Obj3dBP* bp = obj.getBlueprint();
 	Math::Matrix4& modelMatrix = obj.getWorldMatrix();
 
-	// cout << "rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << std::endl;
-	// cout << "*\tpolygons: " << bp.getPolygonAmount() << std::endl;
+	//D("rendering " << bp.getName() << " #" << obj.getId() << " vao:" << bp.getVao() << std::endl)
+	//D("*\tpolygons: " << bp.getPolygonAmount() << std::endl)
 
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
@@ -135,7 +149,7 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 }
 
 void	Obj3dPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags) {
-	// cout << "render all Obj3d" << std::endl;
+	//D("render all Obj3d" << std::endl)
 	if (list.empty())
 		return;
 	//assuming all Obj3d have the same program
@@ -157,7 +171,7 @@ void	Obj3dPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fla
 	for (Object* o : list) {
 		Obj3d* object = dynamic_cast<Obj3d*>(o);
 		if (!object) {
-			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
+			D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
 			Misc::breakExit(22);
 			return;
 		}
@@ -211,20 +225,19 @@ void	Obj3dPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fla
 			}
 		}
 	}
-
-	//std::cout << "fustrum objects: " << counterFrustum << std::endl;
-	//std::cout << "forward objects: " << counterForward << "\t(not in fustrum)" << std::endl;
-	//std::cout << "total objects: " << list.size() << std::endl;
-	//std::cout << std::endl;
+	//D("fustrum objects: " << counterFrustum << std::endl)
+	//D("forward objects: " << counterForward << "\t(not in fustrum)" << std::endl)
+	//D("total objects: " << list.size() << std::endl)
+	//D(std::endl)
 	for (Object* object : list) {//to do AFTER all objects are rendered
-		//std::cout << "rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n";
+		//D("rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n")
 		object->local._matrixChanged = false;
 		object->_worldMatrixChanged = false;
 	}
 }
 
 void	Obj3dPG::renderObjects(Object** objectArray, Cam& cam, unsigned int flags) {
-	// cout << "render all Obj3d" << std::endl;
+	//D("render all Obj3d" << std::endl)
 	if (!objectArray || !objectArray[0])
 		return;
 	//assuming all Obj3d have the same program
@@ -248,7 +261,7 @@ void	Obj3dPG::renderObjects(Object** objectArray, Cam& cam, unsigned int flags) 
 	while (objectArray[i]) {
 		object = dynamic_cast<Obj3d*>(objectArray[i]);
 		if (!object) {
-			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << objectArray[i] << std::endl;
+			D("dynamic_cast<Obj3d*> failed on Object : " << objectArray[i] << std::endl)
 			Misc::breakExit(22);
 			return;
 		}
@@ -304,17 +317,159 @@ void	Obj3dPG::renderObjects(Object** objectArray, Cam& cam, unsigned int flags) 
 		i++;
 	}
 
-	//std::cout << "fustrum objects: " << counterFrustum << std::endl;
-	//std::cout << "forward objects: " << counterForward << "\t(not in fustrum)" << std::endl;
-	//std::cout << "total objects: " << list.size() << std::endl;
-	//std::cout << std::endl;
+	//D("fustrum objects: " << counterFrustum << std::endl)
+	//D("forward objects: " << counterForward << "\t(not in fustrum)" << std::endl)
+	//D("total objects: " << list.size() << std::endl)
+	//D(std::endl)
 	i = 0;
 	while (objectArray[i]) {//to do AFTER all objects are rendered
-		//std::cout << "rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n";
+		//D("rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n")
 		objectArray[i]->local._matrixChanged = false;
 		objectArray[i]->_worldMatrixChanged = false;
 		i++;
 	}
+}
+
+void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigned int flags) {
+	//D("render all Obj3d" << std::endl)
+	if (list.empty())
+		return;
+	//assuming all Obj3d have the same program
+	glUseProgram(this->_program);//used once for all obj3d
+	Math::Matrix4	viewProMatrix(cam.getProjectionMatrix());
+	Math::Matrix4	viewMatrix = cam.getViewMatrix();
+	viewProMatrix.mult(viewMatrix);
+
+	Obj3d* front_obj = dynamic_cast<Obj3d*>(list.front());
+	Obj3dBP* front_bp = front_obj->getBlueprint();
+	viewProMatrix.mult(front_obj->getWorldMatrix());
+	viewProMatrix.setOrder(COLUMN_MAJOR);
+
+	if (front_bp->getDataMode() == BP_LINEAR) {
+		//D("PG_MULTIDRAW BP_LINEAR\n")
+		unsigned int drawcount = list.size();
+		GLsizei* vertices_amount_array = new GLsizei[drawcount];// GLsizei = int
+		GLint* start_offsets = new GLint[drawcount];
+		unsigned int x = 0;
+		for (Object* o : list) {
+			Obj3d* object = dynamic_cast<Obj3d*>(o);
+			if (!object) {
+				D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
+				Misc::breakExit(22);
+				return;
+			}
+			object->update();
+
+			const Obj3dBP* bp = object->getBlueprint();
+
+			vertices_amount_array[x] = bp->getPolygonAmount() * 3;
+			start_offsets[x] = 0;
+			//D((int)vertices_amount_array[x] << " ")
+			x++;
+		}
+
+
+		//modelMatrix->printData();
+
+		//D("rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << std::endl)
+		//D("*\tpolygons: " << bp.getPolygonAmount() << std::endl)
+
+
+		glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, viewProMatrix.getData());
+		glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
+		//glUniform3f(this->_plain_color, color.x, color.y, color.z);
+
+		//glBindVertexArray(bp->getVao());
+		glUniform1f(this->_tex_coef, 0.0f);
+		glPolygonMode(GL_FRONT_AND_BACK, front_obj->getPolygonMode());
+		D("3")
+
+		glMultiDrawArrays(GL_TRIANGLES, start_offsets, vertices_amount_array, drawcount);
+		//glMultiDrawArrays(GL_TRIANGLES, vertices_amount_array, GL_UNSIGNED_INT, (void**)indices_2d_array, drawcount);
+		D("4")
+
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+	}
+	else if (front_bp->getDataMode() == BP_INDICES) {
+		//D("PG_MULTIDRAW BP_INDICES\n")
+		unsigned int drawcount = list.size();
+		GLsizei* vertices_amount_array = new GLsizei[drawcount];// GLsizei = int
+		unsigned int** indices_2d_array = new unsigned int* [drawcount];
+		unsigned int x = 0;
+		for (Object* o : list) {
+			Obj3d* object = dynamic_cast<Obj3d*>(o);
+			if (!object) {
+				D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
+				Misc::breakExit(22);
+				return;
+			}
+			object->update();
+
+			const Obj3dBP* bp = object->getBlueprint();
+
+			vertices_amount_array[x] = bp->getPolygonAmount() * 3;
+			indices_2d_array[x] = bp->getIndices().data();
+			//D((int)vertices_amount_array[x] << " ")
+			x++;
+		}
+		D(">")
+		//glMultiDrawElementsIndirect(GL_TRIANGLES, );
+
+		if (!front_obj) {
+			D("dynamic_cast<Obj3d*> failed on Object : " << front_obj << std::endl)
+			Misc::breakExit(22);
+			return;
+		}
+		Math::Matrix4* modelMatrix = &front_obj->getWorldMatrix();
+		//modelMatrix->printData();
+
+		//D("rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << std::endl)
+		//D("*\tpolygons: " << bp.getPolygonAmount() << std::endl)
+
+		viewProMatrix.mult(*modelMatrix);
+		viewProMatrix.setOrder(COLUMN_MAJOR);
+
+		//can be done once for all obj3d
+		glUseProgram(this->_program);
+
+		glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, viewProMatrix.getData());
+		glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
+		//glUniform3f(this->_plain_color, color.x, color.y, color.z);
+
+		//glBindVertexArray(front_obj->getBlueprint()->getVao());
+		glUniform1f(this->_tex_coef, 0.0f);
+		glPolygonMode(GL_FRONT_AND_BACK, front_obj->getPolygonMode());
+		D("3")
+
+		glMultiDrawElements(GL_TRIANGLES, vertices_amount_array, GL_UNSIGNED_INT, (void**)indices_2d_array, drawcount);
+		D("4")
+
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		delete vertices_amount_array;
+		delete indices_2d_array;
+	}
+	else {
+		D("Error: Unknow data mode.\n")
+		Misc::breakExit(56);
+	}
+	
+	//D("fustrum objects: " << counterFrustum << std::endl)
+	//D("forward objects: " << counterForward << "\t(not in fustrum)" << std::endl)
+	//D("total objects: " << list.size() << std::endl)
+	//D(std::endl)
+	for (Object* object : list) {//to do AFTER all objects are rendered
+		//D("rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n")
+		object->local._matrixChanged = false;
+		object->_worldMatrixChanged = false;
+	}
+}
+void	Obj3dPG::renderObjectsMultiDraw(Object** objectArray, Cam& cam, unsigned int flags) {
+	D("Error : empty function :\n" << __PRETTY_FUNCTION__)
+	Misc::breakExit(5664);
 }
 
 void	Obj3dPG::getLocations() {
@@ -333,7 +488,7 @@ void	Obj3dPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	std::cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl;
+	D("_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl)
 	this->_mat4_mvp = this->getSlot("MVP", true);
 	this->_dismod = this->getSlot("dismod", true);
 	this->_plain_color = this->getSlot("plain_color", true);

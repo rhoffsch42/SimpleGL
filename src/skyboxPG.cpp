@@ -1,15 +1,31 @@
+#include "simplegl.h"
 #include "skyboxPG.hpp"
 #include "compiler_settings.h"
+
+#ifdef SGL_DEBUG
+ #define SGL_SKYBOXPG_DEBUG
+#endif
+#ifdef SGL_SKYBOXPG_DEBUG 
+ #define D(x) std::cout << "[SkyboxPG] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- skyboxPG.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 SkyboxPG::SkyboxPG(std::string vs_file, std::string fs_file)
 	: Program(vs_file, fs_file)
 {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
+	D(__PRETTY_FUNCTION__ << "\n")
 	this->getLocations();
 }
 
 SkyboxPG::~SkyboxPG() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << "\n";
+	D(__PRETTY_FUNCTION__ << "\n")
 }
 
 void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
@@ -32,7 +48,7 @@ void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 }
 
 void	SkyboxPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags) {
-	// cout << "render Skybox" << "\n";
+	//D("render Skybox" << "\n")
 	if (list.empty())
 		return;
 	//assuming all objects have the same program
@@ -43,7 +59,7 @@ void	SkyboxPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fl
 	for (Object* o : list) {
 		Skybox* skybox = dynamic_cast<Skybox*>(o);
 		if (!skybox) {
-			std::cout << "dynamic_cast<Obj3d*> failed on Object : " << o << std::endl;
+			D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
 			Misc::breakExit(0);
 		} else {
 			skybox->render(viewProMatrix);
@@ -57,7 +73,7 @@ void	SkyboxPG::getLocations() {
 		true	glGetUniformLocation
 		false	glGetAttribLocation
 	*/
-	std::cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << "\n";
+	D(__PRETTY_FUNCTION__ << " : " << this->_program << "\n")
 	this->_mat4_vp = this->getSlot("VP", true);
 	this->_cubemap = this->getSlot("cubemap", true);
 

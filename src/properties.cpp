@@ -1,15 +1,32 @@
 #include "simplegl.h"
+#include "compiler_settings.h"
 #include "properties.hpp"
 
+#ifdef SGL_DEBUG
+ #define SGL_PROPERTIES_DEBUG
+#endif
+#ifdef SGL_PROPERTIES_DEBUG 
+ #define D(x) std::cout << "[Properties] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- properties.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
+
+
 Properties::Properties() {
-	// cout << "_ Properties cons" << endl;
+	//D("Properties cons" << endl)
 	this->_scale = Math::Vector3(1, 1, 1);
 	this->_matrixUpdated = false;
 	this->_matrixChanged = true;
 }
 
 Properties::Properties(const Properties& src) {
-	// cout << "_ Properties cons by copy" << endl;
+	//D("Properties cons by copy" << endl)
 	*this = src;
 }
 
@@ -24,7 +41,7 @@ Properties&		Properties::operator=(const Properties& src) {
 }
 
 Properties::~Properties() {
-	// cout << "_ Properties des" << endl;
+	//D("Properties des" << endl)
 }
 
 float	Properties::forwardDistance(Math::Vector3 target_pos) {
@@ -40,7 +57,7 @@ float	Properties::forwardDistance(Math::Vector3 target_pos) {
 }
 
 bool		Properties::updateMatrix() {
-	// cout << "* Properties::updateMatrix" << endl;
+	//D("* Properties::updateMatrix" << endl)
 	if (this->_matrixUpdated == false) {
 		this->_matrix.modelMatrix(this->_pos, this->_rot, this->_scale);
 		this->_matrixUpdated = true;
@@ -78,7 +95,7 @@ void		Properties::rotate(float x, float y, float z) {// in degree!
 	this->_matrixUpdated = false;
 }
 void		Properties::rotate(Math::Rotation rot) {
-	// cout << "* Properties::rotate" << endl;
+	//D("* Properties::rotate" << endl)
 	// this->_rot.operation(Math::Vector3);//cf .hpp
 	//todo: restore inital rotation unit ?
 	if (rot.isRadian() != this->_rot.isRadian()) {

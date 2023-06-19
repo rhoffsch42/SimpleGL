@@ -4,19 +4,31 @@
 #include <thread>
 using namespace std::chrono_literals;
 
-Misc::Misc() {
-}
+#ifdef SGL_DEBUG
+ #define SGL_MISC_DEBUG
+#endif
+#ifdef SGL_MISC_DEBUG 
+ #define D(x) std::cout << "[Misc] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- misc.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
+Misc::Misc() {}
 
-Misc::~Misc() {
-}
+Misc::~Misc() {}
 
 std::string			Misc::getCurrentDirectory(void) {
 	char	path[FILENAME_MAX];
 
 	memset(path, 0, sizeof(path));
 	if (getcwd(path, sizeof(path)) == nullptr) {
-		std::cerr << "getcwd error" << std::endl;
+		D("getcwd error" << std::endl)
 		exit(UNKNOW_ERROR);
 	}
 	return (std::string(path)+"/");
@@ -41,7 +53,7 @@ std::string			Misc::getFileContent(const char *filename) {
 		std::fread(&contents[0], 1, contents.size(), fp);
 		std::fclose(fp);
 	} else {
-		std::cerr << "fopen failed to open : " << filename << std::endl;
+		D("fopen failed to open : " << filename << std::endl)
 		exit(102);
 	}
 
@@ -54,7 +66,7 @@ void				Misc::logfile(std::string basename, std::string logs) {
 	std::replace(basename.begin(), basename.end(), ':', '-');
 	std::string path("log/" + basename + "_date" + ".log");
 	path = Misc::crossPlatPath(path);
-	//cout << "*** log file:\t\t" << path << endl;
+	//D("*** log file:\t\t" << path << endl)
 	std::ofstream file;
 	file.open(path);
 	file << logs;
@@ -71,11 +83,11 @@ std::string			Misc::crossPlatPath(std::string path) {
 }
 
 void				Misc::breakExit(int err) {
-	//std::cerr << "BREAKPOINT BEFORE EXIT : " << err << std::endl;
-	std::cout << "\nExiting in 10sec";
+	//D("BREAKPOINT BEFORE EXIT : " << err << std::endl)
+	D("\nExiting in 10sec")
 	for (size_t i = 0; i < 10; i++) {
 		std::this_thread::sleep_for(1s);
-		std::cout << ".";
+		D(".")
 	}
 	std::exit(err);
 }

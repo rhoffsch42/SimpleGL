@@ -1,8 +1,24 @@
+#include "simplegl.h"
 #include "obj3dBP.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
 #include "compiler_settings.h"
 #include <algorithm>
+
+#ifdef SGL_DEBUG
+ #define SGL_SKYBOX_DEBUG
+#endif
+#ifdef SGL_SKYBOX_DEBUG 
+ #define D(x) std::cout << "[Skybox] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- skybox.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 float			Obj3dBP::defaultSize = OBJ3DBP_DEFAULT_SIZE;
 uint8_t			Obj3dBP::defaultDataMode = BP_INDICES;
@@ -61,7 +77,7 @@ void	Obj3dBP::assimpProcessMesh(aiMesh* mesh, const aiScene* scene) {
 	} else if (this->_dataMode == BP_LINEAR) {
 		//process with indices later
 	} else {
-		std::cout << __PRETTY_FUNCTION__ << " : data corrupt:\n\twrong dataMode: " << (int)this->_dataMode << std::endl;
+		D(__PRETTY_FUNCTION__ << " : data corrupt:\n\twrong dataMode: " << (int)this->_dataMode << std::endl)
 		Misc::breakExit(23);
 	}
 
@@ -94,7 +110,7 @@ void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene) {
 }
 
 void	Obj3dBP::loadWithAssimp(std::string path) {
-	//std::cout << __PRETTY_FUNCTION__ << std::endl;
+	//D(__PRETTY_FUNCTION__ << std::endl)
 	//https://stackoverflow.com/questions/39269121/assimp-loader-with-a-cube-of-8-vertices
 	Assimp::Importer importer;
 	//http://assimp.sourceforge.net/lib_html/postprocess_8h.html
@@ -103,17 +119,17 @@ void	Obj3dBP::loadWithAssimp(std::string path) {
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+		D("ERROR::ASSIMP::" << importer.GetErrorString() << std::endl)
 		std::exit(2);
 	}
 	//string directory = path.substr(0, path.find_last_of("/\\"));
 	this->assimpProcessNode(scene->mRootNode, scene);
 
-	//std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
+	//D(__PRETTY_FUNCTION__ << " END" << std::endl)
 }
 
 Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
-	std::cout << "_ Obj3dBP cons by filename" << std::endl;
+	D("Obj3dBP::Obj3dBP(std::string filename)\n")
 	filename = Misc::crossPlatPath(filename);
 
 	this->_dataMode = Obj3dBP::defaultDataMode;
@@ -134,14 +150,15 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	//Misc::breakExit(0);
 	this->initBuffers();
 
-	std::cout << this->_vertices.size() << std::endl;
-	std::cout << this->_indices.size() << std::endl;
+	D(this->_vertices.size() << std::endl)
+	D(this->_indices.size() << std::endl)
 
-	std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
-	std::cout << "----------------------------------------\n" << std::endl;
+	D(__PRETTY_FUNCTION__ << " END" << std::endl)
+	D(D_SPACER_END << std::endl)
 }
 
 Obj3dBP::Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vector<unsigned int>& src_indices, unsigned int flags) : Blueprint("N/A by vertices") {
+	D("Obj3dBP::Obj3dBP(vertices, indices)\n")
 	this->_eboIndices = 0;
 	this->_vboVertex = 0;
 	this->_centered = false;
@@ -156,9 +173,16 @@ Obj3dBP::Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vecto
 		this->_indices = src_indices;//todo: std::move?
 		this->_polygonAmount = src_indices.size() / 3;
 	}
-	if ((flags & BP_DONT_NORMALIZE) != BP_DONT_NORMALIZE)
+	D((this->_dataMode == BP_LINEAR ? "BP_LINEAR\n" : "BP_INDICES\n"))
+	if ((flags & BP_DONT_NORMALIZE) != BP_DONT_NORMALIZE) {
+		D("Normalizing... ")
 		this->normalize();
+		D("Done.\n")
+	}
+	D("Init buffers... ")
 	this->initBuffers();
+	D("Done.\n")
+	D("_ end Obj3dBP::Obj3dBP(vertices, indices)\n")
 }
 
 /*
@@ -178,7 +202,7 @@ Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A
 	this->_dataMode = src.front()->getDataMode();
 	for (auto bp : src) {
 		if (bp->getDataMode() != this->_dataMode) {
-			std::cout << "Obj3dBP merging constructor error: a BP has a different data mode.\n";
+			D("Obj3dBP merging constructor error: a BP has a different data mode.\n")
 			Misc::breakExit(56);
 		}
 		const std::vector<SimpleVertex>& vert = bp->getVertices();
@@ -190,8 +214,8 @@ Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A
 		this->_polygonAmount += bp->getPolygonAmount();
 	}
 	if (this->_polygonAmount != this->_vertices.size() / 3) {
-		std::cout << "Obj3dBP merging constructor error: data corrupted when merging polygons.\n";
-		std::cout << this->_polygonAmount << " != " << (this->_vertices.size() / 3) << "\n";
+		D("Obj3dBP merging constructor error: data corrupted when merging polygons.\n")
+		D(this->_polygonAmount << " != " << (this->_vertices.size() / 3) << "\n")
 		Misc::breakExit(56);
 	}
 
@@ -200,16 +224,15 @@ Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A
 	this->initBuffers();
 }
 
-
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
-	std::cout << "_ Obj3dBP cons by copy" << std::endl;
-	std::cout << "building object: " << src.getName().c_str() << std::endl;
+	D("Obj3dBP cons by copy" << std::endl)
+	D("building object: " << src.getName().c_str() << std::endl)
 
 	*this = src;
 }
 
 Obj3dBP::~Obj3dBP() {
-	//cout << "_ Obj3dBP des by filename" << std::endl;
+	D(__PRETTY_FUNCTION__)
 	this->_vertices.clear();
 	this->_indices.clear();
 
@@ -221,7 +244,7 @@ Obj3dBP::~Obj3dBP() {
 }
 
 Obj3dBP& Obj3dBP::operator=(const Obj3dBP& src) {
-	std::cout << "_ Obj3dBP operator =" << std::endl;
+	D("Obj3dBP operator =" << std::endl)
 	//what do we do for vbo? see .hpp
 	this->_dataMode = src._dataMode;
 	this->_indices = src._indices;
@@ -259,10 +282,16 @@ void			Obj3dBP::freeData(unsigned int flags) {
 /*
 	is it really normalized if centered and rescaled are false?
 */
+#define NORMALIZE_WARNING_THRESHOLD	500000
 void	Obj3dBP::normalize() {
 	// dimensions, vertices rescale and centering
 	this->_normalized = true;
 	//if (!this->_vertices.size()) {return;}
+
+	if (this->_vertices.size() >= NORMALIZE_WARNING_THRESHOLD) {
+		D("Warning: normalizing a big Obj3dBP(" << NORMALIZE_WARNING_THRESHOLD << "+ vertices), performances might be impacted.\n")
+	}
+
 	float	vmin[3];
 	float	vmax[3];
 	vmin[0] = this->_vertices[0].position.x;
@@ -271,6 +300,8 @@ void	Obj3dBP::normalize() {
 	vmax[0] = vmin[0];
 	vmax[1] = vmin[1];
 	vmax[2] = vmin[2];
+
+	// finding each min and max of x, y and z
 	for (size_t i = 0; i < this->_vertices.size(); i++) {
 		float vx = this->_vertices[i].position.x;
 		float vy = this->_vertices[i].position.y;
@@ -283,10 +314,12 @@ void	Obj3dBP::normalize() {
 		vmax[2] = (vz > vmax[2]) ? vz : vmax[2];
 
 	}
+	// calc the dimension
 	this->_dimensions.x = vmax[0] - vmin[0];
 	this->_dimensions.y = vmax[1] - vmin[1];
 	this->_dimensions.z = vmax[2] - vmin[2];
 
+	// centering 
 	Math::Vector3	centerOffset;
 	centerOffset.x = (vmin[0] + vmax[0]) / 2;
 	centerOffset.y = (vmin[1] + vmax[1]) / 2;
@@ -309,12 +342,12 @@ void	Obj3dBP::normalize() {
 	}
 
 #if 0
-	std::cout << "polygons { " << this->_polygonAmount << " }" << std::endl;
-	std::cout << "vertices array size { " << this->_vertices.size() << " }" << std::endl;
-	std::cout << "indices array size { " << this->_indices.size() << " }" << std::endl;
-	std::cout << (this->_centered ? "YES" : "NO");
-	std::cout << " center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << std::endl;
-	std::cout << "scale coef:\t" << scaleCoef << std::endl;
+	D("polygons { " << this->_polygonAmount << " }" << std::endl)
+	D("vertices array size { " << this->_vertices.size() << " }" << std::endl)
+	D("indices array size { " << this->_indices.size() << " }" << std::endl)
+	D((this->_centered ? "YES" : "NO"))
+	D(" center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << std::endl)
+	D("scale coef:\t" << scaleCoef << std::endl)
 #endif
 	if (LOGFILES) {
 		std::stringstream logs;
@@ -355,12 +388,12 @@ void	Obj3dBP::initBuffers() {
 	if (this->_dataMode == BP_INDICES) {
 		if (0) {//display data
 			for (size_t i = 0; i < this->_indices.size(); i++) {
-				std::cout << this->_indices[i] << " ";
-			}std::cout << std::endl;
+				D(this->_indices[i] << " ")
+			}D(std::endl)
 			for (size_t i = 0; i < this->_vertices.size(); i++) {
-				std::cout << this->_vertices[i].position.toString() << "\n";
-				std::cout << " ";
-			}std::cout << std::endl;
+				D(this->_vertices[i].position.toString() << "\n")
+				D(" ")
+			}D(std::endl)
 		}
 		glGenBuffers(1, &this->_eboIndices);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_eboIndices);

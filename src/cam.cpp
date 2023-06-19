@@ -1,6 +1,20 @@
 #include "cam.hpp"
-#ifndef __clang__
-#define __PRETTY_FUNCTION__ __FUNCSIG__
+#include "simplegl.h"
+#include "compiler_settings.h"
+
+#ifdef SGL_DEBUG
+ #define SGL_CAM_DEBUG
+#endif
+#ifdef SGL_CAM_DEBUG 
+ #define D(x) std::cout << "[Cam] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- cam.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
 #endif
 
 void	Cam::init(int width, int height) {
@@ -19,17 +33,17 @@ void	Cam::init(int width, int height) {
 }
 
 Cam::Cam(int width, int height) : Object() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	D(__PRETTY_FUNCTION__ << std::endl)
 	this->init(width, height);
 }
 Cam::Cam(int width, int height, Math::Vector3 pos, Math::Rotation rot) : Object() {
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	D("_ " << __PRETTY_FUNCTION__ << std::endl)
 	this->local._pos = pos;
 	this->local._rot = rot;
 	this->init(width, height);
 }
 Cam::Cam(int width, int height, float posX, float posY, float posZ, float rotX, float rotY, float rotZ) {//degree
-	std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	D("_ " << __PRETTY_FUNCTION__ << std::endl)
 	this->local._pos.x = posX;
 	this->local._pos.y = posY;
 	this->local._pos.z = posZ;
@@ -43,14 +57,14 @@ Cam::Cam(int width, int height, float posX, float posY, float posZ, float rotX, 
 Cam::~Cam() {}
 
 void	Cam::printProperties() const {
-	std::cout << "Camera settings: " << this << "\t&ViewMatrix: " << &(this->_viewMatrix) << std::endl;
-	std::cout << "pos:\t" << this->local._pos.x << " " << this->local._pos.y << " " << this->local._pos.z << std::endl;
-	std::cout << "rot:\t" << this->local._rot.x << " " << this->local._rot.y << " " << this->local._rot.z << std::endl;
-	std::cout << "Far:\t" << this->_far << std::endl;
-	std::cout << "Near:\t" << this->_near << std::endl;
-	std::cout << "FOV:\t" << this->_fov << std::endl;
-	std::cout << "ratio:\t" << this->_aspectRatio << std::endl;
-	std::cout << "-----------" << std::endl;
+	D("Camera settings: " << this << "\t&ViewMatrix: " << &(this->_viewMatrix) << std::endl)
+	D("pos:\t" << this->local._pos.x << " " << this->local._pos.y << " " << this->local._pos.z << std::endl)
+	D("rot:\t" << this->local._rot.x << " " << this->local._rot.y << " " << this->local._rot.z << std::endl)
+	D("Far:\t" << this->_far << std::endl)
+	D("Near:\t" << this->_near << std::endl)
+	D("FOV:\t" << this->_fov << std::endl)
+	D("ratio:\t" << this->_aspectRatio << std::endl)
+	D("-----------" << std::endl)
 }
 
 void	Cam::updateCamVectors(void) {
@@ -119,7 +133,7 @@ void	Cam::updateViewMatrix() {
 			this->_viewMatrix.viewMatrix(pos, rot);
 		*/
 		if (true) {
-			// cout << "viewMatrix with parents (if there are) - only POS" << std::endl;
+			//D("viewMatrix with parents (if there are) - only POS" << std::endl)
 			t_pp	pp = Math::extractFromMatrix(this->_worldMatrix);
 			/*
 				update local ? depending on the parent
@@ -131,7 +145,7 @@ void	Cam::updateViewMatrix() {
 			this->_worldMatrixChanged = false;// is this needed ? for now updateViewMatrix is done at each frame
 			// this->_viewMatrix.printData();
 		} else {
-			// cout << "viewMatrix without parents" << std::endl;
+			//D("viewMatrix without parents" << std::endl)
 			this->_viewMatrix.viewMatrix(this->local._pos, this->local._rot);// this does not take parents into account
 		}
 	}

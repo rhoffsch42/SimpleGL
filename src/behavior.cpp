@@ -1,28 +1,44 @@
-//#include "simplegl.h"
+#include "simplegl.h"
 #include "behavior.hpp"
+#include "compiler_settings.h"
 #include <iostream>
+
+#ifdef SGL_DEBUG
+ #define SGL_BEHAVIOR_DEBUG
+#endif
+#ifdef SGL_BEHAVIOR_DEBUG 
+ #define D(x) std::cout << "[Behavior] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- behavior.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 bool	Behavior::areActive = true;
 
 Behavior::Behavior() {
-	std::cout << "_ Behavior cons" << std::endl;
+	D("Behavior cons" << std::endl)
 	this->isActive = true;
 }
 
 Behavior::Behavior(const Behavior& src) {
-	std::cout << "_ Behavior cons by copy" << std::endl;
+	D("Behavior cons by copy" << std::endl)
 	*this = src;
 }
 
 Behavior& Behavior::operator=(const Behavior& src) {
-	std::cout << "_ Behavior operator=" << std::endl;
+	D("Behavior operator=" << std::endl)
 	this->isActive = src.isActive;
 	this->targetList = src.getTargetList();//check for bugs
 	return (*this);
 }
 
 Behavior::~Behavior() {
-	std::cout << "_ Behavior des" << std::endl;
+	D("Behavior des" << std::endl)
 	//need to delete/empty list?
 	//should remove itseft from its target if they are managed
 	for (auto i : this->targetList) {
@@ -78,17 +94,17 @@ void	Behavior::removeTarget(BehaviorManaged* target) {
 
 void	Behavior::setTargetStatus(BehaviorManaged* target, bool status) {
 	auto it = std::find_if(this->targetList.begin(), this->targetList.end(),
-		[target](std::pair<BehaviorManaged*, bool> elem) { std::cout << "f# set\n"; return (elem.first == target); });
+		[target](std::pair<BehaviorManaged*, bool> elem) { D("f# set\n") return (elem.first == target); });
 	
 	if (it != this->targetList.end()) {
-		std::cout << "Behavior::setTargetStatus : " << it->first << std::endl;
+		D("Behavior::setTargetStatus : " << it->first << std::endl)
 		it->second = status;
 	}
 }
 //accessor
 bool	Behavior::getTargetStatus(BehaviorManaged* target) const {
 	auto it = std::find_if(this->targetList.begin(), this->targetList.end(),
-		[target](std::pair<BehaviorManaged*, bool> elem) { std::cout << "f# get\n"; return (elem.first == target); });
+		[target](std::pair<BehaviorManaged*, bool> elem) { D("f# get\n") return (elem.first == target); });
 	
 	if (it != this->targetList.end()) {
 		return (it->second);

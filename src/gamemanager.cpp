@@ -6,5 +6,6 @@ GameManager::GameManager() {
 	this->objectList = nullptr;
 	this->currentSelection = nullptr;
 }
+
 GameManager::~GameManager() {
 }

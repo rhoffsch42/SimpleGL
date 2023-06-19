@@ -1,5 +1,21 @@
 #include "simplegl.h"
 #include "obj3d.hpp"
+#include "compiler_settings.h"
+
+#ifdef SGL_DEBUG
+ #define SGL_OBJ3D_DEBUG
+#endif
+#ifdef SGL_OBJ3D_DEBUG 
+ #define D(x) std::cout << "[Obj3d] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- obj3d.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 //static variables initialisation
 unsigned int	Obj3d::getInstanceAmount() { return (Obj3d::_instanceAmount); }
@@ -9,7 +25,7 @@ GLenum			Obj3d::defaultPolygonMode = GL_FILL;
 Math::Vector3	Obj3d::defaultColor = OBJ3D_DEFAULT_COLOR;
 
 Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
-	//cout << "_ Obj3d cons" << endl;
+	//D("_ Obj3d cons" << endl)
 	this->_color = Obj3d::defaultColor;
 	this->_texture = nullptr;
 	this->_polygonMode = Obj3d::defaultPolygonMode;
@@ -21,7 +37,7 @@ Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
 }
 
 Obj3d::Obj3d(const Obj3d& src) : Object(src), _blueprint(src._blueprint), _program(src._program) {
-	std::cout << "_ Obj3d cons by copy\n";
+	D("Obj3d cons by copy\n")
 	*this = src;
 }
 
@@ -38,7 +54,7 @@ Obj3d&		Obj3d::operator=(const Obj3d& src) {//doesnt call Object operator= ?
 }
 
 Obj3d::~Obj3d() {
-	//cout << "_ Obj3d des" << endl;
+	//D("_ Obj3d des" << endl)
 	Obj3d::_instanceAmount--;
 	//Object destructor shouldbe called, check it
 }

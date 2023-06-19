@@ -1,3 +1,4 @@
+#include "simplegl.h"
 #include "text_pg.hpp"
 #include "misc.hpp"
 #include <utility>
@@ -5,6 +6,21 @@
 //#include <glm/mat4x4.hpp> 
 #include <glm/gtc/matrix_transform.hpp> // glm::ortho
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
+
+#ifdef SGL_DEBUG
+ #define SGL_TEXT_PG_DEBUG
+#endif
+#ifdef SGL_TEXT_PG_DEBUG 
+ #define D(x) std::cout << "[TextPG] " << x ;
+ #define D_(x) x
+ #define D_SPACER "-- text_pg.cpp -------------------------------------------------\n"
+ #define D_SPACER_END "----------------------------------------------------------------\n"
+#else 
+ #define D(x)
+ #define D_(x)
+ #define D_SPACER ""
+ #define D_SPACER_END ""
+#endif
 
 std::string	TextPG::fonts_folder = Misc::getCurrentDirectory() + "fonts/";
 
@@ -15,22 +31,22 @@ TextPG::TextPG(std::string vs_file, std::string fs_file, bool init_locations)
 	this->_textColor = 0;
 	this->_vao = 0;
 	this->_vbo = 0;
-	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	//D("_ " << __PRETTY_FUNCTION__ << std::endl)
 	if (init_locations)
 		this->getLocations();
-	//std::cout << __PRETTY_FUNCTION__ << " END" << std::endl;
-	std::cout << "----------------------------------------\n" << std::endl;
+	//D(__PRETTY_FUNCTION__ << " END" << std::endl)
+	D("----------------------------------------\n" << std::endl)
 }
 
 TextPG::~TextPG() {
-	//std::cout << "_ " << __PRETTY_FUNCTION__ << std::endl;
+	//D("_ " << __PRETTY_FUNCTION__ << std::endl)
 }
 
 void	TextPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 	//void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)
 	Text* obj = dynamic_cast<Text*>(&object);
 	if (!obj) {
-		std::cout << "dynamic_cast<Text*> failed on Object : " << obj << std::endl;
+		D("dynamic_cast<Text*> failed on Object : " << obj << std::endl)
 		// Misc::breakExit(22);
 		// this can happen when an object is being nulled to be replaced by another one, block or continue?
 		return;
@@ -58,7 +74,7 @@ void	TextPG::render(std::string text, float x, float y, float scale, Math::Vecto
 		Character cho = this->characters.find(*c)->second;
 		Character* ch = &cho;
 		if (!ch) {
-			std::cout << "ficl\n";
+			D("ficl\n")
 			Misc::breakExit(-44);
 		}
 
@@ -111,7 +127,7 @@ void	TextPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	//std::cout << "_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl;
+	//D("_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl)
 	this->_projection = this->getSlot("projection", true);
 	this->_textColor = this->getSlot("textColor", true);
 }
@@ -128,7 +144,7 @@ int		TextPG::init_freetype(std::string font, float width, float height) {
 	// All functions return a value different than 0 whenever an error occurred
 	if (FT_Init_FreeType(&ft))
 	{
-		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		D("ERROR::FREETYPE: Could not init FreeType Library" << std::endl)
 		return -1;
 	}
 
@@ -137,14 +153,14 @@ int		TextPG::init_freetype(std::string font, float width, float height) {
 	std::string font_name = TextPG::fonts_folder + font;
 	if (font_name.empty())
 	{
-		std::cout << "ERROR::FREETYPE: Failed to load font_name: " << font_name << std::endl;
+		D("ERROR::FREETYPE: Failed to load font_name: " << font_name << std::endl)
 		return -1;
 	}
 
 	// load font as face
 	FT_Face face;
 	if (FT_New_Face(ft, font_name.c_str(), 0, &face)) {
-		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+		D("ERROR::FREETYPE: Failed to load font" << std::endl)
 		return -1;
 	}
 	else {
@@ -160,7 +176,7 @@ int		TextPG::init_freetype(std::string font, float width, float height) {
 			// Load character glyph 
 			if (FT_Load_Char(face, (GLchar)c, FT_LOAD_RENDER))
 			{
-				std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+				D("ERROR::FREETYTPE: Failed to load Glyph" << std::endl)
 				continue;
 			}
 			// generate texture
@@ -211,4 +227,6 @@ int		TextPG::init_freetype(std::string font, float width, float height) {
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	return 0;
 }
