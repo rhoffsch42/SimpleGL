@@ -1,4 +1,5 @@
 #include "simplegl.h"
+#include "compiler_settings.h"
 #include "skybox.hpp"
 
 #ifdef SGL_DEBUG
