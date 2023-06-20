@@ -27,6 +27,7 @@ class Fps
 		double	getTick(void) const;
 		bool	wait_for_next_frame();
 		int		getFps();
+		int		getMaxFps() const;
 
 		static void	printGlobalFps(void);
 

@@ -108,6 +108,16 @@ Glfw::~Glfw() {
 	glfwDestroyWindow(this->_window);
 }
 
+void	Glfw::printExtensions() const {
+	GLint n = 0;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+	D("Glfw extensions : " << n << "\n")
+	for (GLint i = 0; i < n; i++) {
+		const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
+		D(i << " :\t" << extension << "\n")
+	}
+}
+
 void	Glfw::init() {
 	D(__PRETTY_FUNCTION__ << "\n")
 

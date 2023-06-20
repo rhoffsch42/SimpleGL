@@ -63,9 +63,9 @@ void	Fps::setFps(unsigned int fps_val) {
 	this->tick = 1.0 / double(this->fps);
 }
 
-double	Fps::getTick(void) const {
-	return this->tick;
-}
+double	Fps::getTick(void) const {	return this->tick; }
+int		Fps::getMaxFps() const { return this->fps; }
+
 
 bool	Fps::wait_for_next_frame() {
 	this->current_time = glfwGetTime();

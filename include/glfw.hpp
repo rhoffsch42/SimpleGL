@@ -66,6 +66,7 @@ public:
 	Glfw(unsigned int width, unsigned int height);
 	Glfw&	operator=(const Glfw& src);
 	~Glfw();
+	void			printExtensions() const;
 	void			updateMouse();
 
 	//use it to toggle the cursor. Care when using glfwSetInputMode, this can lead to conflicts
