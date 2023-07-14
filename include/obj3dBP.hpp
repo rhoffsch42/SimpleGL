@@ -118,7 +118,7 @@ private:
 	uint8_t						_dataMode;
 	std::vector<GLuint>			_indices;// for glDrawElements
 	std::vector<SimpleVertex>	_vertices;
-	GLuint						_eboIndices;//element array buffer object to store induces
+	GLuint						_eboIndices;// element array buffer object to store indices
 	GLuint						_vboVertex;// for array vertex (glDrawArrays), or simple data vertex (glDrawElements)
 	//obsolete vbo
 	//GLuint				_vboColor;// colors for each face
@@ -138,6 +138,6 @@ private:
 
 	// dimensions and centering
 	void	normalize();
-	void	initBuffers();
+	void	loadToGPU();
 };
 

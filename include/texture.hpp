@@ -64,8 +64,8 @@ public:
 
 	// width and height have to be the same, undefined behavior of data sent is not large enough
 	void	updateData(uint8_t* data, unsigned int width, unsigned int height);
-	void	loadTexture();//GPU memory
-	void	unloadTexture();//GPU memory
+	void	loadToGPU();
+	void	unloadFromGPU();
 	void	printData() const;
 
 	//accessors
@@ -88,6 +88,5 @@ private:
 	unsigned int	_width;
 	unsigned int	_height;
 	uint8_t*		_data;
-
 };
 

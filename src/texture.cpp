@@ -6,7 +6,7 @@
  #define SGL_TEXTURE_DEBUG
 #endif
 #ifdef SGL_TEXTURE_DEBUG 
- #define D(x) std::cout << "[Texture] " << x ;
+ #define D(x) std::cout << "[Texture] " << x
  #define D_(x) x
  #define D_SPACER "-- texture.cpp -------------------------------------------------\n"
  #define D_SPACER_END "----------------------------------------------------------------\n"
@@ -18,14 +18,15 @@
 #endif
 
 Texture::Texture(std::string filename) : _filename(filename) {
-	D(D_SPACER)
-	D("Texture cons by filename: " << filename.c_str() << "\n")
+	D(D_SPACER);
+	D("Texture cons by filename: " << filename.c_str() << "\n");
+	D_(std::cout << "Hi");
 
 	filename = Misc::crossPlatPath(filename);
 	std::ifstream file(filename, std::ios::binary);
 	if (!file) {
-		D(Misc::getCurrentDirectory() << "\n")
-		D("Failure to open bitmap file : " << filename << "\n")
+		D(Misc::getCurrentDirectory() << "\n");
+		D("Failure to open bitmap file : " << filename << "\n");
 		Misc::breakExit(11);
 	}
 
@@ -41,11 +42,11 @@ Texture::Texture(std::string filename) : _filename(filename) {
 
 	// Checks
 	if (bmpHeader->bfType != 0x4D42) {
-		D("File \"" << filename.c_str() << "\" isn't a bitmap file\n")
+		D("File \"" << filename.c_str() << "\" isn't a bitmap file\n");
 		Misc::breakExit(2);
 	}
 	else if (bmpInfo->biWidth < 0 || bmpInfo->biHeight < 0) {
-		D("File \"" << filename.c_str() << "\" has a negative width or height. Not supported (yet).\n")
+		D("File \"" << filename.c_str() << "\" has a negative width or height. Not supported (yet).\n");
 		Misc::breakExit(2);
 	}
 	GLenum bitMode = GL_RGB;
@@ -57,37 +58,37 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		bitMode = GL_RGBA;
 	}
 	else {
-		D("File \"" << filename.c_str() << "\" isn't a 24/32 bits bitmap file\n")
+		D("File \"" << filename.c_str() << "\" isn't a 24/32 bits bitmap file\n");
 		Misc::breakExit(2);
 	}
 
 	int row_size_used = this->_width * pixelSize;
 	int padding = (4 - (row_size_used % 4)) % 4;
 	int row_size_full = row_size_used + padding;
-	D("row_size_used:" << row_size_used << "\n")
-	D("padding:" << padding << "\n")
-	D("row_size_full:" << row_size_full << "\n")
-	D("bmpInfo->biSize:" << bmpInfo->biSize << "\n")
-	D("bmpInfo->biWidth:" << bmpInfo->biWidth << "\n")
-	D("bmpInfo->biHeight:" << bmpInfo->biHeight << "\n")
-	D("bmpInfo->biCompression:" << bmpInfo->biCompression << "\n")
-	D("bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << "\n")
+	D("row_size_used:" << row_size_used << "\n");
+	D("padding:" << padding << "\n");
+	D("row_size_full:" << row_size_full << "\n");
+	D("bmpInfo->biSize:" << bmpInfo->biSize << "\n");
+	D("bmpInfo->biWidth:" << bmpInfo->biWidth << "\n");
+	D("bmpInfo->biHeight:" << bmpInfo->biHeight << "\n");
+	D("bmpInfo->biCompression:" << bmpInfo->biCompression << "\n");
+	D("bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << "\n");
 	// if (!bmpInfo->biSizeImage)//Specifies the size, in bytes, of the image. This can be set to 0 for uncompressed RGB bitmaps.
 	bmpInfo->biSizeImage = row_size_full * bmpInfo->biHeight;
-	D("bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << " (computed)" << "\n")
-	D("bmpInfo->biBitCount:" << bmpInfo->biBitCount << "\n")
+	D("bmpInfo->biSizeImage:" << bmpInfo->biSizeImage << " (computed)" << "\n");
+	D("bmpInfo->biBitCount:" << bmpInfo->biBitCount << "\n");
 
 	unsigned int RGBsize = (this->_width * 3) * bmpInfo->biHeight;// 3 cauz RGB
-	D("RGBsize:" << RGBsize << "\n")
+	D("RGBsize:" << RGBsize << "\n");
 	uint8_t* pixels = new uint8_t[bmpInfo->biSizeImage];
 	// this->_data = new uint8_t[bmpInfo->biSizeImage];//oversized, but well padded for opengl (contains padding and potential 32bit size)
-	this->_data = new uint8_t[RGBsize];//size can be not well padded for openGL, see Texture::loadTexture();
+	this->_data = new uint8_t[RGBsize];//size can be not well padded for openGL, see Texture::loadToGPU();
 
 	// Go to where image data starts, then read in image data
 	file.seekg(bmpHeader->bfOffBits);
 	file.read((char*)pixels, bmpInfo->biSizeImage);
 
-	D("transfering...")
+	D("transfering...\n");
 	/*
 		copy BGR data, omitting padding
 		ex:
@@ -99,17 +100,16 @@ Texture::Texture(std::string filename) : _filename(filename) {
 	int j = 0;
 	for (int i = 0; i < bmpInfo->biSizeImage; i++) {
 		if (bitMode == GL_RGBA && i % 4 == 3) {
-			// D("fuck A:" << (int)pixels[i] << "\n")
+			// D("fuck A:" << (int)pixels[i] << "\n");
 		}
 		else if (padding && (i % row_size_full) > row_size_used - 1) {
-			// D("fuck padding\n")
+			// D("fuck padding\n");
 		}
 		else {
 			this->_data[j] = pixels[i];
 			j++;
 		}
 	}
-	D(" Done\n")
 
 	/*
 		.bmp files store image data in the BGR format, and we have to convert it to RGB.
@@ -117,22 +117,22 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		This can be avoided by using GL_BGR instead of GL_RGB with glTexImage2D() func
 		note: the data is stocked as lines, from last line to 1st line
 	*/
-	D("converting BGR to RGB...")
+	D("converting BGR to RGB...");
 	uint8_t tmp = 0;
 	for (unsigned long i = 0; i < RGBsize; i += 3) {
 		tmp = this->_data[i + 0];
 		this->_data[i + 0] = this->_data[i + 2];
 		this->_data[i + 2] = tmp;
 	}
-	D(" Done\n")
+	D(" Done\n");
 	//construct GL Texture
-	this->loadTexture();
+	this->loadToGPU();
 
 	delete bmpHeader;
 	delete bmpInfo;
 	delete[] pixels;
-	D(__PRETTY_FUNCTION__ << " END\n")
-	D(D_SPACER_END << "\n")
+	D(__PRETTY_FUNCTION__ << " END\n");
+	D(D_SPACER_END << "\n");
 }
 
 Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _width(width), _height(height) {
@@ -141,7 +141,7 @@ Texture::Texture(uint8_t* data, unsigned int width, unsigned int height) : _widt
 	this->_data = new uint8_t[size];
 	memcpy(this->_data, data, size);
 	this->_isLoaded = false;
-	this->loadTexture();
+	this->loadToGPU();
 }
 
 Texture::Texture(const Texture& src) {
@@ -157,22 +157,22 @@ Texture& Texture::operator=(const Texture& src) {
 	this->_data = new uint8_t[size];
 	memcpy(this->_data, src._data, size);
 	this->_isLoaded = false;
-	this->loadTexture();
+	this->loadToGPU();
 	return (*this);
 }
 
 Texture::~Texture() {
 	//D(__PRETTY_FUNCTION__ << this << " : " << this->_filename << "\n")
 	delete[] this->_data;
-	this->unloadTexture();
+	this->unloadFromGPU();
 }
 
 void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height) {
 	//force the user to send widht and height, adds a layer of security in case of unadapted data
 	if (this->_width != width || this->_height != height) {
-		D("Texture::updateData(...) failed: wrong width and/or height\n")
-		D(this->_width << "x" << this->_height << " != " << width << "x" << height << "\n")
-		D(this->_id << ": " << this->_filename << "\n")
+		D("Texture::updateData(...) failed: wrong width and/or height\n");
+		D(this->_width << "x" << this->_height << " != " << width << "x" << height << "\n");
+		D(this->_id << ": " << this->_filename << "\n");
 		//Misc::breakExit(4);
 	} else {
 		memcpy(this->_data, data, width * height * 3);
@@ -188,16 +188,16 @@ void	Texture::printData() const {
 	unsigned int size = this->_width * this->_height * 3;
 	for (unsigned int i = 0; i < size; i++) {
 		if (i % (3 * this->_width) == 0)
-			D("\tline " << (i + 3) / (this->_width * 3) << "\n")
-		D((unsigned int)(this->_data[i]) << ":")
+			D("\tline " << (i + 3) / (this->_width * 3) << "\n");
+		D((unsigned int)(this->_data[i]) << ":");
 		if (i % 3 == 2)
 			D("\n");
 	}
 }
 
-void			Texture::loadTexture() {
+void	Texture::loadToGPU() {
 	if (this->_isLoaded) {
-		D("warning: " << this->_filename << " is already loaded\n")
+		D("warning: " << this->_filename << " is already loaded\n");
 	} else {
 		this->_isLoaded = true;
 		//D(this->_id << "\n")
@@ -214,6 +214,7 @@ void			Texture::loadTexture() {
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->_width, this->_height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->_data);
 		glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateTextureMipmap(this->_id); // (only gl4.5+) equivalent to glGenerateMipmap(GL_TEXTURE_2D); if this->_id is bound
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);// GL_NEAREST GL_LINEAR
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);// GL_REPEAT GL_MIRRORED_REPEAT GL_CLAMP_TO_EDGE GL_CLAMP_TO_BORDER
@@ -222,7 +223,7 @@ void			Texture::loadTexture() {
 	}
 }
 
-void	Texture::unloadTexture() {
+void	Texture::unloadFromGPU() {
 	glDeleteTextures(1, &this->_id);
 	this->_isLoaded = false;
 	this->_id = -1;

@@ -89,7 +89,7 @@ void				Misc::breakExit(int err) {
 		std::this_thread::sleep_for(1s);
 		D(".")
 	}
-	std::exit(err);
+ 	std::exit(err);
 }
 
 void				Misc::intToRGB(unsigned int value, uint8_t * dst) {

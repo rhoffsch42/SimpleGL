@@ -5,11 +5,12 @@
 #include "compiler_settings.h"
 #include <algorithm>
 
+#define SGL_DEBUG
 #ifdef SGL_DEBUG
- //#define SGL_OBJ3DBP_DEBUG
+ #define SGL_OBJ3DBP_DEBUG
 #endif
 #ifdef SGL_OBJ3DBP_DEBUG 
- #define D(x) std::cout << "[Obj3dBP] " << x ;
+ #define D(x) std::cout << "[Obj3dBP] " << x
  #define D_(x) x
  #define D_SPACER "-- obj3dBP.cpp -------------------------------------------------\n"
  #define D_SPACER_END "----------------------------------------------------------------\n"
@@ -77,7 +78,7 @@ void	Obj3dBP::assimpProcessMesh(aiMesh* mesh, const aiScene* scene) {
 	} else if (this->_dataMode == BP_LINEAR) {
 		//process with indices later
 	} else {
-		D(__PRETTY_FUNCTION__ << " : data corrupt:\n\twrong dataMode: " << (int)this->_dataMode << std::endl)
+		D(__PRETTY_FUNCTION__ << " : data corrupt:\n\twrong dataMode: " << (int)this->_dataMode << std::endl);
 		Misc::breakExit(23);
 	}
 
@@ -110,7 +111,7 @@ void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene) {
 }
 
 void	Obj3dBP::loadWithAssimp(std::string path) {
-	D(__PRETTY_FUNCTION__ << std::endl)
+	D(__PRETTY_FUNCTION__ << std::endl);
 	//https://stackoverflow.com/questions/39269121/assimp-loader-with-a-cube-of-8-vertices
 	Assimp::Importer importer;
 	//http://assimp.sourceforge.net/lib_html/postprocess_8h.html
@@ -119,17 +120,17 @@ void	Obj3dBP::loadWithAssimp(std::string path) {
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		D("ERROR::ASSIMP::" << importer.GetErrorString() << std::endl)
+		D("ERROR::ASSIMP::" << importer.GetErrorString() << std::endl);
 		std::exit(2);
 	}
 	//string directory = path.substr(0, path.find_last_of("/\\"));
 	this->assimpProcessNode(scene->mRootNode, scene);
 
-	D(__PRETTY_FUNCTION__ << " END" << std::endl)
+	D(__PRETTY_FUNCTION__ << " END" << std::endl);
 }
 
 Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
-	D("Obj3dBP::Obj3dBP(std::string filename)\n")
+	D("Obj3dBP::Obj3dBP(std::string filename)\n");
 	filename = Misc::crossPlatPath(filename);
 
 	this->_dataMode = Obj3dBP::defaultDataMode;
@@ -148,17 +149,17 @@ Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	//	ss << i.position.toString();
 	//ss << "\n\n";
 	//Misc::breakExit(0);
-	this->initBuffers();
+	this->loadToGPU();
 
-	D(this->_vertices.size() << std::endl)
-	D(this->_indices.size() << std::endl)
+	D("vertices:\t" << this->_vertices.size() << std::endl);
+	D("indices: \t" << this->_indices.size() << std::endl);
 
-	D(__PRETTY_FUNCTION__ << " END" << std::endl)
-	D(D_SPACER_END << std::endl)
+	D(__PRETTY_FUNCTION__ << " END" << std::endl);
+	D(D_SPACER_END << std::endl);
 }
 
 Obj3dBP::Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vector<unsigned int>& src_indices, unsigned int flags) : Blueprint("N/A by vertices") {
-	D("Obj3dBP::Obj3dBP(vertices, indices)\n")
+	D("Obj3dBP::Obj3dBP(vertices, indices)\n");
 	this->_eboIndices = 0;
 	this->_vboVertex = 0;
 	this->_centered = false;
@@ -168,28 +169,26 @@ Obj3dBP::Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vecto
 	if (src_indices.empty()) {
 		this->_dataMode = BP_LINEAR;
 		this->_polygonAmount = src_vertices.size() / 3;
-	} else {
+	}
+	else {
 		this->_dataMode = BP_INDICES;
 		this->_indices = src_indices;//todo: std::move?
 		this->_polygonAmount = src_indices.size() / 3;
 	}
-	D((this->_dataMode == BP_LINEAR ? "BP_LINEAR\n" : "BP_INDICES\n"))
+	D((this->_dataMode == BP_LINEAR ? "BP_LINEAR\n" : "BP_INDICES\n"));
 	if ((flags & BP_DONT_NORMALIZE) != BP_DONT_NORMALIZE) {
-		D("Normalizing... ")
+		D("Normalizing... ");
 		this->normalize();
-		D("Done.\n")
+		D("Done.\n");
 	}
-	D("Init buffers... ")
-	this->initBuffers();
-	D("Done.\n")
-	D("_ end Obj3dBP::Obj3dBP(vertices, indices)\n")
+	D("Init buffers... ");
+	this->loadToGPU();
+	D("Done.\n");
+	D("_ end Obj3dBP::Obj3dBP(vertices, indices)\n");
 }
 
 /*
 	This will merge multiple objects BPs in a single object BP (they probably will be intricated).
-
-	This doesnt mean that the vertices original positions are related to an instanced obj3d,
-	this will not offset the vertices original positions with the obj3d position in local space.
 */
 Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A by BPs merging") {
 	this->_polygonAmount = 0;
@@ -202,37 +201,39 @@ Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A
 	this->_dataMode = src.front()->getDataMode();
 	for (auto bp : src) {
 		if (bp->getDataMode() != this->_dataMode) {
-			D("Obj3dBP merging constructor error: a BP has a different data mode.\n")
+			D("Obj3dBP merging constructor error: a BP has a different data mode.\n");
 			Misc::breakExit(56);
 		}
 		const std::vector<SimpleVertex>& vert = bp->getVertices();
 		this->_vertices.insert(this->_vertices.end(), vert.begin(), vert.end());
 		if (this->_dataMode == BP_INDICES) {
-			std::vector<GLuint>&	ind = bp->getIndices();
+			std::vector<GLuint>& ind = bp->getIndices();
 			this->_indices.insert(this->_indices.end(), ind.begin(), ind.end());
 		}
 		this->_polygonAmount += bp->getPolygonAmount();
 	}
 	if (this->_polygonAmount != this->_vertices.size() / 3) {
-		D("Obj3dBP merging constructor error: data corrupted when merging polygons.\n")
-		D(this->_polygonAmount << " != " << (this->_vertices.size() / 3) << "\n")
+		D("Obj3dBP merging constructor error: data corrupted when merging polygons.\n");
+		D(this->_polygonAmount << " != " << (this->_vertices.size() / 3) << "\n");
 		Misc::breakExit(56);
 	}
 
 	if ((flags & BP_DONT_NORMALIZE) != BP_DONT_NORMALIZE)
 		this->normalize();
-	this->initBuffers();
+	this->loadToGPU();
 }
 
 Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
-	D("Obj3dBP cons by copy" << std::endl)
-	D("building object: " << src.getName().c_str() << std::endl)
+	D("Obj3dBP cons by copy" << std::endl);
+	D("building object: " << src.getName().c_str() << std::endl);
 
 	*this = src;
 }
 
 Obj3dBP::~Obj3dBP() {
-	D(__PRETTY_FUNCTION__)
+	D(__PRETTY_FUNCTION__ << "\n");
+	D("vertices:\t" << this->_vertices.size() << std::endl);
+	D("indices: \t" << this->_indices.size() << std::endl);
 	this->_vertices.clear();
 	this->_indices.clear();
 
@@ -244,7 +245,7 @@ Obj3dBP::~Obj3dBP() {
 }
 
 Obj3dBP& Obj3dBP::operator=(const Obj3dBP& src) {
-	D("Obj3dBP operator =" << std::endl)
+	D("Obj3dBP operator =" << std::endl);
 	//what do we do for vbo? see .hpp
 	this->_dataMode = src._dataMode;
 	this->_indices = src._indices;
@@ -289,7 +290,7 @@ void	Obj3dBP::normalize() {
 	//if (!this->_vertices.size()) {return;}
 
 	if (this->_vertices.size() >= NORMALIZE_WARNING_THRESHOLD) {
-		D("Warning: normalizing a big Obj3dBP(" << NORMALIZE_WARNING_THRESHOLD << "+ vertices), performances might be impacted.\n")
+		D("Warning: normalizing a big Obj3dBP(" << NORMALIZE_WARNING_THRESHOLD << "+ vertices), performances might be impacted.\n");
 	}
 
 	float	vmin[3];
@@ -342,12 +343,12 @@ void	Obj3dBP::normalize() {
 	}
 
 #if 0
-	D("polygons { " << this->_polygonAmount << " }" << std::endl)
-	D("vertices array size { " << this->_vertices.size() << " }" << std::endl)
-	D("indices array size { " << this->_indices.size() << " }" << std::endl)
-	D((this->_centered ? "YES" : "NO"))
-	D(" center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << std::endl)
-	D("scale coef:\t" << scaleCoef << std::endl)
+	D("polygons { " << this->_polygonAmount << " }" << std::endl);
+	D("vertices array size { " << this->_vertices.size() << " }" << std::endl);
+	D("indices array size { " << this->_indices.size() << " }" << std::endl);
+	D((this->_centered ? "YES" : "NO"));
+	D(" center offset:\t" << centerOffset.x << " " << centerOffset.y << " " << centerOffset.z << std::endl);
+	D("scale coef:\t" << scaleCoef << std::endl);
 #endif
 	if (LOGFILES) {
 		std::stringstream logs;
@@ -373,8 +374,10 @@ void	Obj3dBP::normalize() {
 
 }
 
-void	Obj3dBP::initBuffers() {
-	//loading blueprint with opengl
+/*
+	loading blueprint with opengl, init buffers
+*/
+void	Obj3dBP::loadToGPU() {
 	//VAO
 	glGenVertexArrays(1, &this->_vao);
 	glBindVertexArray(this->_vao);
@@ -388,12 +391,12 @@ void	Obj3dBP::initBuffers() {
 	if (this->_dataMode == BP_INDICES) {
 		if (0) {//display data
 			for (size_t i = 0; i < this->_indices.size(); i++) {
-				D(this->_indices[i] << " ")
-			}D(std::endl)
+				D(this->_indices[i] << " ");
+			}D(std::endl);
 			for (size_t i = 0; i < this->_vertices.size(); i++) {
-				D(this->_vertices[i].position.toString() << "\n")
-				D(" ")
-			}D(std::endl)
+				D(this->_vertices[i].position.toString() << "\n");
+				D(" ");
+			}D(std::endl);
 		}
 		glGenBuffers(1, &this->_eboIndices);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_eboIndices);
