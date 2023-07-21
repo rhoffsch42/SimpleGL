@@ -3,6 +3,7 @@
 #include "texture.hpp"
 #include "framebuffer.hpp"
 
+class Texture;
 
 class UIPanel {
 public:

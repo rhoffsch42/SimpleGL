@@ -1,7 +1,9 @@
 #pragma once
+
 #include "simplegl.h"
 #include <iostream>
 #include <fstream>
+#include <string>
 
 /*
 	This class takes .bmp 24bits file (unknow behavior on other .bmp format)

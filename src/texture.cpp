@@ -62,9 +62,9 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		Misc::breakExit(2);
 	}
 
-	int row_size_used = this->_width * pixelSize;
-	int padding = (4 - (row_size_used % 4)) % 4;
-	int row_size_full = row_size_used + padding;
+	unsigned int row_size_used = this->_width * pixelSize;
+	unsigned int padding = (4 - (row_size_used % 4)) % 4;
+	unsigned int row_size_full = row_size_used + padding;
 	D("row_size_used:" << row_size_used << "\n");
 	D("padding:" << padding << "\n");
 	D("row_size_full:" << row_size_full << "\n");
@@ -97,8 +97,8 @@ Texture::Texture(std::string filename) : _filename(filename) {
 		BGRBGRBGR...000
 		BGRBGRBGR...000
 	*/
-	int j = 0;
-	for (int i = 0; i < bmpInfo->biSizeImage; i++) {
+	unsigned int j = 0;
+	for (unsigned int i = 0; i < bmpInfo->biSizeImage; i++) {
 		if (bitMode == GL_RGBA && i % 4 == 3) {
 			// D("fuck A:" << (int)pixels[i] << "\n");
 		}
@@ -187,11 +187,13 @@ void	Texture::updateData(uint8_t* data, unsigned int width, unsigned int height)
 void	Texture::printData() const {
 	unsigned int size = this->_width * this->_height * 3;
 	for (unsigned int i = 0; i < size; i++) {
-		if (i % (3 * this->_width) == 0)
+		if (i % (3 * this->_width) == 0) {
 			D("\tline " << (i + 3) / (this->_width * 3) << "\n");
+		}
 		D((unsigned int)(this->_data[i]) << ":");
-		if (i % 3 == 2)
+		if (i % 3 == 2) {
 			D("\n");
+		}
 	}
 }
 

@@ -1,4 +1,5 @@
 #include "uipanel.hpp"
+#include "simplegl.h"
 #include "compiler_settings.h"
 
 #define DEFAULT_SIZE 100
@@ -7,7 +8,7 @@
 #define SGL_UI_PANEL_DEBUG
 #endif
 #ifdef SGL_UI_PANEL_DEBUG 
-#define D(x) std::cout << "[UIPanel] " << x ;
+#define D(x) std::cout << "[UIPanel] " << x
 #define D_(x) x
 #define D_SPACER "-- uipanel.cpp -------------------------------------------------\n"
 #define D_SPACER_END "----------------------------------------------------------------\n"
@@ -49,7 +50,7 @@ UIPanel::UIPanel(const UIPanel & src) {
 }
 
 UIPanel &	UIPanel::operator=(const UIPanel & src) {
-	D(__PRETTY_FUNCTION__ << std::endl)
+	//D(__PRETTY_FUNCTION__ << std::endl);
 	this->isClickable = src.isClickable;
 	glGenFramebuffers(1, &this->_fbo);
 	this->setTexture(src._texture);
@@ -76,7 +77,7 @@ void		UIPanel::setTexture(Texture * tex) {
 	this->_texture = tex;
 	if (tex) {
 		// attach
-		//D("UIPanel : attach : " << this->_fbo << " | " << this->_texture->getId() << std::endl)
+		//D("UIPanel : attach : " << this->_fbo << " | " << this->_texture->getId() << std::endl);
 		glBindFramebuffer(GL_FRAMEBUFFER, this->_fbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,	this->_texture->getId(), 0);// mipmap level: 0(base)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -36,11 +36,13 @@
 	#include <GLFW/glfw3.h>
 #endif
 
+
 #include <stdio.h>
 #include <stdint.h>
 #include <iostream>
 #include <sstream>
 
+#include "compiler_settings.h"
 #include "misc.hpp"
 
 #define EMOTE_OK			"\xe2\x9c\x85 " // ✅
