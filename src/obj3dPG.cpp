@@ -347,7 +347,7 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 
 	if (front_bp->getDataMode() == BP_LINEAR) {
 		//D("PG_MULTIDRAW BP_LINEAR\n")
-		unsigned int drawcount = list.size();
+		size_t drawcount = list.size();
 		GLsizei* vertices_amount_array = new GLsizei[drawcount];// GLsizei = int
 		GLint* start_offsets = new GLint[drawcount];
 		unsigned int x = 0;
@@ -394,7 +394,7 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 	}
 	else if (front_bp->getDataMode() == BP_INDICES) {
 		//D("PG_MULTIDRAW BP_INDICES\n")
-		unsigned int drawcount = list.size();
+		size_t drawcount = list.size();
 		GLsizei* vertices_amount_array = new GLsizei[drawcount];// GLsizei = int
 		unsigned int** indices_2d_array = new unsigned int* [drawcount];
 		unsigned int x = 0;

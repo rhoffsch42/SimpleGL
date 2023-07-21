@@ -6,7 +6,7 @@
  #define SGL_GLFW_DEBUG
 #endif
 #ifdef SGL_GLFW_DEBUG 
- #define D(x) std::cout << "[Glfw] " << x ;
+ #define D(x) std::cout << "[Glfw] " << x
  #define D_(x) x
  #define D_SPACER "-- glfw.cpp -------------------------------------------------\n"
  #define D_SPACER_END "----------------------------------------------------------------\n"
@@ -119,7 +119,8 @@ void	Glfw::printExtensions() const {
 }
 
 void	Glfw::init() {
-	D(__PRETTY_FUNCTION__ << "\n")
+	D(__PRETTY_FUNCTION__ << "\n");
+	Glfw::thread_id = std::this_thread::get_id();
 
 	this->_mouseX = 0;
 	this->_mouseY = 0;

@@ -51,9 +51,9 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 	VPmatrix.mult(Vmatrix);// do it in shader ? NO cauz shader will do it for every vertice
 
 	// this part needs threads?
-	int		instances_amount = list.size();
+	size_t	instances_amount = list.size();
 	int		index = 0;
-	int		array_size = instances_amount * 16;//16 float for a matrix
+	size_t	array_size = instances_amount * 16;//16 float for a matrix
 	float* mvp_concatened = new float[array_size];
 
 	for (auto o : list) {// build all MVP (cam is moving so we have to do this each frame)
@@ -94,7 +94,7 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 	}
 	delete[] mvp_concatened;
 
-	std::size_t size4float = 4 * sizeof(float);
+	int size4float = 4 * sizeof(float);
 	for (int i = 0; i < 4; i++) {//could be done once?
 		glEnableVertexAttribArray(this->_mat4_mvp + i);
 		glVertexAttribPointer(this->_mat4_mvp + i, 4, GL_FLOAT, GL_FALSE, 4 * size4float, (const void*)(i * size4float));

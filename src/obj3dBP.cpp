@@ -5,7 +5,7 @@
 #include "compiler_settings.h"
 #include <algorithm>
 
-#define SGL_DEBUG
+//#define SGL_DEBUG
 #ifdef SGL_DEBUG
  #define SGL_OBJ3DBP_DEBUG
 #endif

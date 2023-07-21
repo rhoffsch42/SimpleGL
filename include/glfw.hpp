@@ -1,29 +1,9 @@
 #pragma once
 
-#ifdef _WIN32 //external libraries
-#pragma warning(push, 0)		//visual studio
-#else
-#pragma clang diagnostic push	//clang++
-#pragma clang diagnostic ignored "-Wall"
-#endif
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#ifdef _WIN32
-#pragma warning(pop)			//visual studio
-#else
-#pragma clang diagnostic pop	//clang++
-#endif //external libraries
-
 #include "simplegl.h"
 #include "cam.hpp"
 #include "gamemanager.hpp"
 
-#ifdef _WIN32
-#undef min
-#undef max
-#endif
 #include <algorithm>
 #include <map>
 #include <thread>
@@ -34,9 +14,7 @@
 #define MIN_HEIGHT		400
 #define MAX_WIDTH		1920 // a definir selon la resolution de l'ecran ?
 #define MAX_HEIGHT		1080
-
 #define MOUSE_MAX_ANGLE	90.0f //vertical angle
-
 
 #define DEFAULT_TITLE	"Default Title"
 

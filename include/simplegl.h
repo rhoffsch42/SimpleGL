@@ -1,43 +1,47 @@
-//  > output.txt 2>&1
 #pragma once
 
-
-#ifdef _WIN32 //ignore unused variables
-//windoes equivalent
-#else
-#pragma clang diagnostic push	//clang++
-#pragma clang diagnostic ignored "-Wunused-variable"
-#endif //ignore unused variables
-
-#include <stdio.h>
-#include <stdint.h>
-#include <iostream>
-#include <sstream>
-
-
-#ifdef _WIN32 //external libraries
-#pragma warning(push, 0)		//visual studio
-#else
-#pragma clang diagnostic push	//clang++
-#pragma clang diagnostic ignored "-Wall"
-#endif
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#ifdef _WIN32
-#pragma warning(pop)			//visual studio
-#else
-#pragma clang diagnostic pop	//clang++
-#endif //external libraries
+#define IGNORE_UNUSED_VARIABLES
+#define IGNORE_WARNING_LIBS
 
 #ifdef _WIN32
 #define NOMINMAX
 #include <Windows.h>
 #endif
 
-#include "misc.hpp"
+#ifdef IGNORE_UNUSED_VARIABLES
+	#ifdef _WIN32 //ignore unused variables
+	//windoes equivalent
+	#else
+	#pragma clang diagnostic push	//clang++
+	#pragma clang diagnostic ignored "-Wunused-variable"
+	#endif //ignore unused variables
+#endif
 
+#ifdef IGNORE_WARNING_LIBS
+	#ifdef _WIN32
+	#pragma warning(push, 0)		//visual studio
+	#else
+	#pragma clang diagnostic push	//clang++
+	#pragma clang diagnostic ignored "-Wall"
+	#endif
+	#include <GL/glew.h>
+	#include <GLFW/glfw3.h>
+	#ifdef _WIN32
+	#pragma warning(pop)			//visual studio
+	#else
+	#pragma clang diagnostic pop	//clang++
+	#endif
+#else
+	#include <GL/glew.h>
+	#include <GLFW/glfw3.h>
+#endif
+
+#include <stdio.h>
+#include <stdint.h>
+#include <iostream>
+#include <sstream>
+
+#include "misc.hpp"
 
 #define EMOTE_OK			"\xe2\x9c\x85 " // ✅
 #define EMOTE_FAIL			"\xe2\x9d\x8c " // ❌
@@ -66,7 +70,7 @@
 #define MOUSE_SENSIBILITY	2000.0f
 #define ROT_X				1
 
-//functions overwrite
+//functions override
 #if defined(__APPLE__) || defined(__linux__) 
 #define fopen		std::fopen
 #define change_cwd	chdir

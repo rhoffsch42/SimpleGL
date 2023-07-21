@@ -1,4 +1,5 @@
 #pragma once
+
 #include "math.hpp"
 #include "glfw.hpp"
 #include "object.hpp"
