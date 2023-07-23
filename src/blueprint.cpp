@@ -1,6 +1,7 @@
 #include "simplegl.h"
 #include "compiler_settings.h"
 #include "blueprint.hpp"
+#include "lod_manager.hpp"
 
 #ifdef SGL_DEBUG
  //#define SGL_BLUEPRINT_DEBUG
@@ -17,16 +18,14 @@
  #define D_SPACER_END ""
 #endif
 
-Blueprint::Blueprint(std::string filename) {
+Blueprint::Blueprint(std::string filename) : _name(filename), lodManager(LodManager(this)) {
 	D("Blueprint cons by filename" << std::endl)
-	D("building object: " << filename.c_str() << std::endl)
-	this->_vao = 0;
-	this->_name = filename;
+		D("building object: " << this->_name << std::endl)
 }
 
-Blueprint::Blueprint(const Blueprint& src) {
+Blueprint::Blueprint(const Blueprint& src) : lodManager(LodManager(this)) {
 	D("Blueprint cons by copy" << std::endl)
-	D("building object: " << src.getName().c_str() << std::endl)
+	D("building object: " << src.getName() << std::endl)
 	*this = src;
 }
 
@@ -37,8 +36,9 @@ Blueprint::~Blueprint() {
 Blueprint& Blueprint::operator=(const Blueprint& src) {
 	D("Blueprint operator =" << std::endl)
 
-	this->_vao = src.getVao();
-	this->_name = src.getName();
+	this->_vao = src._vao;
+	this->_name = src._name;
+	this->lodManager = src.lodManager;
 	return (*this);
 }
 

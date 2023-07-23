@@ -107,6 +107,12 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	} else { glUniform1f(this->_tex_coef, 0.0f); }
 
 	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
+	/*
+		could do: have multiples LODs loaded in the vertex buffers, and do:
+			- getPolygonAmount(obj->lod);
+			- `calc vertices_amount`
+			- glDrawArrays(GL_TRIANGLES, bp->getVertexStart(obj->lod), vertices_amount);
+	*/
 	int	vertices_amount = bp->getPolygonAmount() * 3;
 	//D(vertices_amount << "_")
 

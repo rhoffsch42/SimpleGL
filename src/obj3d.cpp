@@ -24,14 +24,14 @@ bool			Obj3d::defaultDisplayTexture = false;
 GLenum			Obj3d::defaultPolygonMode = GL_FILL;
 Math::Vector3	Obj3d::defaultColor = OBJ3D_DEFAULT_COLOR;
 
-Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(bp), _program(pg) {
+Obj3d::Obj3d(Obj3dBP& bp, Obj3dPG& pg) : _blueprint(&bp), _program(&pg) {
 	//D("_ Obj3d cons" << endl)
 	this->_color = Obj3d::defaultColor;
 	this->_texture = nullptr;
 	this->_polygonMode = Obj3d::defaultPolygonMode;
 	this->displayTexture = Obj3d::defaultDisplayTexture;
 
-	this->_program.linkBuffers(this->_blueprint);//this should only be done in the rendering context
+	this->_program->linkBuffers(*this->_blueprint);//this should only be done in the rendering context
 
 	Obj3d::_instanceAmount++;
 }
@@ -62,7 +62,7 @@ Obj3d::~Obj3d() {
 void		Obj3d::render(Math::Matrix4& PVmatrix) {
 	this->update();
 	//this->_program.render((Obj3d&)(*this), PVmatrix);
-	this->_program.render(*this, PVmatrix);
+	this->_program->render(*this, PVmatrix);
 /*
 	/!\ Do not do that here, we have to do that once all objects are rendered.
 	//FIX If we want to do that here, the solution is:
@@ -97,8 +97,8 @@ void		Obj3d::setPolygonMode(GLenum mode) {
 }
 
 //accessors
-Obj3dBP*		Obj3d::getBlueprint(void) const { return (&this->_blueprint); }
-Obj3dPG*		Obj3d::getProgram(void) const { return (&this->_program); }
+Obj3dBP*		Obj3d::getBlueprint(void) const { return (this->_blueprint); }
+Obj3dPG*		Obj3d::getProgram(void) const { return (this->_program); }
 Math::Vector3	Obj3d::getColor(void) const { return (this->_color); }
 Math::Vector3	Obj3d::getColorShader(void) const { return (this->_colorShader); }
 Texture*		Obj3d::getTexture(void) const { return (this->_texture); }

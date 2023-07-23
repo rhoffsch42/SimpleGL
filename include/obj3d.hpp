@@ -47,8 +47,8 @@ private:
 	//overwrite from Object
 	static unsigned int	_instanceAmount;	// should never be altered manually
 
-	Obj3dBP&		_blueprint;
-	Obj3dPG&		_program;
+	Obj3dBP*		_blueprint;
+	Obj3dPG*		_program;
 	Math::Vector3	_color;
 	Math::Vector3	_colorShader;
 	Texture*		_texture;

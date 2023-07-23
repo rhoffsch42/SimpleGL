@@ -1,5 +1,7 @@
 #pragma once
+
 #include "simplegl.h"
+#include "lod_manager.hpp"
 
 class Blueprint
 {
@@ -14,8 +16,9 @@ public:
 	GLuint		getVao(void) const;
 	std::string	getName(void) const;
 
+	LodManager	lodManager;
 protected:
-	GLuint		_vao;
+	GLuint		_vao = 0;
 	std::string	_name;
 
 	Blueprint(std::string filename);

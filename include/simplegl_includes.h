@@ -25,3 +25,4 @@
 #include "gamemanager.hpp"
 #include "text_pg.hpp"
 #include "uipanel.hpp"
+#include "lod_manager.hpp"

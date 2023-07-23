@@ -3,6 +3,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
 #include "compiler_settings.h"
+#include "model_loader.hpp"
 #include <algorithm>
 
 //#define SGL_DEBUG
@@ -21,11 +22,6 @@
  #define D_SPACER_END ""
 #endif
 
-float			Obj3dBP::defaultSize = OBJ3DBP_DEFAULT_SIZE;
-uint8_t			Obj3dBP::defaultDataMode = BP_INDICES;
-bool			Obj3dBP::rescale = true;
-bool			Obj3dBP::center = true;
-
 static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 	float	largest = dimensions.x;
 	largest = std::max(largest, dimensions.y);
@@ -33,113 +29,46 @@ static float	calcScaleCoef(Math::Vector3 dimensions, float size) {
 	return (size / largest);
 }
 
-SimpleVertex	Obj3dBP::assimpProcessVertexAt(aiMesh* mesh, const aiScene* scene, unsigned int indice) const {
-	// process vertex positions, texture coordinates, and colors
-	SimpleVertex vertex;
+SimpleVector2::SimpleVector2() {}
+SimpleVector2::SimpleVector2(float xVal, float yVal) : x(xVal), y(yVal) {}
 
-	// positions
-	vertex.position.x = mesh->mVertices[indice].x;
-	vertex.position.y = mesh->mVertices[indice].y;
-	vertex.position.z = mesh->mVertices[indice].z;
-	// texture UV
-	if (mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
-		vertex.texCoord.x = mesh->mTextureCoords[0][indice].x;
-		vertex.texCoord.y = mesh->mTextureCoords[0][indice].y;
-	} else { vertex.texCoord = SimpleVector2(0.0f, 0.0f); }
-	// color
-	if (mesh->mColors[0]) {
-		vertex.color.x = mesh->mColors[0][indice].r;
-		vertex.color.y = mesh->mColors[0][indice].g;
-		vertex.color.z = mesh->mColors[0][indice].b;
-	} else if (mesh->mMaterialIndex >= 0) {
-		const aiMaterial* mtl = scene->mMaterials[mesh->mMaterialIndex];
-		aiColor4D diffuse;
-		if (aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse) == AI_SUCCESS) {
-			vertex.color.x = diffuse.r;
-			vertex.color.y = diffuse.g;
-			vertex.color.z = diffuse.b;
-		} else { vertex.color = Math::Vector3(200, 0, 200); }
-	} else { vertex.color = Math::Vector3(200, 0, 200); }
-	// normal
-	//vector.x = mesh->mNormals[indice].x;
-	//vector.y = mesh->mNormals[indice].y;
-	//vector.z = mesh->mNormals[indice].z;
-	//vertex.normal = vector;
-	return vertex;
+
+LodBP::LodBP(Obj3dBP& bp, float min, float max) : blueprint(&bp), minDistance(min), maxDistance(max) {}
+LodBP::LodBP(const LodBP& bp) {	*this = bp; }
+LodBP::~LodBP() {}
+LodBP&	LodBP::operator=(const LodBP& rhs) {
+	this->blueprint = rhs.blueprint;
+	this->minDistance = rhs.minDistance;
+	this->maxDistance = rhs.maxDistance;
+	return *this;
+}
+std::string	LodBP::toString() const {
+	std::stringstream ss;
+	ss << this->blueprint << "\t" << this->minDistance << "\t->\t" << this->maxDistance;
+	return ss.str();
 }
 
-void	Obj3dBP::assimpProcessMesh(aiMesh* mesh, const aiScene* scene) {
 
-	unsigned int loaded_vertex = this->_vertices.size();//save the amount of loaded vertex before this new mesh
-	if (this->_dataMode == BP_INDICES) {
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-			this->_vertices.push_back(this->assimpProcessVertexAt(mesh, scene, i));
-		}
-	} else if (this->_dataMode == BP_LINEAR) {
-		//process with indices later
-	} else {
-		D(__PRETTY_FUNCTION__ << " : data corrupt:\n\twrong dataMode: " << (int)this->_dataMode << std::endl);
-		Misc::breakExit(23);
-	}
-
-	// process indices
-	this->_polygonAmount += mesh->mNumFaces;
-	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; j++) {
-			unsigned int indice = face.mIndices[j];
-			if (this->_dataMode == BP_LINEAR) {
-				this->_vertices.push_back(this->assimpProcessVertexAt(mesh, scene, indice));
-			} else if (this->_dataMode == BP_INDICES) {
-				this->_indices.push_back(indice + loaded_vertex);//as we merge all meshes, we have to take in account the already loaded ones
-			}
-
-		}
-	}
-}
-
-void	Obj3dBP::assimpProcessNode(aiNode* node, const aiScene* scene) {
-	// process all the node's meshes (if any)
-	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		this->assimpProcessMesh(mesh, scene);
-	}
-	// then do the same for each of its children
-	for (unsigned int i = 0; i < node->mNumChildren; i++) {
-		this->assimpProcessNode(node->mChildren[i], scene);
-	}
-}
-
-void	Obj3dBP::loadWithAssimp(std::string path) {
-	D(__PRETTY_FUNCTION__ << std::endl);
-	//https://stackoverflow.com/questions/39269121/assimp-loader-with-a-cube-of-8-vertices
-	Assimp::Importer importer;
-	//http://assimp.sourceforge.net/lib_html/postprocess_8h.html
-	unsigned int flags = aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_PreTransformVertices | aiProcess_OptimizeGraph;
-	const aiScene* scene = importer.ReadFile(path, flags);
-
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-	{
-		D("ERROR::ASSIMP::" << importer.GetErrorString() << std::endl);
-		std::exit(2);
-	}
-	//string directory = path.substr(0, path.find_last_of("/\\"));
-	this->assimpProcessNode(scene->mRootNode, scene);
-
-	D(__PRETTY_FUNCTION__ << " END" << std::endl);
-}
+ConfigurationObj3dBP::ConfigurationObj3dBP() {}
+ConfigurationObj3dBP::~ConfigurationObj3dBP() {}
+ConfigurationObj3dBP Obj3dBP::config = ConfigurationObj3dBP();
 
 Obj3dBP::Obj3dBP(std::string filename) : Blueprint(filename) {
 	D("Obj3dBP::Obj3dBP(std::string filename)\n");
 	filename = Misc::crossPlatPath(filename);
 
-	this->_dataMode = Obj3dBP::defaultDataMode;
 	this->_polygonAmount = 0;
 	this->_eboIndices = 0;
 	this->_vboVertex = 0;
-	this->_centered = Obj3dBP::center;
-	this->_rescaled = Obj3dBP::rescale;
-	this->loadWithAssimp(filename);
+	this->_dataMode = Obj3dBP::config.dataMode;
+	this->_centered = Obj3dBP::config.center;
+	this->_rescaled = Obj3dBP::config.rescale;
+
+	//ModelLoader* loaderGeneral = new AssimpLoader();
+	AssimpLoader loader;
+	loader.dataMode = this->_dataMode;
+	loader.loadFile(filename, &this->_vertices, &this->_indices, &this->_polygonAmount);
+
 	this->normalize();
 	//std::stringstream ss;
 	//for (auto i : this->_indices)
@@ -165,14 +94,14 @@ Obj3dBP::Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vecto
 	this->_centered = false;
 	this->_rescaled = false;
 	this->_normalized = false;
-	this->_vertices = src_vertices;//todo: std::move?
+	this->_vertices = src_vertices;
 	if (src_indices.empty()) {
 		this->_dataMode = BP_LINEAR;
 		this->_polygonAmount = src_vertices.size() / 3;
 	}
 	else {
 		this->_dataMode = BP_INDICES;
-		this->_indices = src_indices;//todo: std::move?
+		this->_indices = src_indices;
 		this->_polygonAmount = src_indices.size() / 3;
 	}
 	D((this->_dataMode == BP_LINEAR ? "BP_LINEAR\n" : "BP_INDICES\n"));
@@ -188,7 +117,7 @@ Obj3dBP::Obj3dBP(const std::vector<SimpleVertex>& src_vertices, const std::vecto
 }
 
 /*
-	This will merge multiple objects BPs in a single object BP (they probably will be intricated).
+	This will merge multiple objects BPs in a single object BP
 */
 Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A by BPs merging") {
 	this->_polygonAmount = 0;
@@ -223,13 +152,6 @@ Obj3dBP::Obj3dBP(std::vector<Obj3dBP*> src, unsigned int flags) : Blueprint("N/A
 	this->loadToGPU();
 }
 
-Obj3dBP::Obj3dBP(const Obj3dBP& src) : Blueprint(src) {
-	D("Obj3dBP cons by copy" << std::endl);
-	D("building object: " << src.getName().c_str() << std::endl);
-
-	*this = src;
-}
-
 Obj3dBP::~Obj3dBP() {
 	D(__PRETTY_FUNCTION__ << "\n");
 	D("vertices:\t" << this->_vertices.size() << std::endl);
@@ -242,18 +164,6 @@ Obj3dBP::~Obj3dBP() {
 	}
 	glDeleteBuffers(1, &this->_vboVertex);
 	glDeleteVertexArrays(1, &this->_vao);
-}
-
-Obj3dBP& Obj3dBP::operator=(const Obj3dBP& src) {
-	D("Obj3dBP operator =" << std::endl);
-	//what do we do for vbo? see .hpp
-	this->_dataMode = src._dataMode;
-	this->_indices = src._indices;
-	this->_polygonAmount = src._polygonAmount;
-	this->_dimensions = src._dimensions;
-	this->_centered = src._centered;
-	this->_rescaled = src._rescaled;
-	return (*this);
 }
 
 //mutators
@@ -271,7 +181,7 @@ bool						Obj3dBP::isCentered(void) const { return this->_centered; }
 bool						Obj3dBP::isRescaled(void) const { return this->_rescaled; }
 bool						Obj3dBP::isNormalized(void) const { return this->_normalized; }
 
-void			Obj3dBP::freeData(unsigned int flags) {
+void	Obj3dBP::freeData(unsigned int flags) {
 	if ((flags & BP_FREE_INDICES) == BP_FREE_INDICES) {
 		this->_indices.clear();
 	}
@@ -335,7 +245,7 @@ void	Obj3dBP::normalize() {
 
 	float	scaleCoef = 1.0f;
 	if (this->_rescaled) {
-		scaleCoef = calcScaleCoef(this->_dimensions, Obj3dBP::defaultSize);
+		scaleCoef = calcScaleCoef(this->_dimensions, Obj3dBP::config.modelSize);
 		this->_dimensions.mult(scaleCoef);
 		for (size_t i = 0; i < this->_vertices.size(); i++) {
 			this->_vertices[i].position.mult(scaleCoef);
