@@ -28,7 +28,7 @@ SkyboxPG::~SkyboxPG() {
 	D(__PRETTY_FUNCTION__ << "\n")
 }
 
-void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
+void	SkyboxPG::renderObject(Object& object, Math::Matrix4 VPmatrix) const {
 	// glUseProgram(this->_program);
 	Skybox*	skybox = dynamic_cast<Skybox*>(&object);
 	VPmatrix.setOrder(COLUMN_MAJOR);
@@ -47,16 +47,19 @@ void	SkyboxPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void	SkyboxPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags) {
+/*
+	render multiple skyboxes ? maybe with some transparent effects, night, clouds, auroras, planets... Whatever can be in the sky
+*/
+void	SkyboxPG::renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags) {
 	//D("render Skybox" << "\n")
-	if (list.empty())
+	if (objects.empty())
 		return;
-	//assuming all objects have the same program
-	glUseProgram(this->_program);
+	glUseProgram(this->_program);//assuming all objects have the same program
+
 	Math::Matrix4	viewProMatrix(cam.getProjectionMatrix());
 	Math::Matrix4& viewMatrix = cam.getViewMatrix();
 	viewProMatrix.mult(viewMatrix);
-	for (Object* o : list) {
+	for (Object* o : objects) {
 		Skybox* skybox = dynamic_cast<Skybox*>(o);
 		if (!skybox) {
 			D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
@@ -66,7 +69,6 @@ void	SkyboxPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fl
 		}
 	}
 }
-
 
 void	SkyboxPG::getLocations() {
 	/*

@@ -116,7 +116,7 @@ Skybox::~Skybox() {
 }
 
 void			Skybox::render(Math::Matrix4& VPmatrix) const {
-	this->_program.render((Skybox&)(*this), VPmatrix);
+	this->_program.renderObject((Skybox&)(*this), VPmatrix);
 }
 
 //accessors

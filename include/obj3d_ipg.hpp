@@ -29,8 +29,8 @@ public:
 	Obj3dIPG(std::string vertexShader, std::string fragmentShader, bool init_locations = true);
 	~Obj3dIPG();
 
-	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
-	virtual void	renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
+	virtual void	renderObject(Object& object, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
+	virtual void	renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags = 0);
 protected:
 	virtual void	getLocations();
 private:

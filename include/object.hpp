@@ -27,14 +27,13 @@ public:
 	Object&	operator=(const Object& src);
 
 	bool			update();
-	virtual void	render(Math::Matrix4& PVmatrix);
 	//mutators
 	// void			setMotionBehavior(/*...*/);//useless if _motionBehavior is public
 	void			setParent(Object* parent);
 	//accessors
 	unsigned int	getId(void) const;
 	Properties		getLocalProperties() const;
-	Math::Matrix4&	getWorldMatrix() const;//dangerous
+	Math::Matrix4&	getWorldMatrix() const;//todo:dangerous, check if used correctly
 	Object*			getParent() const;
 
 	//settings
@@ -52,4 +51,6 @@ private:
 	static unsigned int	_instanceAmount;	// should never be altered manually
 	static unsigned int	_instanceId;		// should never be altered manually
 
+	//this should not be used anymore, better send vectors of objects to the right renderer, and not iterate through every object
+	virtual void	render(Math::Matrix4& PVmatrix);
 };

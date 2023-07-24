@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <cstdio>
-#include <array>
+#include <vector>
 
 #define GL_COMPILE_SHADER		"OpenGL shader error"
 
@@ -26,17 +26,15 @@ public:
 	//tmp public var
 	GLuint		_program;
 
-	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const = 0;
-	virtual void	renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags = 0) = 0;//const?
+	virtual void	renderObject(Object& object, Math::Matrix4 VPmatrix) const = 0;
+	virtual void	renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags = 0) = 0;//const?
 	//the array has to be null terminated
-	virtual void	renderObjects(Object** objectArray, Cam& cam, unsigned int flags = 0) = 0;//const?
 protected:
 	GLint			getSlot(const GLchar* varname, bool n) const;
 	//a definir dans classe fille, ou faire un lecteur de shader et mapper les slots
 	virtual void	getLocations() = 0;
 
 private:
-
 	// utils
 	GLuint			initShader(std::string filename, int type) const;
 	void			glCompileError(GLuint shader, const char *intro) const;

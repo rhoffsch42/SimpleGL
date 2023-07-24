@@ -62,7 +62,7 @@ Obj3d::~Obj3d() {
 void		Obj3d::render(Math::Matrix4& PVmatrix) {
 	this->update();
 	//this->_program.render((Obj3d&)(*this), PVmatrix);
-	this->_program->render(*this, PVmatrix);
+	this->_program->renderObject(*this, PVmatrix);
 /*
 	/!\ Do not do that here, we have to do that once all objects are rendered.
 	//FIX If we want to do that here, the solution is:

@@ -42,7 +42,7 @@ TextPG::~TextPG() {
 	//D("_ " << __PRETTY_FUNCTION__ << std::endl)
 }
 
-void	TextPG::render(Object& object, Math::Matrix4 VPmatrix) const {
+void	TextPG::renderObject(Object& object, Math::Matrix4 VPmatrix) const {
 	//void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)
 	Text* obj = dynamic_cast<Text*>(&object);
 	if (!obj) {
@@ -56,10 +56,10 @@ void	TextPG::render(Object& object, Math::Matrix4 VPmatrix) const {
 	//float			scale = obj->local.getScale().x;
 	//Math::Vector3	color = obj->color;
 	Math::Vector3	pos = obj->local.getPos();
-	this->render(obj->text, pos.x, pos.y, obj->local.getScale().x, obj->color);
+	this->renderText(obj->text, pos.x, pos.y, obj->local.getScale().x, obj->color);
 }
 
-void	TextPG::render(std::string text, float x, float y, float scale, Math::Vector3 color) const {
+void	TextPG::renderText(std::string text, float x, float y, float scale, Math::Vector3 color) const {
 	// activate corresponding render state	
 	glUseProgram(this->_program);
 	glUniform3f(this->_textColor, color.x, color.y, color.z);
@@ -109,7 +109,12 @@ void	TextPG::render(std::string text, float x, float y, float scale, Math::Vecto
 	glBindTexture(GL_TEXTURE_2D, 0);
  }
 
-void	TextPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags) {}
+void	TextPG::renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags) {
+	// not implemented yet
+	std::cerr << "Not implemented yet... Exiting.\n";
+	std::exit(0);
+}
+
 
 void	TextPG::getLocations() {
 	/* refacto: envoyer la fonction dans la classe Program:

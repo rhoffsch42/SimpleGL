@@ -32,50 +32,54 @@ Obj3dIPG::~Obj3dIPG() {
 	glDeleteBuffers(1, &this->_vboMatrix);
 }
 
-void	Obj3dIPG::render(Object& object, Math::Matrix4 VPmatrix) const { //HAS to be cpy constructor! (1 PV*M per obj3d)
+void	Obj3dIPG::renderObject(Object& object, Math::Matrix4 VPmatrix) const { //HAS to be cpy constructor! (1 PV*M per obj3d)
 	(void)object;
 	(void)VPmatrix;
 }
-void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int flags) {
+void	Obj3dIPG::renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags) {
 	/*
 		// https://learnopengl.com/Advanced-OpenGL/Instancing
 
-		convert list<Object*> (in fact Obj3d*) matrices into vector<float>
+		convert vector<Object*> (in fact Obj3d*) matrices into vector<float>
 		all matrices must be COLUMN_MAJOR
 		all objects must come from the same BP
 	*/
-	if (list.empty())
+	if (objects.empty())
 		return;
 	Math::Matrix4	VPmatrix(cam.getProjectionMatrix());
 	Math::Matrix4	Vmatrix = cam.getViewMatrix();
 	VPmatrix.mult(Vmatrix);// do it in shader ? NO cauz shader will do it for every vertice
 
 	// this part needs threads?
-	size_t	instances_amount = list.size();
+	size_t	instances_amount = objects.size();
 	int		index = 0;
 	size_t	array_size = instances_amount * 16;//16 float for a matrix
-	float* mvp_concatened = new float[array_size];
+	float*	mvp_concatened = new float[array_size];
 
-	for (auto o : list) {// build all MVP (cam is moving so we have to do this each frame)
-		Obj3d* ptr = dynamic_cast<Obj3d*>(o);
-		if (ptr) {
-			ptr->update();
+	for (auto object : objects) {// build all MVP (cam is moving so we have to do this each frame)
+		Obj3d* obj = dynamic_cast<Obj3d*>(object);
+		if (obj) {
+			obj->update();
 			//check for frustum
 			//if (flags & PG_FRUSTUM_CULLING) {}
 			Math::Matrix4	MVPmatrix(VPmatrix);
-			MVPmatrix.mult(ptr->getWorldMatrix());
+			MVPmatrix.mult(obj->getWorldMatrix());
 			MVPmatrix.setOrder(COLUMN_MAJOR);
 			memcpy(mvp_concatened + index * 16, MVPmatrix.getData(), 16 * sizeof(float));
 		}
 		else {
-			D("dynamic_cast<Obj3d*>(o) failed: " << o << std::endl)
+			D("dynamic_cast<Obj3d*>(o) failed: " << object << std::endl)
 			Misc::breakExit(12);
 		}
 		index++;
 	}
 	//end threads
+	if (index != instances_amount) {// (or some obj have been culled)
+		std::cout << "Missing data : " << index << " != " << instances_amount << "\n";
+		Misc::breakExit(12);
+	}
 
-	Obj3d* obj = dynamic_cast<Obj3d*>(list.front());
+	Obj3d* obj = dynamic_cast<Obj3d*>(objects.front());
 	if (!obj) {
 		D("dynamic_cast<Obj3d*>(list.front()) failed: " << list.front() << std::endl)
 		Misc::breakExit(12);
@@ -83,6 +87,7 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 	Obj3dBP* bp = obj->getBlueprint();
 	const Math::Vector3& color = obj->getColorShader();//will be used for every obj3d!
 	glBindVertexArray(bp->getVao());
+	glUseProgram(this->_program);//used once for all obj3d
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vboMatrix);
 	if (this->_vboSize >= instances_amount) {//use the current vbo as he is big enough
@@ -101,7 +106,6 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 		glVertexAttribDivisor(this->_mat4_mvp + i, 1);
 	}
 
-	glUseProgram(this->_program);//used once for all obj3d
 	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
@@ -120,13 +124,7 @@ void	Obj3dIPG::renderObjects(std::list<Object*> & list, Cam& cam, unsigned int f
 		glDrawElementsInstanced(GL_TRIANGLES, vertices_amount, GL_UNSIGNED_INT, 0, instances_amount);
 	}
 
-	/*
-		++: when all is optimised build an obj3d with the vertex and indices and textures corresponding to the entire chunk! Modify it when adding or removing a cube.
-		to make 1 draw of 1 obj3d
-	*/
-
-	//end
-	for (Object* object : list) {//to do AFTER all objects are rendered
+	for (Object* object : objects) {//to do AFTER all objects are rendered
 		object->local._matrixChanged = false;
 		object->_worldMatrixChanged = false;
 	}

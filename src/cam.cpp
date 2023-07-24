@@ -104,16 +104,18 @@ bool	Cam::isInFrustum(Math::Vector3 target_pos, Math::Matrix4 VPmatrix) {
 	int	in = 0;
 	size_t	max = 4;// 6 = all planes, 4 = no far no near
 	for (size_t i = 0; i < max; i++) {
-		Math::Vector3	normal(_frustum[i * 4 + 0], _frustum[i * 4 + 1], _frustum[i * 4 + 2]);
+		Math::Vector3	normal(this->_frustum[i * 4 + 0],
+								this->_frustum[i * 4 + 1],
+								this->_frustum[i * 4 + 2]);
 		if (Math::Vector3::dot(normal, target_pos) > 0)
 			in++;
 	}
 	
 	if (max == 4) {//manual for near and far
 		max += 2;
-		if (target_pos.z > -_frustum[19])
+		if (target_pos.z > -this->_frustum[19])
 			in++;
-		if (target_pos.z < _frustum[23])
+		if (target_pos.z < this->_frustum[23])
 			in++;
 	}
 	return (in == max);//is on the right halfspace of all planes, ie. is in the frustum

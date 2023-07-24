@@ -34,11 +34,12 @@ class Fps
 	private:
 		Fps();
 
-		unsigned int	fps;
-		double			tick;
-		double			last_time;
-		double			current_time;
-		double			ellapsed_time;
+		unsigned int	_fps;
+		double			_maxTick;
+		double			_tick;
+		double			_lastTime;
+		double			_currentTime;
+		double			_ellapsedTime;
 
 		//only calculated if getFps is called
 		int				_counter;

@@ -6,7 +6,7 @@
 class Blueprint
 {
 public:
-	~Blueprint();
+	virtual ~Blueprint();
 	Blueprint&	operator=(const Blueprint& bp);
 
 	GLuint	createVao();

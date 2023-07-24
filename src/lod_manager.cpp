@@ -31,7 +31,7 @@ Lod& Lod::operator=(const Lod& rhs) {
 }
 std::string	Lod::toString() const {
 	std::stringstream ss;
-	ss << this->blueprint << "\t" << this->minDistance << "\t->\t" << this->maxDistance;
+	ss << this->minDistance << "\t->\t" << this->maxDistance << "\t" << this->blueprint << "\t" << this->blueprint->getName();
 	return ss.str();
 }
 
@@ -53,6 +53,10 @@ LodManager::~LodManager() {}
 uint8_t				LodManager::setCurrentLod(uint8_t lod) {
 	this->_currentLod = std::min(lod, (uint8_t)(this->_lods.size() - 1));
 	return this->_currentLod;
+}
+
+uint8_t				LodManager::updateCurrentLod(float distance) {
+	return this->setCurrentLod(this->_getLodIndex(distance));
 }
 
 // Arbitrary max size of 255
@@ -87,7 +91,14 @@ std::vector<Lod>	LodManager::removeLod(size_t n) {
 	return removed;
 }
 
-Lod					LodManager::getLodData(float distance) const {
+void				LodManager::changeLodBlueprintAtDistance(float distance, Blueprint* bp) {
+	this->_lods[this->_getLodIndex(distance)].blueprint = bp;
+}
+void				LodManager::changeLodBlueprint(uint8_t lod, Blueprint* bp) {
+	this->_lods[lod].blueprint = bp;
+}
+
+uint8_t				LodManager::_getLodIndex(float distance) const {
 	size_t l = 0;
 	for (size_t i = 0; i < this->_lods.size(); i++) {
 		if (this->_lods[i].minDistance <= distance)
@@ -95,20 +106,20 @@ Lod					LodManager::getLodData(float distance) const {
 		else
 			break;
 	}
-	return this->_lods[l];
+	return l;
 }
 
-Lod					LodManager::getLodData(uint8_t lod) const			{ return this->_lods[lod]; }
-Blueprint*			LodManager::getLodBlueprint(float distance) const	{ return this->getLodData(distance).blueprint; }
-Blueprint*			LodManager::getLodBlueprint(uint8_t lod) const		{ return this->_lods[lod].blueprint; }
-uint8_t				LodManager::getCurrentLod() const					{ return this->_currentLod; }
-uint8_t				LodManager::getLodCount() const						{ return this->_lods.size(); }
+Lod					LodManager::getLodDataAtDistance(float distance) const		{ return this->_lods[this->_getLodIndex(distance)]; }
+Lod					LodManager::getLodData(uint8_t lod) const					{ return this->_lods[lod]; }
+Blueprint*			LodManager::getCurrentLodBlueprint() const					{ return this->_lods[this->_currentLod].blueprint; }
+uint8_t				LodManager::getCurrentLod() const							{ return this->_currentLod; }
+uint8_t				LodManager::getLodCount() const								{ return this->_lods.size(); }
 std::string			LodManager::toString() const {
 	std::stringstream ss;
 	int i = 0;
-	ss << "Current LOD " << (int)this->_currentLod << ", LODs models for " << this << " : \n";
+	ss << "Current LOD " << (int)this->_currentLod << ", LODs models for " << this << ": \n";
 	for (auto lod : this->_lods) {
-		ss << "LOD " << i << "\t" << lod.toString() << "\n";
+		ss << "LOD_" << i << ":\t" << lod.toString() << "\n";
 		i++;
 	}
 	return ss.str();

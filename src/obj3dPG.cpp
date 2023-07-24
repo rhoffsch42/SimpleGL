@@ -2,11 +2,22 @@
 #include "obj3dPG.hpp"
 #include "compiler_settings.h"
 
+//#define OBJ3D_RENDER_CHECKS
+#ifndef OBJ3D_RENDER_CHECKS
+#pragma message("[Obj3dPG.hpp] OBJ3D_RENDER_CHECKS is not defined. C style casts, no vao checks.")
+/*
+[[deprecated("[Obj3dPG.hpp] OBJ3D_RENDER_CHECKS is defined. C style casts, no vao checks.")]]
+inline int	custom_warning() { return -1; }
+static int ret = custom_warning();
+*/
+#endif
+
+#define SGL_DEBUG
 #ifdef SGL_DEBUG
  #define SGL_OBJ3DPG_DEBUG
 #endif
 #ifdef SGL_OBJ3DPG_DEBUG 
- #define D(x) std::cout << "[Obj3dPG] " << x ;
+ #define D(x) std::cout << "[Obj3dPG] " << x
  #define D_(x) x
  #define D_SPACER "-- obj3dPG.cpp -------------------------------------------------\n"
  #define D_SPACER_END "----------------------------------------------------------------\n"
@@ -20,14 +31,14 @@
 Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 	: Program(vs_file, fs_file)
 {
-	D(__PRETTY_FUNCTION__ << std::endl)
+	//D(__PRETTY_FUNCTION__ << std::endl);
 	if (init_locations)
 		this->getLocations();
-	D(__PRETTY_FUNCTION__ << " END" << std::endl)
+	//D(__PRETTY_FUNCTION__ << " END" << std::endl);
 }
 
 Obj3dPG::~Obj3dPG() {
-	D(__PRETTY_FUNCTION__ << std::endl)
+	//D(__PRETTY_FUNCTION__ << std::endl);
 }
 
 /*
@@ -49,6 +60,7 @@ void	Obj3dPG::linkBuffers(const Obj3dBP& blueprint) const {
 
 	glBindVertexArray(0);
 }
+
 void	Obj3dPG::linkBuffersToVao(const Obj3dBP& blueprint, GLuint vao) const {
 	/*
 		glVertexAttribPointer 5th arg is stride size: 0 = tightly packed, so opengl will determine itself
@@ -66,55 +78,59 @@ void	Obj3dPG::linkBuffersToVao(const Obj3dBP& blueprint, GLuint vao) const {
 	glBindVertexArray(0);
 }
 
-void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
+// Directly render a model without checking anything (frustum, front, flags, etc)
+void	Obj3dPG::renderObject(Object& object, Math::Matrix4 PVmatrix) const {
+	#ifdef OBJ3D_RENDER_CHECKS
 	Obj3d* obj = dynamic_cast<Obj3d*>(&object);
 	if (!obj) {
-		D("dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl)
+		D("dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl);
 		// Misc::breakExit(22);
 		// this can happen when an object is being nulled to be replaced by another one, block or continue?
 		return;
 	}
-	const Math::Vector3& color = obj->getColorShader();
 	Obj3dBP* bp = obj->getBlueprint();
-	// Math::Matrix4&	modelMatrix = obj->getParent() ? obj->getWorldMatrix() : obj->local.getMatrix();
-	Math::Matrix4& modelMatrix = obj->getWorldMatrix();
-
-	//D("rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << std::endl)
-	//D("*\tpolygons: " << bp.getPolygonAmount() << std::endl)
+	Obj3dBP* bp0 = dynamic_cast<Obj3dBP*>(bp->lodManager.getCurrentLodBlueprint());
+	if (!bp0) {
+		//meaning a LOD has a different BP type, could be for different shaders...
+		D("dynamic_cast<Obj3d*> failed on Blueprint : " << bp << std::endl);
+		return;
+	}
+	bp = bp0;
+	GLuint					vao = bp->getVao();
+	if (vao == 0) {
+		D("bp " << bp << " vao: " << vao << "\n");
+		Misc::breakExit(66);
+	}
+	#else
+	Obj3d*		obj = (Obj3d*)&object;
+	Obj3dBP*	bp = (Obj3dBP*)obj->getBlueprint()->lodManager.getCurrentLodBlueprint();
+	GLuint		vao = bp->getVao();
+	#endif
+	Math::Matrix4&			modelMatrix = obj->getWorldMatrix();
+	unsigned int			vertices_amount = bp->getPolygonAmount() * 3;
+	const Math::Vector3		color = obj->getColorShader();
 
 	PVmatrix.mult(modelMatrix);
 	PVmatrix.setOrder(COLUMN_MAJOR);
+	//D("rendering " << bp.getName() << " #" << obj->getId() << " vao:" << bp.getVao() << std::endl);
+	//D("*\tpolygons: " << bp.getPolygonAmount() << std::endl);
+
 
 	//can be done once for all obj3d
 	glUseProgram(this->_program);
+	this->linkBuffers(*bp);//needed for LOD BPs. This should be done only once, it's currently done in the Obj3d creation. It's in fact unrelated... Should be in the BP
 
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
 	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
 	glUniform3f(this->_plain_color, color.x, color.y, color.z);
 
-	//D("rendering BP " << &bp << " vao " << bp.getVao() << " with Chunk::cubeBlueprint vao " << Chunk::cubeBlueprint->getVao() << std::endl)
-	GLuint	vao = bp->getVao();
-	if (vao == 0) {
-		D("vao: " << vao << "\n")
-		Misc::breakExit(66);
-	}
 	glBindVertexArray(vao);
-
 	if (obj->displayTexture && obj->getTexture() != nullptr) {
 		glUniform1f(this->_tex_coef, 1.0f);
 		glActiveTexture(GL_TEXTURE0);//required for some drivers
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
 	} else { glUniform1f(this->_tex_coef, 0.0f); }
-
-	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode());
-	/*
-		could do: have multiples LODs loaded in the vertex buffers, and do:
-			- getPolygonAmount(obj->lod);
-			- `calc vertices_amount`
-			- glDrawArrays(GL_TRIANGLES, bp->getVertexStart(obj->lod), vertices_amount);
-	*/
-	int	vertices_amount = bp->getPolygonAmount() * 3;
-	//D(vertices_amount << "_")
+	glPolygonMode(GL_FRONT, obj->getPolygonMode()); //GL_FRONT GL_FRONT_AND_BACK GL_BACK
 
 	/**/
 	if (bp->getDataMode() == BP_LINEAR)
@@ -127,7 +143,7 @@ void	Obj3dPG::render(Object& object, Math::Matrix4 PVmatrix) const {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
+void	Obj3dPG::renderObjectUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	Obj3dBP* bp = obj.getBlueprint();
 	Math::Matrix4& modelMatrix = obj.getWorldMatrix();
 
@@ -154,30 +170,147 @@ void	Obj3dPG::renderUniqueId(Obj3d& obj, Math::Matrix4 PVmatrix) const {
 	glBindVertexArray(0);
 }
 
-void	Obj3dPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags) {
-	//D("render all Obj3d" << std::endl)
-	if (list.empty())
+static void		frustumCulling_stats(bool* draw, Obj3d* object, Cam* cam, unsigned int flags, Math::Matrix4& viewProMatrix,
+	unsigned int* counterForward, unsigned int* counterFrustum, Math::Vector3* color)//tmp debug params
+{
+	Math::Matrix4	worldmatrix;
+	Math::Vector3	center;
+	Math::Vector3	scale;
+	Math::Vector3	dim;
+	Math::Vector3	oldcolor;
+
+	oldcolor = object->getColor();
+	if (object->getParent()) {
+		worldmatrix = object->getWorldMatrix();
+		worldmatrix.setOrder(COLUMN_MAJOR);
+		float* m = worldmatrix.getData();
+		center = Math::Vector3(m[12], m[13], m[14]);//world pos and not real center
+		//todo : this is probably false due to rotation and other things, check that
+	}
+	else {
+		center = object->local.getPos();//== world pos
+	}
+	scale = object->local.getScale();//what if parent?
+	dim = object->getBlueprint()->getDimensions();//what if parent?
+	dim.x *= scale.x;
+	dim.y *= scale.y;
+	dim.z *= scale.z;
+	center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);//what about the rotation
+	/*
+		get the center of the object BP, apply the rotation, add up to the world pos
+		for the voxel engine, it doesnt matter since the voxels dont have parent or rotation
+	*/
+	if (cam->isInFrustum(center, viewProMatrix)) {
+		//color = Math::Vector3(40, 200, 200);//cyan
+		(*counterFrustum)++;
+	}
+	else if (cam->local.forwardDistance(center) > 0) {
+		*color = Math::Vector3(200, 200, 40);//yellow
+		(*counterForward)++;
+		*draw = false;
+	}
+	else {
+		*draw = false;
+	}
+	if (object->getPolygonMode() == GL_LINE) {
+		*color = oldcolor;
+	}
+}
+
+// returns true if objects is inside frustum
+static bool		frustumCulling( Obj3d* object, Cam* cam, unsigned int flags, Math::Matrix4& viewProMatrix) {
+	Math::Matrix4	worldmatrix;
+	Math::Vector3	center;
+	Math::Vector3	scale;
+	Math::Vector3	dim;
+	bool			isInside = true;
+
+	if (object->getParent()) {
+		worldmatrix = object->getWorldMatrix();
+		worldmatrix.setOrder(COLUMN_MAJOR);
+		float* m = worldmatrix.getData();
+		center = Math::Vector3(m[12], m[13], m[14]);//world pos and not real center
+		//todo : this is probably false due to rotation and other things, check that
+	} else {
+		center = object->local.getPos();//== world pos
+	}
+	scale = object->local.getScale();//what if parent?
+	dim = object->getBlueprint()->getDimensions();//what if parent?
+	dim.x *= scale.x;
+	dim.y *= scale.y;
+	dim.z *= scale.z;
+	center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);//what about the rotation
+	/*
+		get the center of the object BP, apply the rotation, add up to the world pos
+		for the voxel engine, it doesnt matter since the voxels dont have parent or rotation
+	*/
+	if (!cam->isInFrustum(center, viewProMatrix)) {
+		isInside = false;
+		if (cam->local.forwardDistance(center) > 0) {//in not behind (180° angle)
+			// ...
+		}
+	}
+	return isInside;
+}
+
+void		Obj3dPG::renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags) {
+	//D("render all Obj3d" << std::endl);
+	if (objects.empty())
+		return;
+	glUseProgram(this->_program);//used once for all obj3d, assuming they have the same program
+
+	Math::Matrix4	viewProMatrix = cam.getProjectionMatrix();
+	Math::Matrix4	viewMatrix = cam.getViewMatrix();
+	viewProMatrix.mult(viewMatrix);
+	bool			draw = true;
+	t_pp			cam_pp = Math::extractFromMatrix(cam.getWorldMatrix());
+
+	for (Object* obj : objects) {
+		obj->update();
+	}
+	for (Object* obj : objects) {
+		obj->local._matrixChanged = false;//to do AFTER all objects are updated
+		obj->_worldMatrixChanged = false;//to do AFTER all objects are updated
+
+		Obj3d* model = dynamic_cast<Obj3d*>(obj);
+		if (!model) {
+			D("dynamic_cast<Obj3d*> failed on Object : " << obj << std::endl);
+			Misc::breakExit(22);
+			return;
+		}
+		else {
+			if (flags & PG_FRUSTUM_CULLING)
+				draw = frustumCulling(model, &cam, flags, viewProMatrix);
+			if (draw || flags & PG_FORCE_DRAW) {
+				float	distanceFromCam = (cam_pp.pos - model->local.getPos()).len();
+				model->getBlueprint()->lodManager.updateCurrentLod(distanceFromCam);
+				this->renderObject(*model, viewProMatrix);//use this renderer for all models
+			}
+		}
+	}
+}
+
+void	Obj3dPG::renderAllObjects_stats(std::vector<Object*>& objects, Cam& cam, unsigned int flags) {
+	//D("render all Obj3d" << std::endl);
+	if (objects.empty())
 		return;
 	//assuming all Obj3d have the same program
 	glUseProgram(this->_program);//used once for all obj3d
-	Math::Matrix4	viewProMatrix(cam.getProjectionMatrix());
+	Math::Matrix4	viewProMatrix = cam.getProjectionMatrix();
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
 	viewProMatrix.mult(viewMatrix);
 
 	bool			draw = true;
 	unsigned int	counterForward = 0;
 	unsigned int	counterFrustum = 0;
-	Math::Vector3	center;
-	Math::Vector3	dim;
-	Math::Vector3	scale;
 	Math::Vector3	oldcolor;
 	Math::Vector3	color;
-	Math::Matrix4	worldmatrix;
+	t_pp			cam_pp = Math::extractFromMatrix(cam.getWorldMatrix());
 
-	for (Object* o : list) {
+	for (Object* o : objects) {
 		Obj3d* object = dynamic_cast<Obj3d*>(o);
 		if (!object) {
-			D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
+			D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl);
 			Misc::breakExit(22);
 			return;
 		}
@@ -186,159 +319,39 @@ void	Obj3dPG::renderObjects(std::list<Object*>& list, Cam& cam, unsigned int fla
 			draw = true;
 			oldcolor = object->getColor();
 			color = oldcolor;
-			if (flags & PG_FRUSTUM_CULLING) {
-				if (object->getParent()) {
-					worldmatrix = object->getWorldMatrix();
-					worldmatrix.setOrder(COLUMN_MAJOR);
-					float* m = worldmatrix.getData();
-					center = Math::Vector3(m[12], m[13], m[14]);//world pos and not real center
-				}
-				else {
-					center = object->local.getPos();//== world pos
-				}
-				scale = object->local.getScale();//what if parent?
-				dim = object->getBlueprint()->getDimensions();//what if parent?
-				dim.x *= scale.x;
-				dim.y *= scale.y;
-				dim.z *= scale.z;
-				center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);//what about the rotation
-				/*
-					get the center of the object BP, apply the rotation, add up to the world pos
-					for the voxel engine, it doesnt matter since the voxels dont have parent or rotation
-				*/
-				if (cam.isInFrustum(center, viewProMatrix)) {
-					//color = Math::Vector3(40, 200, 200);//cyan
-					counterFrustum++;
-				}
-				else if (cam.local.forwardDistance(center) > 0) {
-					color = Math::Vector3(200, 200, 40);//yellow
-					counterForward++;
-					draw = false;
-				}
-				else {
-					draw = false;
-				}
-				if (object->getPolygonMode() == GL_LINE) {
-					color = oldcolor;
-				}
-			}
+
+			if (flags & PG_FRUSTUM_CULLING)
+				frustumCulling_stats(&draw, object, &cam, flags, viewProMatrix, &counterForward, &counterFrustum, &color);
 
 			if (flags & PG_FORCE_DRAW || draw) {
+				float	distanceFromCam = (cam_pp.pos - object->local.getPos()).len();
+				object->getBlueprint()->lodManager.updateCurrentLod(distanceFromCam);
+
 				object->setColor(color.x, color.y, color.z);
 				object->render(viewProMatrix);//use the object renderer, might be different depending on the object
 				//this->render(*object, viewProMatrix);//use this renderer for all objects
+
+				//restore old values
 				object->setColor(oldcolor.x, oldcolor.y, oldcolor.z);
 			}
 		}
 	}
-	//D("fustrum objects: " << counterFrustum << std::endl)
-	//D("forward objects: " << counterForward << "\t(not in fustrum)" << std::endl)
-	//D("total objects: " << list.size() << std::endl)
-	//D(std::endl)
-	for (Object* object : list) {//to do AFTER all objects are rendered
-		//D("rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n")
+	if (flags & PG_FRUSTUM_CULLING) {
+		//D("frustum objects: " << counterFrustum << std::endl);
+		//D("forward objects: " << counterForward << "\t(not in frustum)" << std::endl);
+		//D("total objects: " << objects.size() << std::endl);
+		//D(std::endl);
+	}
+	for (Object* object : objects) {//to do AFTER all objects are rendered
+		//D("rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n");
 		object->local._matrixChanged = false;
 		object->_worldMatrixChanged = false;
 	}
 }
 
-void	Obj3dPG::renderObjects(Object** objectArray, Cam& cam, unsigned int flags) {
+void	Obj3dPG::renderAllObjectsMultiDraw(std::vector<Object*>& objects, Cam& cam, unsigned int flags) {
 	//D("render all Obj3d" << std::endl)
-	if (!objectArray || !objectArray[0])
-		return;
-	//assuming all Obj3d have the same program
-	glUseProgram(this->_program);//used once for all obj3d
-	Obj3d* object = nullptr;
-	Math::Matrix4	viewProMatrix(cam.getProjectionMatrix());
-	Math::Matrix4	viewMatrix = cam.getViewMatrix();
-	viewProMatrix.mult(viewMatrix);
-
-	bool			draw = true;
-	unsigned int	counterForward = 0;
-	unsigned int	counterFrustum = 0;
-	Math::Vector3	center;
-	Math::Vector3	dim;
-	Math::Vector3	scale;
-	Math::Vector3	oldcolor;
-	Math::Vector3	color;
-	Math::Matrix4	worldmatrix;
-
-	unsigned int	i = 0;
-	while (objectArray[i]) {
-		object = dynamic_cast<Obj3d*>(objectArray[i]);
-		if (!object) {
-			D("dynamic_cast<Obj3d*> failed on Object : " << objectArray[i] << std::endl)
-			Misc::breakExit(22);
-			return;
-		}
-		else {
-			object->update();
-			draw = true;
-			oldcolor = object->getColor();
-			color = oldcolor;
-			if (flags & PG_FRUSTUM_CULLING) {
-				if (object->getParent()) {
-					worldmatrix = object->getWorldMatrix();
-					worldmatrix.setOrder(COLUMN_MAJOR);
-					float* m = worldmatrix.getData();
-					center = Math::Vector3(m[12], m[13], m[14]);//world pos and not real center
-				}
-				else {
-					center = object->local.getPos();//== world pos
-				}
-				scale = object->local.getScale();//what if parent?
-				dim = object->getBlueprint()->getDimensions();//what if parent?
-				dim.x *= scale.x;
-				dim.y *= scale.y;
-				dim.z *= scale.z;
-				center.add(dim.x / 2.0f, dim.y / 2.0f, dim.z / 2.0f);//what about the rotation
-				/*
-					get the center of the object BP, apply the rotation, add up to the world pos
-					for the voxel engine, it doesnt matter since the voxels dont have parent or rotation
-				*/
-				if (cam.isInFrustum(center, viewProMatrix)) {
-					//color = Math::Vector3(40, 200, 200);//cyan
-					counterFrustum++;
-				}
-				else if (cam.local.forwardDistance(center) > 0) {
-					color = Math::Vector3(200, 200, 40);//yellow
-					counterForward++;
-					draw = false;
-				}
-				else {
-					draw = false;
-				}
-				if (object->getPolygonMode() == GL_LINE) {
-					color = oldcolor;
-				}
-			}
-
-			if (flags & PG_FORCE_DRAW || draw) {
-				object->setColor(color.x, color.y, color.z);
-				object->render(viewProMatrix);//use the object renderer, might be different depending on the object
-				//this->render(*object, viewProMatrix);//use this renderer for all objects
-				object->setColor(oldcolor.x, oldcolor.y, oldcolor.z);
-			}
-		}
-		i++;
-	}
-
-	//D("fustrum objects: " << counterFrustum << std::endl)
-	//D("forward objects: " << counterForward << "\t(not in fustrum)" << std::endl)
-	//D("total objects: " << list.size() << std::endl)
-	//D(std::endl)
-	i = 0;
-	while (objectArray[i]) {//to do AFTER all objects are rendered
-		//D("rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n")
-		objectArray[i]->local._matrixChanged = false;
-		objectArray[i]->_worldMatrixChanged = false;
-		i++;
-	}
-}
-
-void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigned int flags) {
-	//D("render all Obj3d" << std::endl)
-	if (list.empty())
+	if (objects.empty())
 		return;
 	//assuming all Obj3d have the same program
 	glUseProgram(this->_program);//used once for all obj3d
@@ -346,21 +359,21 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 	Math::Matrix4	viewMatrix = cam.getViewMatrix();
 	viewProMatrix.mult(viewMatrix);
 
-	Obj3d* front_obj = dynamic_cast<Obj3d*>(list.front());
+	Obj3d* front_obj = dynamic_cast<Obj3d*>(objects.front());
 	Obj3dBP* front_bp = front_obj->getBlueprint();
 	viewProMatrix.mult(front_obj->getWorldMatrix());
 	viewProMatrix.setOrder(COLUMN_MAJOR);
 
 	if (front_bp->getDataMode() == BP_LINEAR) {
 		//D("PG_MULTIDRAW BP_LINEAR\n")
-		size_t drawcount = list.size();
+		size_t drawcount = objects.size();
 		GLsizei* vertices_amount_array = new GLsizei[drawcount];// GLsizei = int
 		GLint* start_offsets = new GLint[drawcount];
 		unsigned int x = 0;
-		for (Object* o : list) {
+		for (Object* o : objects) {
 			Obj3d* object = dynamic_cast<Obj3d*>(o);
 			if (!object) {
-				D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
+				D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl);
 				Misc::breakExit(22);
 				return;
 			}
@@ -388,11 +401,11 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 		//glBindVertexArray(bp->getVao());
 		glUniform1f(this->_tex_coef, 0.0f);
 		glPolygonMode(GL_FRONT_AND_BACK, front_obj->getPolygonMode());
-		D("3")
+		D("3");
 
 		glMultiDrawArrays(GL_TRIANGLES, start_offsets, vertices_amount_array, drawcount);
 		//glMultiDrawArrays(GL_TRIANGLES, vertices_amount_array, GL_UNSIGNED_INT, (void**)indices_2d_array, drawcount);
-		D("4")
+		D("4");
 
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -400,14 +413,14 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 	}
 	else if (front_bp->getDataMode() == BP_INDICES) {
 		//D("PG_MULTIDRAW BP_INDICES\n")
-		size_t drawcount = list.size();
+		size_t drawcount = objects.size();
 		GLsizei* vertices_amount_array = new GLsizei[drawcount];// GLsizei = int
 		unsigned int** indices_2d_array = new unsigned int* [drawcount];
 		unsigned int x = 0;
-		for (Object* o : list) {
+		for (Object* o : objects) {
 			Obj3d* object = dynamic_cast<Obj3d*>(o);
 			if (!object) {
-				D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl)
+				D("dynamic_cast<Obj3d*> failed on Object : " << o << std::endl);
 				Misc::breakExit(22);
 				return;
 			}
@@ -420,11 +433,11 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 			//D((int)vertices_amount_array[x] << " ")
 			x++;
 		}
-		D(">")
+		D(">");
 		//glMultiDrawElementsIndirect(GL_TRIANGLES, );
 
 		if (!front_obj) {
-			D("dynamic_cast<Obj3d*> failed on Object : " << front_obj << std::endl)
+			D("dynamic_cast<Obj3d*> failed on Object : " << front_obj << std::endl);
 			Misc::breakExit(22);
 			return;
 		}
@@ -447,10 +460,10 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 		//glBindVertexArray(front_obj->getBlueprint()->getVao());
 		glUniform1f(this->_tex_coef, 0.0f);
 		glPolygonMode(GL_FRONT_AND_BACK, front_obj->getPolygonMode());
-		D("3")
+		D("3");
 
 		glMultiDrawElements(GL_TRIANGLES, vertices_amount_array, GL_UNSIGNED_INT, (void**)indices_2d_array, drawcount);
-		D("4")
+		D("4");
 
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -459,23 +472,19 @@ void	Obj3dPG::renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigne
 		delete indices_2d_array;
 	}
 	else {
-		D("Error: Unknow data mode.\n")
+		D("Error: Unknow data mode.\n");
 		Misc::breakExit(56);
 	}
 	
-	//D("fustrum objects: " << counterFrustum << std::endl)
-	//D("forward objects: " << counterForward << "\t(not in fustrum)" << std::endl)
+	//D("frustum objects: " << counterFrustum << std::endl)
+	//D("forward objects: " << counterForward << "\t(not in frustum)" << std::endl)
 	//D("total objects: " << list.size() << std::endl)
 	//D(std::endl)
-	for (Object* object : list) {//to do AFTER all objects are rendered
+	for (Object* object : objects) {//to do AFTER all objects are rendered
 		//D("rendered object: " << object->getId() << ", bp vao: " << ((Obj3d*)object)->getBlueprint().getVao() << "\n")
 		object->local._matrixChanged = false;
 		object->_worldMatrixChanged = false;
 	}
-}
-void	Obj3dPG::renderObjectsMultiDraw(Object** objectArray, Cam& cam, unsigned int flags) {
-	D("Error : empty function :\n" << __PRETTY_FUNCTION__)
-	Misc::breakExit(5664);
 }
 
 void	Obj3dPG::getLocations() {
@@ -494,7 +503,7 @@ void	Obj3dPG::getLocations() {
 		false	glGetAttribLocation
 	*/
 
-	D("_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl)
+	//D("_ " << __PRETTY_FUNCTION__ << " : " << this->_program << std::endl);
 	this->_mat4_mvp = this->getSlot("MVP", true);
 	this->_dismod = this->getSlot("dismod", true);
 	this->_plain_color = this->getSlot("plain_color", true);

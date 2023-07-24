@@ -37,10 +37,9 @@ public:
 	TextPG(std::string vs_file, std::string fs_file, bool init_locations = true);
 	int	init_freetype(std::string font, float width = 800, float height = 600);
 	~TextPG();
-	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const;
-	void			render(std::string text, float x, float y, float scale, Math::Vector3 color) const;
-	virtual void	renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
-	virtual void	renderObjects(Object** objectArray, Cam& cam, unsigned int flags = 0) {}
+	virtual void	renderObject(Object& object, Math::Matrix4 VPmatrix) const;
+	void			renderText(std::string text, float x, float y, float scale, Math::Vector3 color) const;
+
 
 protected:
 	//slots
@@ -49,6 +48,7 @@ protected:
 
 	virtual void	getLocations();
 private:
+	virtual void	renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags = 0);//not implemented yet
 	std::map<GLchar, Character>	characters;
 
 	GLuint	_vao;

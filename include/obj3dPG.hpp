@@ -22,14 +22,14 @@ class Obj3dPG : public Program
 public:
 	Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations = true);
 	~Obj3dPG();
-	void	linkBuffers(const Obj3dBP& blueprint) const;
-	void	linkBuffersToVao(const Obj3dBP& blueprint, GLuint vao) const;
-	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const; //HAS to be cpy constructor! (1 PV*M per obj3d)
-	void			renderUniqueId(Obj3d & obj, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
-	virtual void	renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
-	virtual void	renderObjects(Object** objectArray, Cam& cam, unsigned int flags = 0);
-	virtual void	renderObjectsMultiDraw(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
-	virtual void	renderObjectsMultiDraw(Object** objectArray, Cam& cam, unsigned int flags = 0);
+	void			linkBuffers(const Obj3dBP& blueprint) const;
+	void			linkBuffersToVao(const Obj3dBP& blueprint, GLuint vao) const;
+
+	virtual void	renderObject(Object& object, Math::Matrix4 VPmatrix) const; //HAS to be cpy constructor! (1 PV*M per obj3d)
+	void			renderObjectUniqueId(Obj3d& obj, Math::Matrix4 VPmatrix) const;//HAS to be cpy constructor! (1 PV*M per obj3d)
+	virtual void	renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags = 0);
+	void			renderAllObjects_stats(std::vector<Object*>& objects, Cam& cam, unsigned int flags);
+	void			renderAllObjectsMultiDraw(std::vector<Object*>& objects, Cam& cam, unsigned int flags = 0);
 
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles

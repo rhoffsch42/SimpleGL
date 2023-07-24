@@ -4,6 +4,7 @@
 #include "skybox.hpp"
 class Skybox;
 
+#include <vector>
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -19,9 +20,8 @@ public:
 	SkyboxPG(std::string vs_file, std::string fs_file);
 	~SkyboxPG();
 
-	virtual void	renderObjects(Object** objectArray, Cam& cam, unsigned int flags = 0) {}
-	virtual void	renderObjects(std::list<Object*>& list, Cam& cam, unsigned int flags = 0);
-	virtual void	render(Object& object, Math::Matrix4 VPmatrix) const;
+	virtual void	renderAllObjects(std::vector<Object*>& objects, Cam& cam, unsigned int flags = 0);
+	virtual void	renderObject(Object& object, Math::Matrix4 VPmatrix) const;
 	/*
 		https://cpp.developpez.com/faq/cpp/?page=Les-fonctions-membres-virtuelles
 		render could overwrite :

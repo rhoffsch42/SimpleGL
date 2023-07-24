@@ -36,18 +36,18 @@ Fps::Fps() {
 
 Fps::Fps(unsigned int fps_val) {
 	assert(fps_val > 0); // TODO replace by macro
-	this->fps = fps_val;
-	this->tick = 1.0 / this->fps;
-	this->last_time = glfwGetTime();
-	this->current_time = this->last_time;
-	this->ellapsed_time = 0.0;
+	this->_fps = fps_val;
+	this->_tick = 1.0 / this->_fps;
+	this->_lastTime = glfwGetTime();
+	this->_currentTime = this->_lastTime;
+	this->_ellapsedTime = 0.0;
 
 	this->_counter = 0;
 	for (size_t i = 0; i < FPS_FRAME_AVERAGE; i++)
 		this->_lastFps[i] = 0.0;
 }
 
-Fps::Fps(Fps const &instance) {
+Fps::Fps(Fps const& instance) {
 	(void)instance;
 }
 
@@ -58,22 +58,24 @@ Fps::~Fps() {
 // }
 
 void	Fps::setFps(unsigned int fps_val) {
-	assert(fps_val > 0); // TODO replace by macro
-	this->fps = fps_val;
-	this->tick = 1.0 / double(this->fps);
+	assert(fps_val > 0); // todo replace by macro
+	this->_fps = fps_val;
+	this->_tick = 1.0 / double(this->_fps);
+	this->_maxTick = this->_tick;
 }
 
-double	Fps::getTick(void) const {	return this->tick; }
-int		Fps::getMaxFps() const { return this->fps; }
+double	Fps::getTick(void) const { return this->_tick; }
+int		Fps::getMaxFps() const { return this->_fps; }
 
 
 bool	Fps::wait_for_next_frame() {
-	this->current_time = glfwGetTime();
-	this->ellapsed_time = this->current_time - this->last_time;
-	if (this->ellapsed_time >= this->tick) {
-		this->last_time = this->current_time;
+	this->_currentTime = glfwGetTime();
+	this->_ellapsedTime = this->_currentTime - this->_lastTime;
+	if (this->_ellapsedTime >= this->_maxTick) {
+		this->_lastTime = this->_currentTime;
 		return (true);
-	} else {
+	}
+	else {
 		return (false);
 	}
 }
@@ -82,7 +84,7 @@ int	Fps::getFps() {
 	double	cent;
 	double	fps;//if last frame time was constant
 
-	fps = 1.0 / this->ellapsed_time;
+	fps = 1.0 / this->_ellapsedTime;
 	cent = fps - double(int(fps));
 	if (cent >= 0.5)
 		fps += 1.0;
@@ -97,8 +99,9 @@ int	Fps::getFps() {
 		fps += this->_lastFps[i];
 	fps /= FPS_FRAME_AVERAGE;
 
+	this->_tick = 1.0 / fps;
 	return fps;
-	//D((float)this->current_time << "\t" << int(fps) << "fps" << endl)
+	//D((float)this->_currentTime << "\t" << int(fps) << "fps" << endl)
 }
 
 void	Fps::printGlobalFps(void) {
@@ -114,6 +117,6 @@ void	Fps::printGlobalFps(void) {
 	cent = fps - double(int(fps));
 	if (cent >= 0.5)
 		fps += 1.0;
-	D((float)current_time << "\t" << int(fps) << "fps" << std::endl)
+	D((float)_currentTime << "\t" << int(fps) << "fps" << std::endl);
 	last_time += ellapsed_time;
 }

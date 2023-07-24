@@ -8,7 +8,7 @@
  #define SGL_MATH_DEBUG
 //#endif
 #ifdef SGL_MATH_DEBUG 
- #define D(x) std::cout << "[Math] " << x ;
+ #define D(x) std::cout << "[Math] " << x
  #define D_(x) x
  #define D_SPACER "-- math.cpp -------------------------------------------------\n"
  #define D_SPACER_END "----------------------------------------------------------------\n"
@@ -569,11 +569,12 @@ void			Math::Matrix4::updatePosValue(Math::Vector3 pos) {//inline ?
 		this->tab[3][2] = pos.z;
 	}
 	else {
-		D("Matrix4::_order impossible case: must be either ROW_MAJOR or COLUMN_MAJOR\n")
+		D("Matrix4::_order impossible case: must be either ROW_MAJOR or COLUMN_MAJOR\n");
 		std::exit(EXIT_FAILURE);
 	}
 
 }
+
 //matrix operation
 void			Math::Matrix4::mult(float coef) {
 	for (int i = 0; i < 16; i++)

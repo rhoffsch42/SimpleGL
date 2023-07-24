@@ -175,7 +175,7 @@ GLuint						Obj3dBP::getVboVertex(void) const { return this->_vboVertex; }
 GLuint						Obj3dBP::getEboIndices(void) const { return this->_eboIndices; }
 //GLuint						Obj3dBP::getVboColor(void) const { return this->_vboColor; }
 //GLuint						Obj3dBP::getVboTexture(void) const { return this->_vboTexture; }
-int							Obj3dBP::getPolygonAmount(void) const { return this->_polygonAmount; }
+unsigned int				Obj3dBP::getPolygonAmount(void) const { return this->_polygonAmount; }
 Math::Vector3				Obj3dBP::getDimensions(void) const { return this->_dimensions; }
 bool						Obj3dBP::isCentered(void) const { return this->_centered; }
 bool						Obj3dBP::isRescaled(void) const { return this->_rescaled; }

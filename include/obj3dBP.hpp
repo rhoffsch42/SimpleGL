@@ -138,7 +138,7 @@ public:
 	//GLuint						getVboColor(void) const;
 	//GLuint						getVboTexture(void) const;
 
-	int							getPolygonAmount(void) const;//lod
+	unsigned int				getPolygonAmount(void) const;//lod
 	Math::Vector3				getDimensions(void) const;//generaly used for frustum culling
 	bool						isCentered(void) const;
 	bool						isRescaled(void) const;
