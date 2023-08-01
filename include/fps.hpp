@@ -25,6 +25,7 @@ class Fps
 
 		void	setFps(unsigned int fps_val);
 		double	getTick(void) const;
+		double	getMaxTick(void) const;
 		bool	wait_for_next_frame();
 		int		getFps();
 		int		getMaxFps() const;

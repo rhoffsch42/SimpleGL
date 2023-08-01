@@ -38,6 +38,7 @@ Fps::Fps(unsigned int fps_val) {
 	assert(fps_val > 0); // TODO replace by macro
 	this->_fps = fps_val;
 	this->_tick = 1.0 / this->_fps;
+	this->_maxTick = this->_tick;
 	this->_lastTime = glfwGetTime();
 	this->_currentTime = this->_lastTime;
 	this->_ellapsedTime = 0.0;
@@ -65,6 +66,7 @@ void	Fps::setFps(unsigned int fps_val) {
 }
 
 double	Fps::getTick(void) const { return this->_tick; }
+double	Fps::getMaxTick(void) const { return this->_maxTick; }
 int		Fps::getMaxFps() const { return this->_fps; }
 
 

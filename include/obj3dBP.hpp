@@ -17,25 +17,6 @@
 
 #define BP_DONT_NORMALIZE		0b00000001
 
-/*
-	v  |   grid_size   |
-
-
-	textures: 1 big texture containing 256 sprites (16x16 grid)
-
-	https://www.youtube.com/watch?v=bGN445_2NSw
-	chunk 32x32x32 :
-		3 x 11bits per pos
-		6 possible normals: 3bits
-
-	buildVertexArrayFromOctree in GPU:
-		1 voxel id containing:
-			textureID,
-				2 texCoo per 1 vertex computed on GPU
-		neighbors_flag: determining if each faces are drawn
-		voxel pos & size: allowing to compute each vertex for drawn faces
-*/
-
 struct SimpleVector2 {
 	SimpleVector2();
 	SimpleVector2(float x, float y);
@@ -66,20 +47,6 @@ struct TinyVertex {
 
 };
 
-//#define MERGE_LOD
-#ifdef MERGE_LOD
-class BufferSegment
-{
-public:
-	const unsigned int	startVertices;
-	const unsigned int	endVertices;
-	const unsigned int	sizeVertices;
-	const unsigned int	startIndices;
-	const unsigned int	endIndices;
-	const unsigned int	sizeIndices;
-	const unsigned int	polygonCount;
-};
-#endif
 class Obj3dBP;
 class LodBP
 {

@@ -118,7 +118,9 @@ void	Obj3dPG::renderObject(Object& object, Math::Matrix4 PVmatrix) const {
 
 	//can be done once for all obj3d
 	glUseProgram(this->_program);
+	#ifdef PG_FORCE_LINKBUFFERS
 	this->linkBuffers(*bp);//needed for LOD BPs. This should be done only once, it's currently done in the Obj3d creation. It's in fact unrelated... Should be in the BP
+	#endif
 
 	glUniformMatrix4fv(this->_mat4_mvp, 1, GL_FALSE, PVmatrix.getData());
 	glUniform1i(this->_dismod, 0);// 1 = display plain_color, 0 = vertex_color (.mtl)
@@ -130,7 +132,7 @@ void	Obj3dPG::renderObject(Object& object, Math::Matrix4 PVmatrix) const {
 		glActiveTexture(GL_TEXTURE0);//required for some drivers
 		glBindTexture(GL_TEXTURE_2D, obj->getTexture()->getId());
 	} else { glUniform1f(this->_tex_coef, 0.0f); }
-	glPolygonMode(GL_FRONT, obj->getPolygonMode()); //GL_FRONT GL_FRONT_AND_BACK GL_BACK
+	glPolygonMode(GL_FRONT_AND_BACK, obj->getPolygonMode()); //GL_FRONT & GL_BACK are deprecated for this method
 
 	/**/
 	if (bp->getDataMode() == BP_LINEAR)
