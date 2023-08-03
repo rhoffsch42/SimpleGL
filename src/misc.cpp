@@ -8,7 +8,7 @@ using namespace std::chrono_literals;
  #define SGL_MISC_DEBUG
 #endif
 #ifdef SGL_MISC_DEBUG 
- #define D(x) std::cout << "[Misc] " << x ;
+ #define D(x) std::cout << "[Misc] " << x
  #define D_(x) x
  #define D_SPACER "-- misc.cpp -------------------------------------------------\n"
  #define D_SPACER_END "----------------------------------------------------------------\n"
@@ -84,10 +84,10 @@ std::string			Misc::crossPlatPath(std::string path) {
 
 void				Misc::breakExit(int err) {
 	//D("BREAKPOINT BEFORE EXIT : " << err << std::endl)
-	D("\nExiting in 10sec")
-	for (size_t i = 0; i < 10; i++) {
+	size_t countdown = 10;
+	for (size_t i = 0; i < countdown; i++) {
 		std::this_thread::sleep_for(1s);
-		D(".")
+		std::cout << "Exiting in " << (countdown - i - 1) << " sec\n";
 	}
  	std::exit(err);
 }

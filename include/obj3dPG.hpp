@@ -9,7 +9,7 @@ class Obj3d;
 //X faces * 2 polygons * 3 indices * size of indices in opengl
 #define EBO_OFFSET(X)	((X) * 2 * 3 * sizeof(GLuint))
 
-//#define PG_FORCE_LINKBUFFERS
+#define PG_FORCE_LINKBUFFERS
 
 #ifdef __clang__
 #pragma clang diagnostic push
