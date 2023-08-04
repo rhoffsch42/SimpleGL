@@ -20,12 +20,16 @@
 
 // [Checklist] Blueprint:: Make sure that the LOD system is initialized with the LOD 0 : lodManager(LodManager(this))
 
-Blueprint::Blueprint(std::string filename) : _name(filename), lodManager(LodManager(this)) {
+Blueprint::Blueprint(std::string filename)
+	: _name(filename), lodManager(LodManager(this))
+{
 	D("Blueprint cons by filename" << std::endl);
 	D("building object: " << this->_name << std::endl);
 }
 
-Blueprint::Blueprint(const Blueprint& src) : lodManager(LodManager(this)) {
+Blueprint::Blueprint(const Blueprint& src)
+	: lodManager(LodManager(this))
+{
 	D("Blueprint cons by copy" << std::endl);
 	D("building object: " << src.getName() << std::endl);
 	*this = src;

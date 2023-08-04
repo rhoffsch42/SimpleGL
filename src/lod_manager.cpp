@@ -35,20 +35,31 @@ std::string	Lod::toString() const {
 	return ss.str();
 }
 
-LodManager::LodManager() {}
-LodManager::LodManager(Blueprint* obj) {
+//LodManager::LodManager() {}//deleted
+LodManager::LodManager(Blueprint* obj, bool deep_destruction) : deepDestruction(deep_destruction) {
 	this->_lods.push_back(Lod(obj));
 }
 LodManager::LodManager(const LodManager& src) {
 	*this = src;
 }
 
+// [Checklist] Make sure that if you copy a LodManager with deepDestruction to true, to not let them delete the same BPs at their death.
 LodManager&			LodManager::operator=(const LodManager& rhs) {
 	this->_currentLod = rhs._currentLod;
 	this->_lods = rhs._lods;
+	this->deepDestruction = rhs.deepDestruction;
 	return *this;
 }
-LodManager::~LodManager() {}
+LodManager::~LodManager() {
+	//D("~LodManager() " << this << "\n");
+	if (this->deepDestruction) {
+		// the first one is not deleted (it is the owning BP)
+		for (size_t i = 1; i < this->_lods.size(); i++) {
+			//D("deleting LOD_" << i << "\t" << this->_lods[i].blueprint << "\n");
+			delete this->_lods[i].blueprint;
+		}
+	}
+}
 
 uint8_t				LodManager::setCurrentLod(uint8_t lod) {
 	this->_currentLod = std::min(lod, (uint8_t)(this->_lods.size() - 1));
@@ -74,17 +85,18 @@ bool				LodManager::addLod(Blueprint* obj, float minDistance) {
 	return true;
 }
 
-std::vector<Lod>	LodManager::removeLod(size_t n) {
+// removed additionnal LODs and return them
+std::vector<Lod>	LodManager::removeLod(size_t amount) {
 	/*
 		cannot do this as the default ctor is deleted:
 		n = std::max((size_t)1, this->_lods.size() - n); // keep LOD 0 (full details = this)
 		this->_lods.resize(n);
 	*/
 	std::vector<Lod>	removed;
-	while (n && this->_lods.size() > 1) {
+	while (amount && this->_lods.size() > 1) {
 		removed.push_back(this->_lods.back());
 		this->_lods.pop_back();
-		n--;
+		amount--;
 	}
 	this->_lods.back().maxDistance = std::numeric_limits<float>::infinity();
 	this->setCurrentLod(this->_currentLod);// will update it correctly if currentLod is too high
@@ -122,5 +134,6 @@ std::string			LodManager::toString() const {
 		ss << "LOD_" << i << ":\t" << lod.toString() << "\n";
 		i++;
 	}
+	ss << "deep destruction: " << (this->deepDestruction ? "true" : "false") << "\n";
 	return ss.str();
 }

@@ -4,24 +4,6 @@
 #include <vector>
 #include <limits>
 
-/*
-	for (size_t i = 0; i < 5; i++) {
-		cubebp.lodManager.addLod(&cubebp, (i + 1) * 100);
-	}
-	INFO("Current LOD : " << (int)cubebp.lodManager.getCurrentLod() << "\n");
-	INFO("Current LOD : " << (int)cubebp.lodManager.setCurrentLod(2) << "\n");
-	INFO("Current LOD : " << (int)cubebp.lodManager.setCurrentLod(35) << "\n");
-	INFO(cubebp.lodManager.toString());
-	std::vector<Lod>	removedLod;
-	removedLod = cubebp.lodManager.removeLod(2);
-	for (auto lod : removedLod) { INFO("removed lod : " << lod.toString() << "\n"); }
-	INFO(cubebp.lodManager.toString());
-	removedLod = cubebp.lodManager.removeLod(55);
-	for (auto lod : removedLod) { INFO("removed lod : " << lod.toString() << "\n"); }
-	INFO(cubebp.lodManager.toString());
-	std::exit(0);
-*/
-
 class Blueprint;//do not include blueprint.hpp
 
 class Lod
@@ -41,11 +23,14 @@ public:
 private:
 };
 
+#define	LOD_MANAGER_DEEP_DTOR_ON	true
+#define	LOD_MANAGER_DEEP_DTOR_OFF	false
+
 class LodManager
 {
 public:
-	LodManager();
-	LodManager(Blueprint* bp);
+	LodManager() = delete;
+	LodManager(Blueprint* bp, bool deep_destruction = false);
 	LodManager(const LodManager& src);
 	LodManager& operator=(const LodManager& rhs);
 	~LodManager();
@@ -53,7 +38,7 @@ public:
 	uint8_t				setCurrentLod(uint8_t lod);
 	uint8_t				updateCurrentLod(float distance);
 	bool				addLod(Blueprint* bp, float minDistance);
-	std::vector<Lod>	removeLod(size_t n);
+	std::vector<Lod>	removeLod(size_t amount);
 	void				changeLodBlueprintAtDistance(float distance, Blueprint* bp);
 	void				changeLodBlueprint(uint8_t lod, Blueprint* bp);
 
@@ -64,6 +49,7 @@ public:
 	uint8_t				getLodCount() const;
 	std::string			toString() const;
 
+	bool				deepDestruction = false;
 private:
 	uint8_t				_getLodIndex(float distance) const;
 
