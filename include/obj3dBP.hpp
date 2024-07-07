@@ -24,10 +24,20 @@ struct SimpleVector2 {
 	float	y = 0.0f;
 };
 
-struct SimpleVertex {
-	Math::Vector3	position;
-	SimpleVector2	texCoord;
-	Math::Vector3	color;
+/*
+	this should be reduced to X bytes
+	https://www.youtube.com/watch?v=bGN445_2NSw
+	https://www.youtube.com/watch?v=40JzyaOYJeY
+	chunk 32x32x32 :
+		3 x 6bits per pos
+		1 x 3bits per normal (6 different normals)
+		1 x 8 bits per texture coord (up to 256 different textures)
+		= 21 bits
+*/
+struct SimpleVertex { // 32 bytes
+	Math::Vector3	position; // 12bytes
+	SimpleVector2	texCoord; // 8bytes
+	Math::Vector3	color; // 12bytes
 	//Math::Vector3	Normal;
 	bool			operator<(const SimpleVertex& rhs) const {//to be used as functor
 		return std::tie(position.x, position.y, position.z) < std::tie(rhs.position.x, rhs.position.y, rhs.position.z);
