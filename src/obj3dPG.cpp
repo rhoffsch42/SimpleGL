@@ -31,6 +31,14 @@ static int ret = custom_warning();
 Obj3dPG::Obj3dPG(std::string vs_file, std::string fs_file, bool init_locations)
 	: Program(vs_file, fs_file)
 {
+	this->_dismod = 0;
+	this->_mat4_mvp = 0;
+	this->_plain_color = 0;
+	this->_tex_coef = 0;
+	this->_vertex_position_data = 0;
+	this->_vertex_color_data = 0;
+	this->_vertex_UV_data = 0;
+
 	//D(__PRETTY_FUNCTION__ << std::endl);
 	if (init_locations)
 		this->getLocations();
@@ -412,6 +420,8 @@ void	Obj3dPG::renderAllObjectsMultiDraw(std::vector<Object*>& objects, Cam& cam,
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
+		delete[] vertices_amount_array;
+		delete[] start_offsets;
 	}
 	else if (front_bp->getDataMode() == BP_INDICES) {
 		//D("PG_MULTIDRAW BP_INDICES\n")
@@ -431,7 +441,7 @@ void	Obj3dPG::renderAllObjectsMultiDraw(std::vector<Object*>& objects, Cam& cam,
 			const Obj3dBP* bp = object->getBlueprint();
 
 			vertices_amount_array[x] = bp->getPolygonAmount() * 3;
-			indices_2d_array[x] = bp->getIndices().data();
+			indices_2d_array[x] = bp->getIndices().data(); // FIX: dangling pointer
 			//D((int)vertices_amount_array[x] << " ")
 			x++;
 		}
@@ -470,8 +480,8 @@ void	Obj3dPG::renderAllObjectsMultiDraw(std::vector<Object*>& objects, Cam& cam,
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		delete vertices_amount_array;
-		delete indices_2d_array;
+		delete[] vertices_amount_array;
+		delete[] indices_2d_array;
 	}
 	else {
 		D("Error: Unknow data mode.\n");

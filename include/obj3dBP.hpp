@@ -107,8 +107,8 @@ public:
 
 	//accessors
 	uint8_t						getDataMode(void) const;
-	std::vector<GLuint>			getIndices(void) const;//lod
-	std::vector<SimpleVertex>	getVertices(void) const;//lod
+	std::vector<GLuint>			getIndices(void) const; // lod
+	std::vector<SimpleVertex>	getVertices(void) const; // lod
 	GLuint						getVboVertex(void) const;
 	GLuint						getEboIndices(void) const;
 	//obsolete vbo
