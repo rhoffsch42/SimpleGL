@@ -107,16 +107,16 @@ public:
 
 	//accessors
 	uint8_t						getDataMode(void) const;
-	std::vector<GLuint>			getIndices(void) const; // lod
-	std::vector<SimpleVertex>	getVertices(void) const; // lod
+	std::vector<GLuint>&		getIndices(void); // lod
+	std::vector<SimpleVertex>&	getVertices(void); // lod
 	GLuint						getVboVertex(void) const;
 	GLuint						getEboIndices(void) const;
 	//obsolete vbo
 	//GLuint						getVboColor(void) const;
 	//GLuint						getVboTexture(void) const;
 
-	unsigned int				getPolygonAmount(void) const;//lod
-	Math::Vector3				getDimensions(void) const;//generaly used for frustum culling
+	unsigned int				getPolygonAmount(void) const; // lod
+	Math::Vector3				getDimensions(void) const; // generaly used for frustum culling
 	bool						isCentered(void) const;
 	bool						isRescaled(void) const;
 	bool						isNormalized(void) const;

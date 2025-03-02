@@ -438,10 +438,10 @@ void	Obj3dPG::renderAllObjectsMultiDraw(std::vector<Object*>& objects, Cam& cam,
 			}
 			object->update();
 
-			const Obj3dBP* bp = object->getBlueprint();
+			Obj3dBP* bp = object->getBlueprint();
 
 			vertices_amount_array[x] = bp->getPolygonAmount() * 3;
-			indices_2d_array[x] = bp->getIndices().data(); // FIX: dangling pointer
+			indices_2d_array[x] = bp->getIndices().data();
 			//D((int)vertices_amount_array[x] << " ")
 			x++;
 		}

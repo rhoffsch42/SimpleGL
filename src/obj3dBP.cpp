@@ -169,8 +169,8 @@ Obj3dBP::~Obj3dBP() {
 //mutators
 //accessors
 uint8_t						Obj3dBP::getDataMode(void) const { return this->_dataMode; }
-std::vector<GLuint>			Obj3dBP::getIndices(void) const { return this->_indices; }
-std::vector<SimpleVertex>	Obj3dBP::getVertices(void) const { return this->_vertices; }
+std::vector<GLuint>&		Obj3dBP::getIndices(void) { return this->_indices; }
+std::vector<SimpleVertex>&	Obj3dBP::getVertices(void) { return this->_vertices; }
 GLuint						Obj3dBP::getVboVertex(void) const { return this->_vboVertex; }
 GLuint						Obj3dBP::getEboIndices(void) const { return this->_eboIndices; }
 //GLuint						Obj3dBP::getVboColor(void) const { return this->_vboColor; }
